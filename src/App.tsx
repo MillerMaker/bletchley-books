@@ -1,16 +1,20 @@
-
-import Message from './Message'
-import { Auth } from "./components/auth"
 import './App.css'
-
-import ListGroup from "./components/ListGroup"
+import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
+import CreateNewUser from './pages/CreateNewUser'
+import HomePage from './pages/HomePage'
 
 
 function App() {
 
   return (
-    <div> <Message/> <Auth></Auth> <ListGroup/> </div>
-    
+    <BrowserRouter>
+      <main>
+        <Routes>
+          <Route path='' element={<HomePage/>}/>
+          <Route path='newuser' element={<CreateNewUser/>}/>
+        </Routes>
+      </main>
+    </BrowserRouter>
   )
 
 }
