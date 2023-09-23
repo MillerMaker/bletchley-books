@@ -1,8 +1,8 @@
 
 import { initializeApp } from "firebase/app";
 
-import {getAuth, onAuthStateChanged} from "firebase/auth";
-import {} from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -18,6 +18,73 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db   = getFirestore(app);
+
+
+
+
+
+//User Retrieval and Saving
+export class User {
+    active: boolean;
+    address: string;
+    dob: Timestamp;
+    doc: Timestamp;
+    first: string;
+    last: string;
+    role: string;
+    suspendEndDate: Timestamp;
+    suspendStartDate: Timestamp;
+    username: string;
+
+    constructor(parsedJson: any) {
+        this.active = parsedJson.active;
+        this.address = parsedJson.address;
+        this.dob = parsedJson.dob;
+        this.doc = parsedJson.doc;
+        this.first = parsedJson.first;
+        this.last = parsedJson.last;
+        this.role = parsedJson.role;
+        this.suspendEndDate = parsedJson.suspendEndDate;
+        this.suspendStartDate = parsedJson.suspendStartDate;
+        this.username = parsedJson.username;
+    }
+}
+export class UserDoc {
+    id: string;
+    userData: User;
+    constructor(id: string, userData: User) {
+        this.id = id;
+        this.userData = userData;
+    }
+}
+//Returns the data at "docPath/id" converted from json to an object
+export async function getUserDocAt(docPath: string, id: string): Promise<UserDoc> {
+    const user = await Promise.resolve(getDoc(doc(db, docPath + "/" + id)));
+    const userDoc = { id: id, userData: new User(JSON.parse(JSON.stringify(user.data()))) };
+    return userDoc;
+}
+export async function getAllUserDocs(): Promise<UserDoc[]> {
+
+    console.log("Retrieving Users...");
+
+    const queryResults = await getDocs(query(collection(db, "users")));
+
+    let userDocs: Array<UserDoc> = new Array();
+    queryResults.forEach((userDoc) => {
+        userDocs.push( {id: userDoc.id, userData: new User(JSON.parse(JSON.stringify(userDoc.data())))} );
+    })
+    console.log("Users Retrieved!");
+    return userDocs;
+}
+//Appends Object to doc at "docPath/id"
+//Overwriting object completely if overwrite is true
+export async function saveUserDoc(userDoc: UserDoc) {
+    const retrievedDoc = await doc(db, "users/" + userDoc.id);
+    const genericUserDataObj: object = { ...userDoc.userData };
+    setDoc(retrievedDoc, genericUserDataObj, { merge: true });
+}
+
 
 
 onAuthStateChanged(auth,user => {
@@ -27,4 +94,5 @@ onAuthStateChanged(auth,user => {
     console.log('No user');
   }
 });
+
 
