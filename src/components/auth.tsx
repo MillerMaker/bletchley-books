@@ -1,14 +1,27 @@
 import { auth } from '../firebase';
-import { EmailAuthCredential, createUserWithEmailAndPassword} from 'firebase/auth';
+import { EmailAuthCredential, signInWithEmailAndPassword} from 'firebase/auth';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {getDocs, collection} from "firebase/firestore"
+import Alert from './Alert';
 
 export const Auth = function() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const signIn = async () => {
-        await createUserWithEmailAndPassword(auth, email, password);
+
+
+    //firebase functions must use await. 
+    const logIn = async () => {
+        await signInWithEmailAndPassword(auth, email, password).then(() => {
+            navigate("Dashboard");
+        })
+        .catch((error) => {
+
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        });
+
     }
 
     return (
@@ -20,7 +33,7 @@ export const Auth = function() {
                 <input placeholder = "Password" type = "password" onChange={(e) => setPassword(e.target.value)}/>
             </div>
             <div>
-                <button onClick = {signIn}> Sign In </button>
+                <button onClick = {logIn}> LogIn </button>
                 <button onClick={() => {navigate("newuser");}}>New User</button>
             </div>
         </div> 
