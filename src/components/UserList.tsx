@@ -3,7 +3,6 @@ import { Timestamp } from 'firebase/firestore';
 import { getUserDocAt, getAllUserDocs, User, saveUserDoc, UserDoc } from '../firebase';
 import CustomPopup from './CustomPopup';
 
-
 /*
 
 From Users Table
@@ -41,7 +40,6 @@ function UserList() {
     //Email Popup State
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
     const [selectedRole, setSelectedRole] = useState("accountant");
-
 
 
 
@@ -157,11 +155,11 @@ function UserList() {
                     {userDocs.map((userDoc: UserDoc, index: number) =>
                         <tr
                             className={"" + (selectedIndex == index && "table-primary")}
-                            key={userDoc.userData.username}
+                            key={userDoc.username}
                             onClick={(event) => HandleClickUser(event, userDoc, index)}
                         >
-                            <td>{userDoc.id}</td>
-                            <td>{userDoc.userData.username}</td>
+                            <td>{userDoc.userData.email}</td>
+                            <td>{userDoc.username}</td>
                             <td>{userDoc.userData.first}</td>
                             <td>{userDoc.userData.last}</td>
                             <td>{userDoc.userData.address}</td>
@@ -265,8 +263,8 @@ function UserList() {
                     </form>
                     <br></br>
                     <div className="btn-group">
-                        <button
-                            onClick={() => { console.log("Request to send: \"" + emailTextValue + "\"\n\nTo: " + userDocs[selectedIndex].id); setEmailPopupShown(false); setEmailTextValue(""); }}
+                    <button
+                        onClick={() => { console.log("Request to send: \"" + emailTextValue + "\"\n\nTo: " + userDocs[selectedIndex].username); setEmailPopupShown(false); setEmailTextValue(""); }}
                             className="btn btn-primary">
                             Send
                         </button>

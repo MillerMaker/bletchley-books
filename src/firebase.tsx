@@ -35,7 +35,7 @@ export class User {
     role: string;
     suspendEndDate: Timestamp;
     suspendStartDate: Timestamp;
-    username: string;
+    email: string;
 
     constructor(parsedJson: any) {
         this.active = parsedJson.active;
@@ -47,21 +47,21 @@ export class User {
         this.role = parsedJson.role;
         this.suspendEndDate = parsedJson.suspendEndDate;
         this.suspendStartDate = parsedJson.suspendStartDate;
-        this.username = parsedJson.username;
+        this.email = parsedJson.email;
     }
 }
 export class UserDoc {
-    id: string;
+    username: string;
     userData: User;
-    constructor(id: string, userData: User) {
-        this.id = id;
+    constructor(username: string, userData: User) {
+        this.username = username;
         this.userData = userData;
     }
 }
 //Returns the data at "docPath/id" converted from json to an object
-export async function getUserDocAt(docPath: string, id: string): Promise<UserDoc> {
-    const user = await Promise.resolve(getDoc(doc(db, docPath + "/" + id)));
-    const userDoc = { id: id, userData: new User(JSON.parse(JSON.stringify(user.data()))) };
+export async function getUserDocAt(docPath: string, username: string): Promise<UserDoc> {
+    const user = await Promise.resolve(getDoc(doc(db, docPath + "/" + username)));
+    const userDoc = { username: username, userData: new User(JSON.parse(JSON.stringify(user.data()))) };
     return userDoc;
 }
 export async function getAllUserDocs(): Promise<UserDoc[]> {
@@ -72,7 +72,7 @@ export async function getAllUserDocs(): Promise<UserDoc[]> {
 
     let userDocs: Array<UserDoc> = new Array();
     queryResults.forEach((userDoc) => {
-        userDocs.push( {id: userDoc.id, userData: new User(JSON.parse(JSON.stringify(userDoc.data())))} );
+        userDocs.push({ username: userDoc.id, userData: new User(JSON.parse(JSON.stringify(userDoc.data())))} );
     })
     console.log("Users Retrieved!");
     return userDocs;
@@ -80,7 +80,7 @@ export async function getAllUserDocs(): Promise<UserDoc[]> {
 //Appends Object to doc at "docPath/id"
 //Overwriting object completely if overwrite is true
 export async function saveUserDoc(userDoc: UserDoc) {
-    const retrievedDoc = await doc(db, "users/" + userDoc.id);
+    const retrievedDoc = await doc(db, "users/" + userDoc.username);
     const genericUserDataObj: object = { ...userDoc.userData };
     setDoc(retrievedDoc, genericUserDataObj, { merge: true });
 }
