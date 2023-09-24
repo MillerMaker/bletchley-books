@@ -4,10 +4,12 @@ import { Auth } from '../components/auth'
 
 function HomePage() {
   return (
+    <>
     <div>
         <Message />
         <Auth />
-    </div>
+    </div> 
+    </>
   )
 }
 

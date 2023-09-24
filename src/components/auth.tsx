@@ -1,33 +1,40 @@
-import { auth } from '../firebase';
-import { EmailAuthCredential, signInWithEmailAndPassword} from 'firebase/auth';
+import { auth, db, getUserDocAt, saveUserDoc} from '../firebase';
+import {doc, getDoc} from "firebase/firestore";
+import { signInWithEmailAndPassword} from 'firebase/auth';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {getDocs, collection} from "firebase/firestore"
+import bcrypt from "bcryptjs-react";
 import Alert from './Alert';
 
+
 export const Auth = function() {
-    const [email, setEmail] = useState("");
+    const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
 
+
     //firebase functions must use await. 
     const logIn = async () => {
-        await signInWithEmailAndPassword(auth, email, password).then(() => {
-            navigate("Dashboard");
-        })
-        .catch((error) => {
 
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
-
+        //find document using username 
+        const userData = (await getUserDocAt( "users", username)).userData;
+        //query document for email address, and sign in with email. 
+        bcrypt.compare(password, userData.password, function(err, res) {
+            if(res) {
+            userData.role == 'administrator'? navigate("adminpage") : navigate("dashboard")
+             } else {
+            console.log("Incorrect password")
+            } 
+        }
+        );
+        //console.log(userData)
     }
 
     return (
         <div>
             <div>
-                <input placeholder = "Email..." onChange={(e) => setEmail(e.target.value)}/>
+                <input placeholder = "Email..." onChange={(e) => setUserName(e.target.value)}/>
             </div>
             <div>
                 <input placeholder = "Password" type = "password" onChange={(e) => setPassword(e.target.value)}/>
@@ -35,7 +42,15 @@ export const Auth = function() {
             <div>
                 <button onClick = {logIn}> LogIn </button>
                 <button onClick={() => {navigate("newuser");}}>New User</button>
+                <div>
+                <i><u>Forgot password</u></i>
+                </div>
             </div>
+
+         <div> 
+          <h6> Sample admin account: </h6> 
+          <i>username: 'john@gmail.com' and password: '123456'</i>
+        </div>
         </div> 
     )
 }
