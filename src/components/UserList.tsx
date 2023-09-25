@@ -296,12 +296,11 @@ function UserList() {
                             className="btn btn-secondary">
                             Back
                         </button>
-                    </a>
                     </div>
                 <br></br>
                 {!isEmailValid && //Show warning if date is invalid
                         <p className="red-text">Please input subject and body</p>
-                }</>} />
+                } </>} />
             }
             {changeRolePopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <CustomPopup child={<>
