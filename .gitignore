@@ -15,6 +15,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+.vs/*
 .idea
 .DS_Store
 *.suo
@@ -24,4 +25,6 @@ dist-ssr
 *.sw?
 *.vsidx
 *.vsidx
+*.sqlite
+.vs/bletchley-books/v17/.wsuo
 *.sqlite

@@ -1,28 +1,52 @@
-import { auth } from '../firebase';
-import { EmailAuthCredential, createUserWithEmailAndPassword} from 'firebase/auth';
+import {  db, getUserDocAt, saveUserDoc} from '../firebase';
+import { signInWithEmailAndPassword, getAuth} from 'firebase/auth';
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {matchPath, useNavigate} from "react-router-dom";
+import './auth.css';
+
+
 
 export const Auth = function() {
-    const [email, setEmail] = useState("");
+    const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const signIn = async () => {
-        await createUserWithEmailAndPassword(auth, email, password);
+
+
+    const auth = getAuth();
+    //firebase functions must use await. 
+    const logIn = async () => {
+        //find document using username 
+        const userData = (await getUserDocAt( "users", username)).userData;
+        //query document for email address, and sign in with email. 
+        signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
+        const user = userCredential.user;
+        userData.role == 'administrator'? navigate("/private-outlet/admin") : navigate("/private-outlet/dashboard")
+            })
+            .catch((error) => {
+                console.log(error.message);
+            })
     }
 
     return (
-        <div>
+        <div className = "wrapper">
             <div>
-                <input placeholder = "Email..." onChange={(e) => setEmail(e.target.value)}/>
+                <input placeholder = "Email..." onChange={(e) => setUserName(e.target.value)}/>
             </div>
             <div>
                 <input placeholder = "Password" type = "password" onChange={(e) => setPassword(e.target.value)}/>
             </div>
             <div>
-                <button onClick = {signIn}> Sign In </button>
+                <button onClick = {logIn}> LogIn </button>
                 <button onClick={() => {navigate("newuser");}}>New User</button>
+                <div>
+                <i><u>Forgot password</u></i>
+                </div>
             </div>
+
+         <div> 
+          <h6> Sample admin account: </h6> 
+          <i>username: 'john@gmail.com' and password: '123456'</i>
+        </div>
         </div> 
     )
 }

@@ -36,6 +36,7 @@ export class User {
     suspendEndDate: Timestamp;
     suspendStartDate: Timestamp;
     email: string;
+    password: string;
 
     constructor(parsedJson: any) {
         this.active = parsedJson.active;
@@ -48,6 +49,7 @@ export class User {
         this.suspendEndDate = parsedJson.suspendEndDate;
         this.suspendStartDate = parsedJson.suspendStartDate;
         this.email = parsedJson.email;
+        this.password = parsedJson.password;
     }
 }
 export class UserDoc {
@@ -84,8 +86,6 @@ export async function saveUserDoc(userDoc: UserDoc) {
     const genericUserDataObj: object = { ...userDoc.userData };
     setDoc(retrievedDoc, genericUserDataObj, { merge: true });
 }
-
-
 
 onAuthStateChanged(auth,user => {
   if(user != null) {

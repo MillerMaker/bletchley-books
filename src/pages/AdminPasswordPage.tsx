@@ -4,7 +4,7 @@ import Header from '../components/Header'
 function AdminPasswordPage() {
     return (
         <>
-            <Header title="Password Report" homePath="/admin" />
+            <Header title="Password Report" homePath="/private-outlet/admin" />
         </>
     )
 

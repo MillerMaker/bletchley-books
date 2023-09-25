@@ -4,7 +4,7 @@ import Header from '../components/Header'
 function AdminUsersPage() {
     return (
         <>
-            <Header title="All Users" homePath="/admin" />
+            <Header title="All Users" homePath="/private-outlet/admin" />
             <UserList />
         </>
     )

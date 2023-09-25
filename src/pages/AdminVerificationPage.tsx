@@ -9,7 +9,7 @@ function AdminVerificationPage() {
 
     return (
         <>
-            <Header title="User Verification" homePath="/admin" />
+            <Header title="User Verification" homePath="/private-outlet/admin" />
             {userDocs.length == 0 && <h1>No Users Found</h1>}
             <table className="table table-bordered table-hover">
                 <thead>
