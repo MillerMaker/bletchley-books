@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { User, UserDoc, saveUserDoc, db } from "../firebase";
+import { Timestamp, addDoc, collection } from "firebase/firestore";
+import CustomPopup from "../components/CustomPopup";
 import Header from "../components/Header";
 
 function CreateNewUser() {
@@ -7,8 +10,11 @@ function CreateNewUser() {
         lastName: '',
         emailAddress: '',
         dateOfBirth: '',
+        address: '',
       });
-    
+
+      const[formSubmitted, setFormSubmitted] = useState(false);
+
       const handleChange = (e: { target: { name: any; value: any; }; }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -17,7 +23,31 @@ function CreateNewUser() {
       const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         console.log('Form Data:', formData);
+        handleFireBaseDocument();
+        setFormSubmitted(true);
       };
+
+      const toTimeStamp = (date: string) => {
+        const dt = new Date(date).getTime();
+        return dt / 1000;
+      }
+
+      const handleFireBaseDocument = () => {
+        const usersCollection = collection(db, "users");
+        var userData = {
+          "active": false,
+          "address": formData.address,
+          "dob": new Timestamp(toTimeStamp(formData.dateOfBirth),0),
+          "doc": Timestamp.now(),
+          "first": formData.firstName,
+          "last": formData.lastName,
+          "role": "user",
+          "suspendEndDate": new Timestamp(0,0),
+          "suspendStartDate": new Timestamp(0,0),
+          "email": formData.emailAddress,
+        }
+        addDoc(usersCollection, userData);
+      }
 
     return (
         <div>
@@ -57,6 +87,17 @@ function CreateNewUser() {
               />
             </div>
             <div>
+              <label htmlFor="address">Address:</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
               <label htmlFor="dateOfBirth">Date of Birth:</label>
               <input
                 type="date"
@@ -71,6 +112,14 @@ function CreateNewUser() {
               <button type="submit">Create Account</button>
             </div>
           </form>
+          {formSubmitted && <CustomPopup child={
+          <>
+            <h2>Account Confirmation Needed</h2><br/>
+            <h4>Please follow link to send account confirmation request to system administrator:</h4><br />
+            <button onClick={() => {setFormSubmitted(false)}}>Close</button>
+          </>
+          }/>
+          }
         </div>
       );
 }
