@@ -1,7 +1,11 @@
 import UserList from '../components/UserList'
 import Header from '../components/Header'
 
-function HomePage() {
+
+
+function AdminPage() {
+
+
     return (
         <>
             <Header title="Admin Home" homePath="/admin" />
@@ -21,4 +25,4 @@ function HomePage() {
 
 }
 
-export default HomePage
+export default AdminPage
