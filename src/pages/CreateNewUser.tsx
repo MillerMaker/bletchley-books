@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Header from "../components/Header";
 
 function CreateNewUser() {
     const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ function CreateNewUser() {
 
     return (
         <div>
-          <h1>Create a New Account</h1>
+          <Header homePath={""} title={"Create a New Account"} />
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="firstName">First Name:</label>

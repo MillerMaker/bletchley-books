@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 import { getUserDocAt, getAllUserDocs, User, saveUserDoc, UserDoc } from '../firebase';
 import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
-
+import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
 /*
 
 From Users Table
@@ -61,10 +61,6 @@ function UserList() {
 
 
 
-    /* Handles Clicking on users in user list */
-    function HandleClickUser(event: React.MouseEvent, userDoc: UserDoc, index: number) {
-        setSelectedIndex(index);
-    }
 
 
     /* Handle Toggleing User.Active */
@@ -177,8 +173,8 @@ function UserList() {
                         <tr
                             className={"" + (selectedIndex == index && "table-primary")}
                             key={userDoc.username}
-                            onClick={(event) => HandleClickUser(event, userDoc, index)}
-                        >
+                            onClick={() => setSelectedIndex(index)}>
+                            <td>{userDoc.userData.email}</td>
                             <td>{userDoc.username}</td>
                             <td>{userDoc.userData.email}</td>
                             <td>{userDoc.userData.first}</td>
@@ -211,12 +207,12 @@ function UserList() {
                     >
                         Edit
                     </button>
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => {setChangeRolePopupShown(true); console.log("CHANGE ROLE PRESSED");}}
-                    >
-                        Change Role
-                    </button>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => {setChangeRolePopupShown(true); console.log("CHANGE ROLE PRESSED");}}
+                        >
+                            Change Role
+                        </button>
                     <button
                         className="btn btn-primary"
                         onClick={() => setEmailPopupShown(true)}
@@ -300,6 +296,7 @@ function UserList() {
                             className="btn btn-secondary">
                             Back
                         </button>
+                    </a>
                     </div>
                 <br></br>
                 {!isEmailValid && //Show warning if date is invalid
@@ -322,7 +319,8 @@ function UserList() {
                     <div className="btn-group">
                     <button
                         onClick={HandleChangeRole}
-                            className="btn btn-primary">
+                        className="btn btn-primary"
+                    >
                             Change
                         </button>
                         <button
