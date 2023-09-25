@@ -2,6 +2,7 @@ import { ChangeEvent, Fragment, useEffect, useState } from 'react'
 import { Timestamp } from 'firebase/firestore';
 import { getUserDocAt, getAllUserDocs, User, saveUserDoc, UserDoc } from '../firebase';
 import CustomPopup from './CustomPopup';
+import SendEmail from '../Email';
 
 /*
 
@@ -35,9 +36,11 @@ function UserList() {
 
     //Email Popup State
     const [emailPopupShown, setEmailPopupShown] = useState(false);
+    const [emailSubjectValue, setEmailSubjectValue] = useState("");
     const [emailTextValue, setEmailTextValue] = useState("");
+    const [isEmailValid, setIsEmailValid] = useState(true);
 
-    //Email Popup State
+    //Change Rolel Popup State
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
     const [selectedRole, setSelectedRole] = useState("accountant");
 
@@ -124,6 +127,24 @@ function UserList() {
         setChangeRolePopupShown(false);
     }
 
+    function HandleEmailRequest() {
+        //If Either email field is empty return
+        if (emailSubjectValue == "" || emailTextValue == "") {
+            setIsEmailValid(false);
+            return;
+        }
+
+        console.log("Request to send email to: " + userDocs[selectedIndex].userData.email);
+        CloseEmailPopup();
+        SendEmail({ to_email: userDocs[selectedIndex].userData.email, subject: emailSubjectValue, body: emailTextValue })
+    }
+    function CloseEmailPopup() {
+        setIsEmailValid(true);
+        setEmailPopupShown(false);
+        setEmailSubjectValue("");
+        setEmailTextValue("");
+    }
+
 
     /* RETURN HTML */
     return (
@@ -139,8 +160,8 @@ function UserList() {
             <table className="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Email</th>
                         <th>Username</th>
+                        <th>Email</th>
                         <th>First</th>
                         <th>Last</th>
                         <th>Address</th>
@@ -158,8 +179,8 @@ function UserList() {
                             key={userDoc.username}
                             onClick={(event) => HandleClickUser(event, userDoc, index)}
                         >
-                            <td>{userDoc.userData.email}</td>
                             <td>{userDoc.username}</td>
+                            <td>{userDoc.userData.email}</td>
                             <td>{userDoc.userData.first}</td>
                             <td>{userDoc.userData.last}</td>
                             <td>{userDoc.userData.address}</td>
@@ -249,14 +270,20 @@ function UserList() {
             {emailPopupShown && //Show Email Popup if Email Popup Shown
                 <CustomPopup child={<>
                     <h3>Enter Email</h3>
-                    <br></br>
                     <form>
-                        <div className="form-group">
+                    <div className="form-group">
+                        <input
+                            placeholder="Subject..."
+                            className="form-control"
+                            value={emailSubjectValue}
+                            onChange={(e) => setEmailSubjectValue(e.target.value)}
+                        >
+                        </input>
                             <textarea
                                 value={emailTextValue}
                                 onChange={(event) => setEmailTextValue(event.target.value)}
                                 className="form-control no-resize" rows={3}
-                                placeholder="Enter your email here..."
+                                placeholder="Email body..."
                             >
                             </textarea>
                         </div>
@@ -264,20 +291,20 @@ function UserList() {
                     <br></br>
                     <div className="btn-group">
                     <button
-                        onClick={() => { console.log("Request to send: \"" + emailTextValue + "\"\n\nTo: " + userDocs[selectedIndex].username); setEmailPopupShown(false); setEmailTextValue(""); }}
+                        onClick={HandleEmailRequest}
                             className="btn btn-primary">
                             Send
                         </button>
-                        <button
-                            onClick={() => setEmailPopupShown(false)}
+                    <button
+                        onClick={CloseEmailPopup}
                             className="btn btn-secondary">
                             Back
                         </button>
                     </div>
-                    <br></br>
-                    {!isDateValid && //Show warning if date is invalid
-                        <p className="red-text">Please input a valid set of dates</p>
-                    }</>} />
+                <br></br>
+                {!isEmailValid && //Show warning if date is invalid
+                        <p className="red-text">Please input subject and body</p>
+                }</>} />
             }
             {changeRolePopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <CustomPopup child={<>

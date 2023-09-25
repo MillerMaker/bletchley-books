@@ -1,6 +1,10 @@
 import UserList from '../components/UserList'
 
-function HomePage() {
+
+
+function AdminPage() {
+
+
     return (
         <div>
             <UserList />
@@ -8,4 +12,4 @@ function HomePage() {
     )
 }
 
-export default HomePage
+export default AdminPage
