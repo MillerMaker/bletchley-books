@@ -2,7 +2,6 @@ import {  db, getUserDocAt, saveUserDoc} from '../firebase';
 import { signInWithEmailAndPassword, getAuth} from 'firebase/auth';
 import {useState} from "react";
 import {matchPath, useNavigate} from "react-router-dom";
-import bcrypt from "bcryptjs-react";
 import './auth.css';
 
 
@@ -19,19 +18,13 @@ export const Auth = function() {
         //find document using username 
         const userData = (await getUserDocAt( "users", username)).userData;
         //query document for email address, and sign in with email. 
-        bcrypt.compare(password, userData.password, function(err, res) {
-            if(res) {
-                signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
-                const user = userCredential.user;
-                userData.role == 'administrator'? navigate("/private-outlet/adminpage", { replace: true}) : navigate("/private-outlet/dashboard", { replace: true})
+        signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
+        const user = userCredential.user;
+        userData.role == 'administrator'? navigate("/private-outlet/adminpage", { replace: true}) : navigate("/private-outlet/dashboard", { replace: true})
             })
             .catch((error) => {
                 console.log(error.message);
             })
-             } 
-            }
-        );
-
     }
 
     return (
