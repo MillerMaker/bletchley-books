@@ -1,7 +1,10 @@
+.container-Fluid {
+    background-color: #4783b8;
+}
+
 .header {
     margin-bottom: 30px;
-    width: 100%;
-    height: 15vh;
+    height: 5vh;
     background-color: #4783b8;
 
     display: flex;
@@ -14,9 +17,27 @@
 
 }
 
+.col-sm {
+    display: flex;
+    align-items: center;
+}
+
+
 .logo {
-    width: 100px;
-    height: 90px;
+    padding-left: 30px;
+    width: 80px;
+    height:45px;
+}
+
+.userImage {
+    max-width: 20%;
+    max-height: 20%;
+
+}
+.username {
+    padding-left: 10px;
+    font-size:x-large;
+    color: white;
 }
 .logo:hover{
     cursor: pointer;

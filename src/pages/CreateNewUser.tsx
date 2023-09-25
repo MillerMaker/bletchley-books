@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
+import {useNavigate} from "react-router-dom"
 
 function CreateNewUser() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         emailAddress: '',
         dateOfBirth: '',
+        password: ''
       });
     
       const handleChange = (e: { target: { name: any; value: any; }; }) => {
@@ -68,9 +71,25 @@ function CreateNewUser() {
               />
             </div>
             <div>
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
               <button type="submit">Create Account</button>
             </div>
           </form>
+
+          <div>
+              <i>Already have an account? </i>
+              <button onClick={() => {navigate('../');}}>Log in</button>
+            </div>
         </div>
       );
 }
