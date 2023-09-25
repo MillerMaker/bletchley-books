@@ -2,10 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\public",
-    "\\src",
-    "\\src\\components",
-    "\\src\\pages"
+    "\\src"
   ],
-  "SelectedNode": "\\src\\pages\\AdminPage.tsx",
+  "SelectedNode": "\\src\\App.tsx",
   "PreviewInSolutionExplorer": false
 }
