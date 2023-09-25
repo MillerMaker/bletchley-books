@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@emailjs/browser": "^3.11.0",
+    "bcryptjs": "^2.4.3",
+    "bcryptjs-react": "^2.4.6",
     "bootstrap": "^5.2.3",
     "firebase": "^10.4.0",
+    "js": "^0.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0"
