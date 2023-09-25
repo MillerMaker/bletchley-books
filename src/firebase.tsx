@@ -61,7 +61,7 @@ export class UserDoc {
 //Returns the data at "docPath/id" converted from json to an object
 export async function getUserDocAt(docPath: string, username: string): Promise<UserDoc> {
     const user = await Promise.resolve(getDoc(doc(db, docPath + "/" + username)));
-    const userDoc = { username: username, userData: new User(JSON.parse(JSON.stringify(user.data()))) };
+    const userDoc = { username: username, userData: new User(user.data()) };
     return userDoc;
 }
 export async function getAllUserDocs(): Promise<UserDoc[]> {
@@ -72,7 +72,7 @@ export async function getAllUserDocs(): Promise<UserDoc[]> {
 
     let userDocs: Array<UserDoc> = new Array();
     queryResults.forEach((userDoc) => {
-        userDocs.push({ username: userDoc.id, userData: new User(JSON.parse(JSON.stringify(userDoc.data())))} );
+        userDocs.push({ username: userDoc.id, userData: new User(userDoc.data())} );
     })
     console.log("Users Retrieved!");
     return userDocs;
