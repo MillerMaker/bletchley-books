@@ -20,7 +20,7 @@ export const Auth = function() {
         //query document for email address, and sign in with email. 
         signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
         const user = userCredential.user;
-        userData.role == 'administrator'? navigate("/private-outlet/adminpage", { replace: true}) : navigate("/private-outlet/dashboard", { replace: true})
+        userData.role == 'administrator'? navigate("/private-outlet/admin") : navigate("/private-outlet/dashboard")
             })
             .catch((error) => {
                 console.log(error.message);

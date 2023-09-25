@@ -16,7 +16,6 @@ import { getAuth, onAuthStateChanged} from "firebase/auth"
 const auth = getAuth();
 
 function PrivateOutlet() {
-  console.log(auth.currentUser);
   return auth.currentUser ? <Outlet /> : <Navigate to='../'/>;
 }
 
@@ -29,7 +28,7 @@ const [token, setToken] = useState();
       <Routes>
         <Route path = '' element = {<HomePage/>} />
         <Route path='newuser' element={<CreateNewUser/>} />
-        <Route path = '/private-outlet' element = {<PrivateOutlet />}>
+        <Route path = 'private-outlet' element = {<PrivateOutlet />}>
             <Route path='admin' element={<AdminPage />} />
             <Route path='admin/passwords' element={<AdminPasswordPage />} />
             <Route path='admin/users' element={<AdminUsersPage />} />
