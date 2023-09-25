@@ -87,8 +87,6 @@ export async function saveUserDoc(userDoc: UserDoc) {
     setDoc(retrievedDoc, genericUserDataObj, { merge: true });
 }
 
-
-
 onAuthStateChanged(auth,user => {
   if(user != null) {
     console.log('logged in!');

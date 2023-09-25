@@ -1,10 +1,10 @@
-import { auth, db, getUserDocAt, saveUserDoc} from '../firebase';
-import {doc, getDoc} from "firebase/firestore";
-import { signInWithEmailAndPassword} from 'firebase/auth';
+import {  db, getUserDocAt, saveUserDoc} from '../firebase';
+import { signInWithEmailAndPassword, getAuth} from 'firebase/auth';
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {matchPath, useNavigate} from "react-router-dom";
 import bcrypt from "bcryptjs-react";
-import Alert from './Alert';
+import './auth.css';
+
 
 
 export const Auth = function() {
@@ -13,26 +13,29 @@ export const Auth = function() {
     const navigate = useNavigate();
 
 
-
+    const auth = getAuth();
     //firebase functions must use await. 
     const logIn = async () => {
-
         //find document using username 
         const userData = (await getUserDocAt( "users", username)).userData;
         //query document for email address, and sign in with email. 
         bcrypt.compare(password, userData.password, function(err, res) {
             if(res) {
-            userData.role == 'administrator'? navigate("adminpage") : navigate("dashboard")
-             } else {
-            console.log("Incorrect password")
-            } 
-        }
+                signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
+                const user = userCredential.user;
+                userData.role == 'administrator'? navigate("/private-outlet/adminpage", { replace: true}) : navigate("/private-outlet/dashboard", { replace: true})
+            })
+            .catch((error) => {
+                console.log(error.message);
+            })
+             } 
+            }
         );
-        //console.log(userData)
+
     }
 
     return (
-        <div>
+        <div className = "wrapper">
             <div>
                 <input placeholder = "Email..." onChange={(e) => setUserName(e.target.value)}/>
             </div>
