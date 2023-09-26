@@ -4,6 +4,8 @@ import { getUserDocAt, getAllUserDocs, User, saveUserDoc, UserDoc } from '../fir
 import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
 import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
+import CreateNewUser from '../pages/CreateNewUser';
+import NewUser from './NewUser';
 /*
 
 From Users Table
@@ -44,6 +46,8 @@ function UserList() {
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
     const [selectedRole, setSelectedRole] = useState("accountant");
 
+    //Add create user popup
+    const [addUserPopupShown, setUserPopupShown] = useState(false);
 
 
 
@@ -147,7 +151,7 @@ function UserList() {
         <>
             <h1>All Users</h1>
             <button
-                className="btn-block btn btn-success long"
+                className="btn-block btn btn-success long" onClick = {() => setUserPopupShown(true)}
             >
                 Create User
             </button>
@@ -328,6 +332,18 @@ function UserList() {
                             Back
                         </button>
                     </div></>}/>
+            }
+            {addUserPopupShown && //Show Suspend Popup if Suspend Popup Shown
+                <CustomPopup child={
+                    <>
+                   <NewUser atAdmin = {true}/>
+                   <button onClick={() => setUserPopupShown(false)}
+                    className="btn btn-primary"
+                    >
+                        Close
+                   </button>
+                   </>
+                } />
             }
         </>
     );
