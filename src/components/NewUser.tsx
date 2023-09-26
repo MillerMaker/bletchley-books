@@ -5,6 +5,9 @@ import { CollectionReference, Timestamp, addDoc, collection } from "firebase/fir
 import CustomPopup from "./CustomPopup";
 import {useNavigate} from "react-router-dom"
 import bcrypt from "bcryptjs-react";
+import PasswordChecklist from "react-password-checklist"
+import Alert from "./Alert";
+import "./NewUser.css";
 
 interface Props {
   atAdmin: boolean;
@@ -13,6 +16,7 @@ interface Props {
 
 function NewUser(props: Props) {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,18 +30,25 @@ function NewUser(props: Props) {
 
   const[formSubmitted, setFormSubmitted] = useState(false);
   const[currentPass, setCurrentPass] = useState("");
+  const[isValid, setIsValid] = useState(false);
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if(name == "password") {
+    setCurrentPass(value); }
   };
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    if(isValid) {
     console.log('Form Data:', formData);
     handleFireBaseDocument();
     addFirebaseUser(); 
     setFormSubmitted(true);
+    } else {
+      console.log("invalid password");
+    }
   };
 
   const toTimeStamp = (date: string) => {
@@ -113,17 +124,6 @@ return (
           />
         </div>
         <div>
-          <label htmlFor="address">Email Address:</label>
-          <input
-            type="text"
-            id="emaillAddress"
-            name="emailAddress"
-            value={formData.emailAddress}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
           <label htmlFor="address">Address:</label>
           <input
             type="text"
@@ -145,8 +145,20 @@ return (
             required
           />
         </div>
+        <br></br>
         <div>
-          <label htmlFor="Password">Password</label>
+          <label htmlFor="address">Email Address:</label>
+          <input
+            type="text"
+            id="emaillAddress"
+            name="emailAddress"
+            value={formData.emailAddress}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="Password">Password: </label>
           <input
             type="password"
             id="password"
@@ -155,18 +167,29 @@ return (
             onChange={handleChange}
             required
           />
+          <div className = "password-check">
+          {!isValid && <Alert text = "Please enter a valid password" color = 'danger'/>
+          }
+            <PasswordChecklist
+          rules={["minLength","specialChar","number","capital"]}
+          minLength={8}
+          value={currentPass}
+          onChange={setIsValid}
+        />
+          </div>
         </div>
+        <br></br>
         <div>
           <button type="submit">Create Account</button>
         </div>
       </form>
+
           {!props.atAdmin &&
             <>
               <i>Already have an account? </i>
               <button onClick={() => {navigate('../');}}>Log in</button>
             </>
-          }   
-
+          }
           {!props.atAdmin && formSubmitted && <CustomPopup child={
           <>
             <h2>Account Confirmation Needed</h2><br/>
