@@ -79,8 +79,6 @@ export const Auth = function() {
             </div>
 
          <div> 
-          <h6> Sample admin account: </h6> 
-          <i>username: 'john@gmail.com' and password: '123456'</i>
         </div>
 
             {forgotPasswordShown && //Show forgot password Popup
