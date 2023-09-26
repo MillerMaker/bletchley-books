@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { UserDoc, db, getDocAt} from "../firebase";
+import { db } from "../firebase";
+import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
 import { CollectionReference, Timestamp, addDoc, collection } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
-import Header from "./Header";
 import {useNavigate} from "react-router-dom"
 import bcrypt from "bcryptjs-react";
 
@@ -36,6 +36,7 @@ function NewUser(props: Props) {
     e.preventDefault();
     console.log('Form Data:', formData);
     handleFireBaseDocument();
+    addFirebaseUser(); 
     setFormSubmitted(true);
   };
 
@@ -62,6 +63,18 @@ function NewUser(props: Props) {
       "password": [currentPass]
     }
     addDoc(usersCollection, userData);
+  }
+
+  const addFirebaseUser = () => {
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, formData.emailAddress, formData.password)
+  .then((userCredential) => {
+    console.log("Created New User");
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
   }
 
 
@@ -154,7 +167,7 @@ return (
             </>
           }   
 
-          {formSubmitted && <CustomPopup child={
+          {!props.atAdmin && formSubmitted && <CustomPopup child={
           <>
             <h2>Account Confirmation Needed</h2><br/>
             <h4>Please follow link to send account confirmation request to system administrator:</h4><br />
