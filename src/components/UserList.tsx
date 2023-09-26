@@ -319,7 +319,7 @@ function UserList() {
             {addUserPopupShown && //Show Create User Popup if addUserPopupshown
                 <CustomPopup child={
                 <>
-                    <NewUser createType="adminCrete" defaultUserDoc={new UserDoc("", null)} />
+                    <NewUser createType="admin" defaultUserDoc={new UserDoc("", null)} />
                    <button onClick={() => setUserPopupShown(false)}
                     className="btn btn-primary"
                     >
