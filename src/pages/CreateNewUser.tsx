@@ -8,7 +8,7 @@ function CreateNewUser() {
 
     return (
       <>
-            <Header homePath="" title="Create User" />
+            <Header homePath="/" title="Create User" />
             <NewUser createType="create" defaultUserDoc={new UserDoc("",null)} />
       </>
     )

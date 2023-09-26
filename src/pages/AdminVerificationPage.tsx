@@ -4,6 +4,7 @@ import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/fire
 import RolePopup from '../components/RolePopup';
 import ConfirmPopup from '../components/ConfirmPopup';
 import { UserDoc, db, deleteDocAt, saveDocAt, toUserDocArray } from '../firebase';
+import SendEmail from '../Email';
 
 
 function AdminVerificationPage() {
@@ -36,6 +37,7 @@ function AdminVerificationPage() {
         newUserDoc.userData.role = newRole;
         newUserDoc.userData.verified = true;
 
+        SendEmail(newUserDoc.userData.email, "Account Verified", "Your account has been verified please login at: http://localhost:5173/");
         saveDocAt("users/" + newUserDoc.username, newUserDoc.userData);
         setShowRoleSelection(false);
         UpdateUserDocs();

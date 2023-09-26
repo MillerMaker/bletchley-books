@@ -2,7 +2,18 @@ import "./Header.css"
 import logoImage from "../assets/BletchleyBooksLogo.jpg"
 import userImage from "../assets/noun-user-6126605.png"
 import {getAuth} from "firebase/auth"
-import { useNavigate } from "react-router"
+import { NavigateFunction, useNavigate } from "react-router"
+import { auth } from "../firebase"
+
+
+
+
+function HandleLogoff() {
+    auth.signOut();
+    window.location.replace("/");
+}
+
+
 
 interface Props {
     homePath: string
@@ -10,7 +21,6 @@ interface Props {
 }
 
 function Header(props: Props) {
-
     const navigate = useNavigate();
 
     return (
@@ -29,7 +39,7 @@ function Header(props: Props) {
                 </div>
             </div>
             <div className = "col-sm" >
-                    <ShowUsername/>
+                <ShowUsername />
             </div> 
         </div>
     )
@@ -43,7 +53,9 @@ function ShowUsername() {
         <img src = {userImage}
         className = "userImage"
         />
-        <h4 className="username">{auth.currentUser.displayName}</h4>
+            <h4 className="username">{auth.currentUser.displayName}</h4>
+            <span>   </span>
+            <button className="btn btn-secondary" onClick={HandleLogoff}>Logoff</button>
         </>
     )
     } else {

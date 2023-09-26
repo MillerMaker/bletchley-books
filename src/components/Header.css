@@ -8,6 +8,7 @@
     background-color: #5cb9ff;
     display: flex;
     align-items: center;
+    box-shadow: 3px 3px 5px 6px #ccc;
 }
 
 .header-page-name {
@@ -24,7 +25,8 @@
 
 .logo {
     width: fit-content;
-    height:45px;
+    height: 45px;
+    cursor: pointer;
 }
 
 .userImage {
@@ -37,6 +39,6 @@
     font-size:x-large;
     color: white;
 }
-.logo:hover{
-    cursor: pointer;
+.btn {
+    margin-left: 10px;
 }
