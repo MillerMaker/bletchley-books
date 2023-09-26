@@ -1,5 +1,5 @@
 import {  UserData, UserDoc, db, getDocAt, saveDocAt} from '../firebase';
-import { signInWithEmailAndPassword, getAuth} from 'firebase/auth';
+import { signInWithEmailAndPassword, getAuth, updateProfile} from 'firebase/auth';
 import {useState} from "react";
 import {matchPath, useNavigate} from "react-router-dom";
 import './auth.css';
@@ -21,6 +21,9 @@ export const Auth = function() {
         //query document for email address, and sign in with email. 
         signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
         const user = userCredential.user;
+        updateProfile(user, {
+            displayName: username
+        })
         userData.role == 'administrator'? navigate("/private-outlet/admin") : navigate("/private-outlet/dashboard")
             })
             .catch((error) => {
