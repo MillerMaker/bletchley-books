@@ -25,6 +25,9 @@ function NewUser(props: Props) {
     dateOfBirth: '',
     address: '',
     password: '',
+    secQuestion1: '',
+    secQuestion2: '',
+    secQuestion3: '',
   });
 
   const[formSubmitted, setFormSubmitted] = useState(false);
@@ -37,7 +40,17 @@ function NewUser(props: Props) {
     if (props.createType == "edit" && lastUserDoc != props.defaultUserDoc) {
         console.log(props.defaultUserDoc.userData.dob.toDate().toLocaleString());
         setLastUserDoc(props.defaultUserDoc);
-        setFormData({ firstName: props.defaultUserDoc.userData.first, lastName: props.defaultUserDoc.userData.last, emailAddress: props.defaultUserDoc.userData.email, dateOfBirth: props.defaultUserDoc.userData.dob.toDate().toLocaleString(), address:props.defaultUserDoc.userData.address, password: props.defaultUserDoc.userData.password })
+        setFormData({ 
+          firstName: props.defaultUserDoc.userData.first, 
+          lastName: props.defaultUserDoc.userData.last, 
+          emailAddress: props.defaultUserDoc.userData.email, 
+          dateOfBirth: props.defaultUserDoc.userData.dob.toDate().toLocaleString(), 
+          address:props.defaultUserDoc.userData.address, 
+          password: props.defaultUserDoc.userData.password,
+          secQuestion1: props.defaultUserDoc.userData.securityQuestions[0],
+          secQuestion2: props.defaultUserDoc.userData.securityQuestions[1],
+          secQuestion3: props.defaultUserDoc.userData.securityQuestions[2],
+        })
         console.log("Setting Edit Values");
     }
 
@@ -77,6 +90,7 @@ function NewUser(props: Props) {
           saveDocAt("users/" + props.defaultUserDoc.username, userData);
       }
       else { //Save New User
+        const secQuestions = [formData.secQuestion1, formData.secQuestion2, formData.secQuestion3];
           hashPass(formData.password);
           var userData = {
               "active": false,
@@ -92,6 +106,7 @@ function NewUser(props: Props) {
               "verified": false,
               "password": [currentPass],
               "passwordExpiration": new Timestamp(0, 0),
+              "securityQuestions": secQuestions,
           }
           saveDocAt("users/" + formData.firstName.substring(0, 1) + formData.lastName + (userData.dob.toDate().getMonth() <10 ? "0" : "")  + userData.dob.toDate().getMonth() + ("" + userData.dob.toDate().getFullYear()).substring(2), userData);
       }
@@ -202,6 +217,39 @@ return (
                 onChange={setIsValid}
               />
             <br></br>
+            <div>
+              <label htmlFor="secQuestion1">Name of your first pet: </label>
+              <input 
+                type="text"
+                id="secQuestion1"
+                name="secQuestion1"
+                value={formData.secQuestion1}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="secQuestion2">Name of your Elementary School: </label>
+              <input 
+                type="text"
+                id="secQuestion2"
+                name="secQuestion2"
+                value={formData.secQuestion2}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="secQuestion3">Mother's maiden name: </label>
+              <input 
+                type="text"
+                id="secQuestion3"
+                name="secQuestion3"
+                value={formData.secQuestion3}
+                onChange={handleChange}
+                required
+              />
+            </div>
             <div> 
               <button type="submit">{props.createType=="edit" ? "Confirm Edit": "Create Account"}</button>
             </div>
@@ -217,7 +265,7 @@ return (
         {formSubmitted && props.createType == "create" && <CustomPopup child={
            <>
               <h2>Account Confirmation Needed</h2><br/>
-              <h4>Please follow link to send account confirmation request to system administrator:</h4><br />
+              <h4>Please wait for administrator verification of your account before logging in.</h4><br />
               <button onClick={() => {setFormSubmitted(false)}}>Close</button>
           </>
             }/>
