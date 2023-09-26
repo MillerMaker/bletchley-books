@@ -1,9 +1,10 @@
 import { ChangeEvent, Fragment, useEffect, useState } from 'react'
-import { Timestamp } from 'firebase/firestore';
-import { getUserDocAt, getAllUserDocs, User, saveUserDoc, UserDoc } from '../firebase';
+import { Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db } from '../firebase';
 import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
 import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
+import RolePopup from './RolePopup';
 /*
 
 From Users Table
@@ -42,7 +43,6 @@ function UserList() {
 
     //Change Rolel Popup State
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
-    const [selectedRole, setSelectedRole] = useState("accountant");
 
 
 
@@ -51,14 +51,19 @@ function UserList() {
 
 
 
-
-
-    /* Request User Docs Once */
-    if (!requestedData) {
+    async function GetUserData() {
+        /* Request User Docs Once */
+        if (requestedData) return;
         setRequestedData(true);
-        getAllUserDocs().then(result => { setUserDocs(result) });
-    }
 
+
+        const queryResults = await getDocs(query(collection(db, "users"), where("verified", "==", true)));
+        setUserDocs(toUserDocArray(queryResults));
+    }
+    GetUserData();
+
+    
+        
 
 
 
@@ -68,7 +73,7 @@ function UserList() {
         console.log("Clicked on Toggle Activate!");
         let newUserDocs = [...userDocs];
         newUserDocs[selectedIndex].userData.active = !newUserDocs[selectedIndex].userData.active;
-        saveUserDoc(newUserDocs[selectedIndex]);
+        saveDocAt("users/" + newUserDocs[selectedIndex].username, newUserDocs[selectedIndex].userData);
         setUserDocs(newUserDocs);
     }
 
@@ -84,7 +89,7 @@ function UserList() {
             newUserDocs[selectedIndex].userData.suspendEndDate   = suspendEndDate;
 
 
-            saveUserDoc(newUserDocs[selectedIndex])
+            saveDocAt("users/" + newUserDocs[selectedIndex].username, newUserDocs[selectedIndex].userData)
             CloseSuspensionPopup();
         }
         
@@ -93,7 +98,7 @@ function UserList() {
         userDocs[selectedIndex].userData.suspendStartDate = new Timestamp(0,0);
         userDocs[selectedIndex].userData.suspendEndDate   = new Timestamp(0,0);
 
-        saveUserDoc(userDocs[selectedIndex])
+        saveDocAt("users/" + userDocs[selectedIndex].username, userDocs[selectedIndex].userData)
         CloseSuspensionPopup();
     }
     function CloseSuspensionPopup() {
@@ -116,10 +121,10 @@ function UserList() {
         return today;
     }
 
-    function HandleChangeRole() {
+    function HandleChangeRole(selectedRole: string) {
         userDocs[selectedIndex].userData.role = selectedRole;
         setUserDocs(userDocs);
-        saveUserDoc(userDocs[selectedIndex])
+        saveDocAt("users/" + userDocs[selectedIndex].username, userDocs[selectedIndex].userData)
         setChangeRolePopupShown(false);
     }
 
@@ -174,7 +179,6 @@ function UserList() {
                             className={"" + (selectedIndex == index && "table-primary")}
                             key={userDoc.username}
                             onClick={() => setSelectedIndex(index)}>
-                            <td>{userDoc.userData.email}</td>
                             <td>{userDoc.username}</td>
                             <td>{userDoc.userData.email}</td>
                             <td>{userDoc.userData.first}</td>
@@ -303,31 +307,8 @@ function UserList() {
                 } </>} />
             }
             {changeRolePopupShown && //Show Change Role Popup if Change Role Popup Shown
-                <CustomPopup child={<>
-                    <h3>Change User Role</h3>
-                    <br></br><br></br>
-                    <select
-                        className="form-select"
-                        value={selectedRole}
-                        onChange={(e) => setSelectedRole(e.target.value)}>
-                        <option value="accountant">Accontant</option>
-                        <option value="manager">Manager</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <br></br><br></br><br></br>
-                    <div className="btn-group">
-                    <button
-                        onClick={HandleChangeRole}
-                        className="btn btn-primary"
-                    >
-                            Change
-                        </button>
-                        <button
-                            onClick={() => setChangeRolePopupShown(false)}
-                            className="btn btn-secondary">
-                            Back
-                        </button>
-                    </div></>}/>
+                <RolePopup popupText="Change User Role" roleChosenCallback={HandleChangeRole} backPressedCallback={() => setChangeRolePopupShown(false)} />
+                
             }
         </>
     );

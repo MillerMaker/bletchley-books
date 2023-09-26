@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query } from "firebase/firestore";
+import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -24,8 +24,8 @@ export const db   = getFirestore(app);
 
 
 
-//User Retrieval and Saving
-export class User {
+//User Doc Classes and Methods
+export class UserData {
     active: boolean;
     address: string;
     dob: Timestamp;
@@ -37,54 +37,60 @@ export class User {
     suspendStartDate: Timestamp;
     email: string;
     password: string;
+    verified: boolean;
 
-    constructor(parsedJson: any) {
-        this.active = parsedJson.active;
-        this.address = parsedJson.address;
-        this.dob = parsedJson.dob;
-        this.doc = parsedJson.doc;
-        this.first = parsedJson.first;
-        this.last = parsedJson.last;
-        this.role = parsedJson.role;
-        this.suspendEndDate = parsedJson.suspendEndDate;
-        this.suspendStartDate = parsedJson.suspendStartDate;
-        this.email = parsedJson.email;
-        this.password = parsedJson.password;
+    constructor(userData: any) {
+        this.active = userData.active;
+        this.address = userData.address;
+        this.dob = userData.dob;
+        this.doc = userData.doc;
+        this.first = userData.first;
+        this.last = userData.last;
+        this.role = userData.role;
+        this.suspendEndDate = userData.suspendEndDate;
+        this.suspendStartDate = userData.suspendStartDate;
+        this.email = userData.email;
+        this.password = userData.password;
+        this.verified = userData.verified;
     }
 }
 export class UserDoc {
     username: string;
-    userData: User;
-    constructor(username: string, userData: User) {
+    userData: UserData;
+
+    constructor(username: string, userData: any) {
         this.username = username;
-        this.userData = userData;
+        this.userData = new UserData(userData);
     }
 }
-//Returns the data at "docPath/id" converted from json to an object
-export async function getUserDocAt(docPath: string, username: string): Promise<UserDoc> {
-    const user = await Promise.resolve(getDoc(doc(db, docPath + "/" + username)));
-    const userDoc = { username: username, userData: new User(user.data()) };
-    return userDoc;
-}
-export async function getAllUserDocs(): Promise<UserDoc[]> {
-
-    console.log("Retrieving Users...");
-
-    const queryResults = await getDocs(query(collection(db, "users")));
-
+//Converts a Query Snapshot to an array of userDocs
+export function toUserDocArray(queryResults: QuerySnapshot): UserDoc[] {
     let userDocs: Array<UserDoc> = new Array();
-    queryResults.forEach((userDoc) => {
-        userDocs.push({ username: userDoc.id, userData: new User(userDoc.data())} );
+    queryResults.forEach((docSnapshot) => {
+        userDocs.push(new UserDoc(docSnapshot.id, docSnapshot.data()));
     })
-    console.log("Users Retrieved!");
     return userDocs;
 }
-//Appends Object to doc at "docPath/id"
-//Overwriting object completely if overwrite is true
-export async function saveUserDoc(userDoc: UserDoc) {
-    const retrievedDoc = await doc(db, "users/" + userDoc.username);
-    const genericUserDataObj: object = { ...userDoc.userData };
-    setDoc(retrievedDoc, genericUserDataObj, { merge: true });
+
+
+
+
+
+//General Doc Retrieval/Set/Delete Methods
+//Returns the data at "path" as a doc snapshot use: docSnapshot.id and docSnapshot.data()
+export async function getDocAt(docPath: string): Promise<DocumentSnapshot> {
+    const docSnapshot = await Promise.resolve(getDoc(doc(db, docPath)));
+    return docSnapshot;
+}
+//Appends Object to doc at "path"
+export async function saveDocAt(path: string, dataObject: any) {
+    const retrievedDoc = await doc(db, path);
+    const genericDataObj: object = { ...dataObject }; //Data must be in generic map to save to firebase
+    setDoc(retrievedDoc, genericDataObj, { merge: true });
+}
+//Deletes doc at "path"
+export async function deleteDocAt(path: string) {
+    await deleteDoc(doc(db, path));
 }
 
 onAuthStateChanged(auth,user => {
