@@ -38,6 +38,7 @@ export class UserData {
     email: string;
     password: string;
     verified: boolean;
+    securityQuestions: string[]
 
     constructor(userData: any) {
         this.active = userData.active;
@@ -52,6 +53,8 @@ export class UserData {
         this.email = userData.email;
         this.password = userData.password;
         this.verified = userData.verified;
+        this.securityQuestions = userData.securityQuestions;
+        if (this.securityQuestions == undefined) { this.securityQuestions = ["a", "b", "c"]; console.log("SET DEFAULT SEC QUESTION VALUES"); }
     }
 }
 export class UserDoc {

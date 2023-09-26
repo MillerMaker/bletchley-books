@@ -3,10 +3,9 @@
     "",
     "\\public",
     "\\src",
-    "\\src\\assets",
     "\\src\\components",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\components\\UserList.tsx",
+  "SelectedNode": "\\src\\firebase.tsx",
   "PreviewInSolutionExplorer": false
 }

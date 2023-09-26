@@ -141,7 +141,7 @@ function UserList() {
 
         console.log("Request to send email to: " + userDocs[selectedIndex].userData.email);
         CloseEmailPopup();
-        SendEmail({ to_email: userDocs[selectedIndex].userData.email, subject: emailSubjectValue, body: emailTextValue })
+        SendEmail( userDocs[selectedIndex].userData.email,emailSubjectValue,emailTextValue)
     }
     function CloseEmailPopup() {
         setIsEmailValid(true);

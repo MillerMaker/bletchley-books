@@ -1,8 +1,9 @@
 import {  UserData, getDocAt} from '../firebase';
 import { signInWithEmailAndPassword, getAuth, updateProfile} from 'firebase/auth';
 import {useState} from "react";
-import { useNavigate} from "react-router-dom";
-import './auth.css';
+import {matchPath, useNavigate} from "react-router-dom";
+import '../App.css';
+import ForgotPassword from './ForgotPassword';
 
 
 
@@ -10,6 +11,9 @@ export const Auth = function() {
     const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+
+    //Forgot Password State
+    const [forgotPasswordShown, setForgotPasswordShown] = useState(false);
 
 
     const auth = getAuth();
@@ -43,7 +47,7 @@ export const Auth = function() {
                 <button onClick = {logIn}> LogIn </button>
                 <button onClick={() => {navigate("newuser");}}>New User</button>
                 <div>
-                <i><u>Forgot password</u></i>
+                    <i className="popup-link" onClick={() => setForgotPasswordShown(true)}><u>Forgot password</u></i>
                 </div>
             </div>
 
@@ -51,6 +55,13 @@ export const Auth = function() {
           <h6> Sample admin account: </h6> 
           <i>username: 'john@gmail.com' and password: '123456'</i>
         </div>
+
+            {forgotPasswordShown && //Show forgot password Popup
+                <ForgotPassword
+                    backCallback={() => setForgotPasswordShown(false)}
+                    resetCallback={() => setForgotPasswordShown(false)}
+                />
+            }
         </div> 
     )
 }
