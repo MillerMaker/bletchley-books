@@ -24,8 +24,7 @@
 
 
 .logo {
-    padding-left: 30px;
-    width: 80px;
+    width: fit-content;
     height:45px;
 }
 

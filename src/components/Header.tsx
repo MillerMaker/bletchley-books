@@ -1,5 +1,5 @@
 import "./Header.css"
-import logoImage from "../assets/whiteHouse.png"
+import logoImage from "../assets/BletchleyBooksLogo.jpg"
 import userImage from "../assets/noun-user-6126605.png"
 import {getAuth} from "firebase/auth"
 import { useNavigate } from "react-router"
