@@ -90,7 +90,8 @@ function NewUser(props: Props) {
               "suspendStartDate": new Timestamp(0, 0),
               "email": [formData.emailAddress],
               "verified": false,
-              "password": [currentPass]
+              "password": [currentPass],
+              "passwordExpiration": new Timestamp(0, 0),
           }
           saveDocAt("users/" + formData.firstName.substring(0, 1) + formData.lastName + (userData.dob.toDate().getMonth() <10 ? "0" : "")  + userData.dob.toDate().getMonth() + ("" + userData.dob.toDate().getFullYear()).substring(2), userData);
       }

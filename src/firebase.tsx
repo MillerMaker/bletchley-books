@@ -39,6 +39,7 @@ export class UserData {
     password: string;
     verified: boolean;
     securityQuestions: string[]
+    passwordExpiration: Timestamp;
 
     constructor(userData: any) {
         this.active = userData.active;
@@ -55,6 +56,7 @@ export class UserData {
         this.verified = userData.verified;
         this.securityQuestions = userData.securityQuestions;
         if (this.securityQuestions == undefined) { this.securityQuestions = ["a", "b", "c"]; console.log("SET DEFAULT SEC QUESTION VALUES"); }
+        this.passwordExpiration = userData.passwordExpiration;
     }
 }
 export class UserDoc {
