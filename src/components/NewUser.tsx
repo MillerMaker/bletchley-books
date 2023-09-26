@@ -100,6 +100,7 @@ function NewUser(props: Props) {
 
 return (
     <div>
+      <h5 className = "heading"> New User Information  </h5>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="firstName">First Name:</label>
