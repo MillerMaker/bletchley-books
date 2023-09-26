@@ -1,7 +1,7 @@
 import emailjs from '@emailjs/browser';
 
 
-const sendEmails = false;
+const sendEmails = true;
 
 
 export default function SendEmail( to_email: string, subject: string, body: string) {
@@ -10,6 +10,11 @@ export default function SendEmail( to_email: string, subject: string, body: stri
         return;
     }
 
+    const emailObj = {
+        to_email: to_email,
+        subject: subject,
+        body: body,
+    }
 
     emailjs.send('service_80f8gkw', 'template_sdi19nb', emailObj, 'i-1jRU-M89bNtxz60')
         .then((result) => { console.log("Email Result: " + result.text); },
