@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs-react";
 import PasswordChecklist from "react-password-checklist"
 import Alert from "./Alert";
 import "./NewUser.css";
+import SendEmail from "../Email";
 
 interface Props {
     createType: string; //Potential create types: create, adminCreate, edit
@@ -71,6 +72,13 @@ function NewUser(props: Props) {
     } else {
       console.log("invalid password");
     }
+    if(props.createType == "create"){
+      SendEmail(
+        "ianford622@gmail.com",
+        "User Account Verification",
+        "User " + formData.firstName + " " + formData.lastName + " (@"+ formData.emailAddress + ") is awaiting account verification. Please head to user verification page and accept or decline this user."
+      )
+    }
   };
 
   const toTimeStamp = (date: string) => {
@@ -103,7 +111,7 @@ function NewUser(props: Props) {
               "suspendEndDate": new Timestamp(0, 0),
               "suspendStartDate": new Timestamp(0, 0),
               "email": [formData.emailAddress],
-              "verified": false,
+              "verified": props.createType == "adminCreate" ? true : false,
               "password": [currentPass],
               "passwordExpiration": new Timestamp(0, 0),
               "securityQuestions": secQuestions,
