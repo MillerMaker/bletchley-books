@@ -5,6 +5,8 @@ import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
 import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
 import RolePopup from './RolePopup';
+import CreateNewUser from '../pages/CreateNewUser';
+import NewUser from './NewUser';
 /*
 
 From Users Table
@@ -44,6 +46,8 @@ function UserList() {
     //Change Rolel Popup State
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
 
+    //Add create user popup
+    const [addUserPopupShown, setUserPopupShown] = useState(false);
 
 
 
@@ -152,7 +156,7 @@ function UserList() {
         <>
             <h1>All Users</h1>
             <button
-                className="btn-block btn btn-success long"
+                className="btn-block btn btn-success long" onClick = {() => setUserPopupShown(true)}
             >
                 Create User
             </button>
@@ -308,7 +312,33 @@ function UserList() {
             }
             {changeRolePopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <RolePopup popupText="Change User Role" roleChosenCallback={HandleChangeRole} backPressedCallback={() => setChangeRolePopupShown(false)} />
-                
+            }
+
+
+            {addUserPopupShown && //Show Suspend Popup if Suspend Popup Shown
+                <CustomPopup child={
+                    <>
+                   <NewUser atAdmin = {true}/>
+                   <button onClick={() => setUserPopupShown(false)}
+                    className="btn btn-primary"
+                    >
+                        Close
+                   </button>
+                   </>
+                } />
+            }
+
+{addUserPopupShown && //Show Suspend Popup if Suspend Popup Shown
+                <CustomPopup child={
+                    <>
+                   <NewUser atAdmin = {true}/>
+                   <button onClick={() => setUserPopupShown(false)}
+                    className="btn btn-primary"
+                    >
+                        Close
+                   </button>
+                   </>
+                } />
             }
         </>
     );
