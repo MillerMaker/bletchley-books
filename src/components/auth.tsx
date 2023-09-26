@@ -1,7 +1,7 @@
-import {  UserData, UserDoc, db, getDocAt, saveDocAt} from '../firebase';
+import {  UserData, getDocAt} from '../firebase';
 import { signInWithEmailAndPassword, getAuth, updateProfile} from 'firebase/auth';
 import {useState} from "react";
-import {matchPath, useNavigate} from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import './auth.css';
 
 
