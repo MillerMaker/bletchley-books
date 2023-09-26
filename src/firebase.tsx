@@ -63,7 +63,10 @@ export class UserDoc {
 
     constructor(username: string, userData: any) {
         this.username = username;
-        this.userData = new UserData(userData);
+        if (userData == null)
+            this.userData = new UserData({});
+        else
+            this.userData = new UserData(userData);
     }
 }
 //Converts a Query Snapshot to an array of userDocs

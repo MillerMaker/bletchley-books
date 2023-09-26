@@ -46,8 +46,9 @@ function UserList() {
     //Change Rolel Popup State
     const [changeRolePopupShown, setChangeRolePopupShown] = useState(false);
 
-    //Add create user popup
+    //Create/Edit user popup
     const [addUserPopupShown, setUserPopupShown] = useState(false);
+    const [editUserPopupShown, setEditUserPopupShown] = useState(false);
 
 
 
@@ -64,7 +65,8 @@ function UserList() {
         const queryResults = await getDocs(query(collection(db, "users"), where("verified", "==", true)));
         setUserDocs(toUserDocArray(queryResults));
     }
-    GetUserData();
+    if (userDocs.length == 0)
+        GetUserData();
 
     
         
@@ -211,7 +213,7 @@ function UserList() {
                     </button>
                     <button
                         className="btn btn-secondary"
-                        onClick={() => console.log("EDIT PRESSED")}
+                        onClick={() => setEditUserPopupShown(true)}
                     >
                         Edit
                     </button>
@@ -314,11 +316,10 @@ function UserList() {
                 <RolePopup popupText="Change User Role" roleChosenCallback={HandleChangeRole} backPressedCallback={() => setChangeRolePopupShown(false)} />
             }
 
-
-            {addUserPopupShown && //Show Suspend Popup if Suspend Popup Shown
+            {addUserPopupShown && //Show Create User Popup if addUserPopupshown
                 <CustomPopup child={
-                    <>
-                   <NewUser atAdmin = {true}/>
+                <>
+                    <NewUser createType="adminCrete" defaultUserDoc={new UserDoc("", null)} />
                    <button onClick={() => setUserPopupShown(false)}
                     className="btn btn-primary"
                     >
@@ -327,17 +328,16 @@ function UserList() {
                    </>
                 } />
             }
-
-{addUserPopupShown && //Show Suspend Popup if Suspend Popup Shown
+            {editUserPopupShown && //Show Edit User Popup if editUserPopupshown
                 <CustomPopup child={
                     <>
-                   <NewUser atAdmin = {true}/>
-                   <button onClick={() => setUserPopupShown(false)}
-                    className="btn btn-primary"
-                    >
-                        Close
-                   </button>
-                   </>
+                    <NewUser createType="edit" defaultUserDoc={userDocs[selectedIndex]} />
+                    <button onClick={() => setEditUserPopupShown(false)}
+                            className="btn btn-primary"
+                        >
+                            Close
+                        </button>
+                    </>
                 } />
             }
         </>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { UserDoc, db, getDocAt} from "../firebase";
+import { UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
 import { CollectionReference, Timestamp, addDoc, collection } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import Header from "./Header";
@@ -7,12 +7,14 @@ import {useNavigate} from "react-router-dom"
 import bcrypt from "bcryptjs-react";
 
 interface Props {
-  atAdmin: boolean;
+    createType: string; //Potential create types: create, adminCreate, edit
+    defaultUserDoc: UserDoc;   //Pass in null if you don't want default values
 }
 
 
 function NewUser(props: Props) {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const [lastUserDoc, setLastUserDoc] = useState(new UserDoc("", null));
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,10 +24,18 @@ function NewUser(props: Props) {
     password: '',
   });
 
-
-
   const[formSubmitted, setFormSubmitted] = useState(false);
-  const[currentPass, setCurrentPass] = useState("");
+  const [currentPass, setCurrentPass] = useState("");
+
+
+    //Handle initial field values
+    if (props.createType == "edit" && lastUserDoc != props.defaultUserDoc) {
+        console.log(props.defaultUserDoc.userData.dob.toDate().toLocaleString());
+        setLastUserDoc(props.defaultUserDoc);
+        setFormData({ firstName: props.defaultUserDoc.userData.first, lastName: props.defaultUserDoc.userData.last, emailAddress: props.defaultUserDoc.userData.email, dateOfBirth: props.defaultUserDoc.userData.dob.toDate().toLocaleString(), address:props.defaultUserDoc.userData.address, password: props.defaultUserDoc.userData.password })
+        console.log("Setting Edit Values");
+    }
+
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     const { name, value } = e.target;
@@ -45,23 +55,34 @@ function NewUser(props: Props) {
   }
 
   const handleFireBaseDocument = () => {
-    const usersCollection = collection(db, "users");
-    hashPass(formData.password);
-    var userData = {
-      "active": false,
-      "address": formData.address,
-      "dob": new Timestamp(toTimeStamp(formData.dateOfBirth),0),
-      "doc": Timestamp.now(),
-      "first": formData.firstName,
-      "last": formData.lastName,
-      "role": "user",
-      "suspendEndDate": new Timestamp(0,0),
-      "suspendStartDate": new Timestamp(0,0),
-      "email": [formData.emailAddress],
-      "verified": false,
-      "password": [currentPass]
-    }
-    addDoc(usersCollection, userData);
+      if (props.createType == "edit") { //Edit User
+          const userData = props.defaultUserDoc.userData;
+          userData.first = formData.firstName;
+          userData.last = formData.lastName;
+          userData.email = formData.emailAddress;
+          userData.dob = new Timestamp(toTimeStamp(formData.dateOfBirth), 0);
+          userData.address = formData.address;
+
+          saveDocAt("users/" + props.defaultUserDoc.username, userData);
+      }
+      else { //Save New User
+          hashPass(formData.password);
+          var userData = {
+              "active": false,
+              "address": formData.address,
+              "dob": new Timestamp(toTimeStamp(formData.dateOfBirth), 0),
+              "doc": Timestamp.now(),
+              "first": formData.firstName,
+              "last": formData.lastName,
+              "role": "user",
+              "suspendEndDate": new Timestamp(0, 0),
+              "suspendStartDate": new Timestamp(0, 0),
+              "email": [formData.emailAddress],
+              "verified": false,
+              "password": [currentPass]
+          }
+          saveDocAt("users/" + formData.firstName.substring(0, 1) + formData.lastName + (userData.dob.toDate().getMonth() <10 ? "0" : "")  + userData.dob.toDate().getMonth() + ("" + userData.dob.toDate().getFullYear()).substring(2), userData);
+      }
   }
 
 
@@ -131,8 +152,8 @@ return (
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
+            </div>
+        {props.createType!="edit" && < div >
           <label htmlFor="Password">Password</label>
           <input
             type="password"
@@ -142,19 +163,19 @@ return (
             onChange={handleChange}
             required
           />
+        </div>}
+            <div>
+                <button type="submit">{props.createType=="edit" ? "Confirm Edit": "Create Account"}</button>
         </div>
-        <div>
-          <button type="submit">Create Account</button>
-        </div>
-      </form>
-          {!props.atAdmin &&
+        </form>
+        {props.createType == "create" &&
             <>
               <i>Already have an account? </i>
               <button onClick={() => {navigate('../');}}>Log in</button>
             </>
           }   
 
-          {formSubmitted && <CustomPopup child={
+        {formSubmitted && props.createType!="edit" && <CustomPopup child={
           <>
             <h2>Account Confirmation Needed</h2><br/>
             <h4>Please follow link to send account confirmation request to system administrator:</h4><br />
