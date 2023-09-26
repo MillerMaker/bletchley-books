@@ -23,7 +23,7 @@ function RolePopup(props: Props) {
                 className="form-select"
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}>
-                <option value="accountant">Accontant</option>
+                <option value="accountant">Accountant</option>
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
             </select>
