@@ -112,10 +112,11 @@ function NewUser(props: Props) {
               "suspendStartDate": new Timestamp(0, 0),
               "email": formData.emailAddress,
               "verified": props.createType == "adminCreate" ? true : false,
-              "password": [currentPass],
+              "password": {currentPass},
               "passwordExpiration": new Timestamp(0, 0),
               "securityQuestions": secQuestions,
           }
+          console.log(currentPass);
           saveDocAt("users/" + formData.firstName.substring(0, 1) + formData.lastName + (userData.dob.toDate().getMonth() <10 ? "0" : "")  + userData.dob.toDate().getMonth() + ("" + userData.dob.toDate().getFullYear()).substring(2), userData);
       }
   }
@@ -138,6 +139,7 @@ function NewUser(props: Props) {
         bcrypt.genSalt(10, function(err, salt) {
             bcrypt.hash(password, salt, function(err, hash) {
             setCurrentPass(hash);
+            console.log(hash);
             });   
         });
   }
