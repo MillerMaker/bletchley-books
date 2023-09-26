@@ -156,7 +156,6 @@ function UserList() {
     /* RETURN HTML */
     return (
         <>
-            <h1>All Users</h1>
             <button
                 className="btn-block btn btn-success long" onClick = {() => setUserPopupShown(true)}
             >

@@ -6,6 +6,6 @@
     "\\src\\components",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\firebase.tsx",
+  "SelectedNode": "\\src\\components\\auth.tsx",
   "PreviewInSolutionExplorer": false
 }

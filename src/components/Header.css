@@ -4,9 +4,8 @@
 
 .header {
     margin-bottom: 30px;
-    height: 5vh;
-    background-color: #4783b8;
-
+    height: 12vh;
+    background-color: #5cb9ff;
     display: flex;
     align-items: center;
 }

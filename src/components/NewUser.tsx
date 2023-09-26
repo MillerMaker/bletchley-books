@@ -110,7 +110,7 @@ function NewUser(props: Props) {
               "role": "user",
               "suspendEndDate": new Timestamp(0, 0),
               "suspendStartDate": new Timestamp(0, 0),
-              "email": [formData.emailAddress],
+              "email": formData.emailAddress,
               "verified": props.createType == "adminCreate" ? true : false,
               "password": [currentPass],
               "passwordExpiration": new Timestamp(0, 0),
@@ -191,7 +191,6 @@ return (
           />
 
         </div>
-        <br></br>
         <div>
           <label htmlFor="address">Email Address:</label>
           <input
@@ -204,73 +203,76 @@ return (
           />
         </div>
 
+            <div>
+                {props.createType != "edit" && //ONLY SHOW PASSWORD IF CREATING ACCOUNT 
+                    <> 
+                        <label htmlFor="Password">Password</label>
+                        <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        /> 
 
-        <div>
-          <label htmlFor="Password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          /> 
-
-          <div className = "password-check">
-            {!isValid && <Alert text = "Please enter a valid password" color = 'danger'/>}
-              <PasswordChecklist
-                rules={["minLength","specialChar","number","capital"]}
-                minLength={8}
-              value={currentPass}
-                onChange={setIsValid}
-              />
-            <br></br>
-            <div>
-              <label htmlFor="secQuestion1">Name of your first pet: </label>
-              <input 
-                type="text"
-                id="secQuestion1"
-                name="secQuestion1"
-                value={formData.secQuestion1}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="secQuestion2">Name of your Elementary School: </label>
-              <input 
-                type="text"
-                id="secQuestion2"
-                name="secQuestion2"
-                value={formData.secQuestion2}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="secQuestion3">Mother's maiden name: </label>
-              <input 
-                type="text"
-                id="secQuestion3"
-                name="secQuestion3"
-                value={formData.secQuestion3}
-                onChange={handleChange}
-                required
-              />
-            </div>
+                  <div className = "password-check">
+                    {!isValid && <Alert text = "Please enter a valid password" color = 'danger'/>}
+                            <PasswordChecklist
+                            rules={["minLength","specialChar","number","capital"]}
+                            minLength={8}
+                            value={currentPass}
+                            onChange={setIsValid}
+                          />
+                        <br></br>
+                        <div>
+                          <label htmlFor="secQuestion1">Name of your first pet: </label>
+                          <input 
+                            type="text"
+                            id="secQuestion1"
+                            name="secQuestion1"
+                            value={formData.secQuestion1}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="secQuestion2">Name of your Elementary School: </label>
+                          <input 
+                            type="text"
+                            id="secQuestion2"
+                            name="secQuestion2"
+                            value={formData.secQuestion2}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                        <div>
+                        <label htmlFor="secQuestion3">Mother's maiden name: </label>
+                        <input 
+                        type="text"
+                        id="secQuestion3"
+                        name="secQuestion3"
+                        value={formData.secQuestion3}
+                        onChange={handleChange}
+                        required
+                        />
+                        </div>
+                    </div>
+                    </>}
             <div> 
               <button type="submit">{props.createType=="edit" ? "Confirm Edit": "Create Account"}</button>
             </div>
           </div>
-        </div>
       </form>
         {props.createType == "create" &&
             <>
-              <i>Already have an account? </i>
-              <button onClick={() => {navigate('../');}}>Log in</button>
+                <i>Already have an account? </i>
+                <button onClick={() => {navigate('../');}}>Log in</button>
             </>
         }   
-        {formSubmitted && props.createType == "create" && <CustomPopup child={
+        {formSubmitted && props.createType == "create" &&
+            <CustomPopup child={
            <>
               <h2>Account Confirmation Needed</h2><br/>
               <h4>Please wait for administrator verification of your account before logging in.</h4><br />
