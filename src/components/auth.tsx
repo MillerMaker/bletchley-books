@@ -1,4 +1,4 @@
-import {  db, getUserDocAt, saveUserDoc} from '../firebase';
+import {  UserData, UserDoc, db, getDocAt, saveDocAt} from '../firebase';
 import { signInWithEmailAndPassword, getAuth} from 'firebase/auth';
 import {useState} from "react";
 import {matchPath, useNavigate} from "react-router-dom";
@@ -16,7 +16,8 @@ export const Auth = function() {
     //firebase functions must use await. 
     const logIn = async () => {
         //find document using username 
-        const userData = (await getUserDocAt( "users", username)).userData;
+        const userData = new UserData((await getDocAt("users/" + username)).data());
+
         //query document for email address, and sign in with email. 
         signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
         const user = userCredential.user;

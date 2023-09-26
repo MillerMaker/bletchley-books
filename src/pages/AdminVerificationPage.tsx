@@ -1,16 +1,54 @@
 import Header from '../components/Header'
 import { useState } from 'react';
-import { UserDoc } from '../firebase';
+import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import RolePopup from '../components/RolePopup';
+import ConfirmPopup from '../components/ConfirmPopup';
+import { UserDoc, db, deleteDocAt, saveDocAt, toUserDocArray } from '../firebase';
+
 
 function AdminVerificationPage() {
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [userDocs, setUserDocs] = useState(Array<UserDoc>);
+    const [requestedData, setRequestedData] = useState(false);
 
+    //Show Popup State
+    const [showRoleSelection, setShowRoleSelection] = useState(false);
+    const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+
+
+
+    //Retrieve user data of unverified users
+    async function UpdateUserDocs() {
+        const queryResults = await getDocs(query(collection(db, "users"), where("verified", "==", false)));
+        setUserDocs(toUserDocArray(queryResults));
+    }
+    /* Request User Docs Once */
+    if (!requestedData) {
+        setRequestedData(true);
+        UpdateUserDocs();
+    }
+        
+
+
+
+    async function HandleAccept(newRole: string) {
+        const newUserDoc = new UserDoc(userDocs[selectedIndex].username, userDocs[selectedIndex].userData);
+        newUserDoc.userData.role = newRole;
+        newUserDoc.userData.verified = true;
+
+        saveDocAt("users/" + newUserDoc.username, newUserDoc.userData);
+        setShowRoleSelection(false);
+        UpdateUserDocs();
+    }
+    async function HandleReject() {
+        await deleteDocAt("users/" + userDocs[selectedIndex].username);
+        UpdateUserDocs();
+    }
 
     return (
         <>
             <Header title="User Verification" homePath="/private-outlet/admin" />
-            {userDocs.length == 0 && <h1>No Users Found</h1>}
+            {userDocs.length == 0 && <h1>No Users to Verify</h1>}
             <table className="table table-bordered table-hover">
                 <thead>
                     <tr>
@@ -37,16 +75,19 @@ function AdminVerificationPage() {
             <div className="btn-group">
                 <button
                     className={"btn btn-success" + (userDocs.length == 0 ? " disabled" : "")}
-                    onClick={() => console.log("ACCEPT PRESSED")}
+                    onClick={() => setShowRoleSelection(true)}
                 >
                     ACCEPT
                 </button>
                 <button
-                    className={"btn btn-danger" + (userDocs.length == 0 ? " disabled" : "")} 
-                    onClick={() => console.log("REJECT PRESSED")}
+                    className={"btn btn-danger" + (userDocs.length == 0 ? " disabled" : "")}
+                    onClick={HandleReject}
                 >
                     REJECT
                 </button>
+
+                {showRoleSelection && <RolePopup popupText="Set User Role" backPressedCallback={() => setShowRoleSelection(false)} roleChosenCallback={HandleAccept} />}
+                {showRejectConfirmation && <ConfirmPopup backCallback={() => setShowRejectConfirmation(false)} confirmCallback={HandleReject} title="Reject this user?" />}
             </div>
         </>
     )

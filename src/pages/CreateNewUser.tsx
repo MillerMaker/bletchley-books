@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, UserDoc, saveUserDoc, db } from "../firebase";
+import { db } from "../firebase";
 import { Timestamp, addDoc, collection } from "firebase/firestore";
 import CustomPopup from "../components/CustomPopup";
 import Header from "../components/Header";
@@ -45,6 +45,7 @@ function CreateNewUser() {
           "suspendEndDate": new Timestamp(0,0),
           "suspendStartDate": new Timestamp(0,0),
           "email": formData.emailAddress,
+          "verified": false
         }
         addDoc(usersCollection, userData);
       }
