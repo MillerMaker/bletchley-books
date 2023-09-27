@@ -7,7 +7,9 @@ interface Props {
 
 const Alert = ({text, color} : Props) => {
     return (
-        <div className = {'alert alert-' + color + ' alert-dismissible'} >{text}</div>
+        <div className={'alert alert-' + color + ' alert-dismissible'} >
+            <strong>{text}</strong>
+        </div>
     )
 }
 export default Alert;

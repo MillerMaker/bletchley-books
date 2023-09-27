@@ -22,7 +22,9 @@ export const Auth = function() {
 
 
     //firebase functions must use await. 
-    const logIn = async () => {
+    const logIn = async (event: React.FormEvent) => {
+        event.preventDefault();//Stop page reload
+
         const auth = getAuth();
         //find document using username 
         const userData = new UserData((await getDocAt("users/" + username)).data())
@@ -58,25 +60,26 @@ export const Auth = function() {
     }
 
     return (
-        <div className = "wrapper">
+        <div className="wrapper">
             {remainingAttempts !=2 &&
-            <div>
             <Alert text = {incorrectPasswordMessage} color = "danger" />
-            </div>
             }
-            <div>
-                <input placeholder = "Email..." onChange={(e) => setUserName(e.target.value)}/>
-            </div>
-            <div>
-                <input placeholder = "Password" type = "password" onChange={(e) => setPassword(e.target.value)}/>
-            </div>
-           <div>
-                <button onClick = {logIn}> LogIn </button>
-                <button onClick={() => {navigate("newuser");}}>New User</button>
+            <form onSubmit={logIn}>
                 <div>
-                    <i className="popup-link" onClick={() => setForgotPasswordShown(true)}><u>Forgot password</u></i>
+                    <input placeholder="User..." onChange={(e) => setUserName(e.target.value)} />
                 </div>
-            </div>
+                <div>
+                    <input placeholder="Password..." type="password" onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <div>
+                    <button type="submit"> LogIn </button>
+                    <button onClick={() => { navigate("newuser"); }}>New User</button>
+                    <div>
+                        <i className="popup-link" onClick={() => setForgotPasswordShown(true)}><u>Forgot password</u></i>
+                    </div>
+                </div>
+            </form>
+            
 
          <div> 
         </div>

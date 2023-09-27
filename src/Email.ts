@@ -1,7 +1,7 @@
 import emailjs from '@emailjs/browser';
 
 
-const sendEmails = true;
+const sendEmails = false;
 
 
 export default function SendEmail( to_email: string, subject: string, body: string) {

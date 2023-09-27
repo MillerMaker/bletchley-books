@@ -1,5 +1,4 @@
 import './App.css'
-import UserList from "./components/UserList"
 import { BrowserRouter, Route, Routes, Outlet, Navigate} from 'react-router-dom'
 import CreateNewUser from './pages/CreateNewUser'
 import HomePage from './pages/HomePage'
@@ -7,10 +6,10 @@ import AdminPage from './pages/AdminPage'
 import AdminPasswordPage from './pages/AdminPasswordPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AdminVerificationPage from './pages/AdminVerificationPage'
-import Header from './components/Header'
 import Dashboard from './pages/Dashboard'
 import React, { useState } from 'react';
 import { getAuth, onAuthStateChanged} from "firebase/auth"
+import PasswordChangePage from './pages/PasswordResetPage'
 
 const auth = getAuth();
 
@@ -32,7 +31,8 @@ const [token, setToken] = useState();
             <Route path='admin/passwords' element={<AdminPasswordPage />} />
             <Route path='admin/users' element={<AdminUsersPage />} />
             <Route path='admin/verification' element={<AdminVerificationPage />} />
-          <Route path='dashboard' element={<Dashboard/>}/> 
+            <Route path='dashboard' element={<Dashboard />} />
+            <Route path='password-change' element={<PasswordChangePage />} />
         </Route>
       </Routes>
       </main>

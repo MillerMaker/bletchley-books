@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc } from "firebase/firestore";
+import bcrypt from "bcryptjs-react";
 
 
 const firebaseConfig = {
@@ -18,9 +19,17 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
+export const db = getFirestore(app);
 
 
+//Hash Function
+export async function HashString(toHash: string) {
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(toHash, salt);
+
+    console.log("HASHED: " + hashed);
+    return hashed;
+}
 
 
 

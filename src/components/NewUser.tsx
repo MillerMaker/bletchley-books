@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
-import { UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
+import { HashString, UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
 import { CollectionReference, Timestamp, addDoc, collection } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
-import {useNavigate} from "react-router-dom"
+import { useNavigate} from "react-router-dom"
 import bcrypt from "bcryptjs-react";
 import PasswordChecklist from "react-password-checklist"
 import Alert from "./Alert";
@@ -19,7 +19,7 @@ interface Props {
 function NewUser(props: Props) {
     const navigate = useNavigate();
     const [lastUserDoc, setLastUserDoc] = useState(new UserDoc("", null));
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     emailAddress: '',
@@ -29,11 +29,11 @@ function NewUser(props: Props) {
     secQuestion1: '',
     secQuestion2: '',
     secQuestion3: '',
-  });
+    });
 
-  const[formSubmitted, setFormSubmitted] = useState(false);
-  const[currentPass, setCurrentPass] = useState("");
-  const[isValid, setIsValid] = useState(false);
+    const[formSubmitted, setFormSubmitted] = useState(false);
+    const[currentPass, setCurrentPass] = useState("");
+    const[isValid, setIsValid] = useState(false);
 
 
 
@@ -63,7 +63,8 @@ function NewUser(props: Props) {
   };
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
+      e.preventDefault();
+
     if(isValid) {
     console.log('Form Data:', formData);
     handleFireBaseDocument();
@@ -86,7 +87,7 @@ function NewUser(props: Props) {
     return dt / 1000;
   }
 
-  const handleFireBaseDocument = () => {
+    const handleFireBaseDocument = async () => {
       if (props.createType == "edit") { //Edit User
           const userData = props.defaultUserDoc.userData;
           userData.first = formData.firstName;
@@ -98,8 +99,8 @@ function NewUser(props: Props) {
           saveDocAt("users/" + props.defaultUserDoc.username, userData);
       }
       else { //Save New User
-        const secQuestions = [formData.secQuestion1, formData.secQuestion2, formData.secQuestion3];
-          hashPass(formData.password);
+          const secQuestions = [formData.secQuestion1, formData.secQuestion2, formData.secQuestion3];
+          const hashedPass = await HashString(formData.password);
           var userData = {
               "active": false,
               "address": formData.address,
@@ -112,11 +113,10 @@ function NewUser(props: Props) {
               "suspendStartDate": new Timestamp(0, 0),
               "email": formData.emailAddress,
               "verified": props.createType == "adminCreate" ? true : false,
-              "password": {currentPass},
+              "password": [currentPass],
               "passwordExpiration": new Timestamp(0, 0),
               "securityQuestions": secQuestions,
           }
-          console.log(currentPass);
           saveDocAt("users/" + formData.firstName.substring(0, 1) + formData.lastName + (userData.dob.toDate().getMonth() <10 ? "0" : "")  + userData.dob.toDate().getMonth() + ("" + userData.dob.toDate().getFullYear()).substring(2), userData);
       }
   }
@@ -133,16 +133,6 @@ function NewUser(props: Props) {
   });
   }
 
-
-  function hashPass (password: string) {
-    var thishash = "";
-        bcrypt.genSalt(10, function(err, salt) {
-            bcrypt.hash(password, salt, function(err, hash) {
-            setCurrentPass(hash);
-            console.log(hash);
-            });   
-        });
-  }
 
 return (
     <div>
