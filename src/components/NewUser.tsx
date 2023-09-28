@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
 import { ContainsEmail, HashString, UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
-import { CollectionReference, Timestamp, addDoc, collection } from "firebase/firestore";
+import { CollectionReference, Timestamp, addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate} from "react-router-dom"
 import bcrypt from "bcryptjs-react";
@@ -64,12 +64,18 @@ function NewUser(props: Props) {
     setCurrentPass(value); }
   };
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
 
-    //If an email is entered that firebase does not accept they were added to firestore but not auth
+      setAlertShown(false);
+      if (formSubmitted) return;
+
+      //Fail if not in Email format
       if (!ContainsEmail(formData.emailAddress)) { setAlertShown(true); setAlertText("Invalid Email Address!"); return; }
-      else setAlertShown(false);
+      //Fail if Email is already in system
+      const queryResults = await getDocs(query(collection(db, "users"), where("email", "==", formData.emailAddress)));
+      if (queryResults.docs.length != 0) { setAlertShown(true); setAlertText("Email is already in use!"); return; }
+
     if(isValid) {
         console.log('Form Data:', formData);
     addFirebaseUser(); 
