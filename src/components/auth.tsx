@@ -83,14 +83,12 @@ export const Auth = function() {
                 </div>
                 <div>
                     <input placeholder="Password..." type="password" onChange={(e) => setPassword(e.target.value)} />
-                </div>
-                <div>
-                    <button type="submit"> LogIn </button>
-                    <button onClick={() => { navigate("newuser"); }}>New User</button>
-                    <div>
-                        <i className="popup-link" onClick={() => setForgotPasswordShown(true)}><u>Forgot password</u></i>
-                    </div>
-                </div>
+                </div><br></br>
+                <div className="btn-group">
+                    <button className="btn btn-primary" type="submit"> LogIn </button>
+                    <button className="btn btn-secondary" onClick={() => { navigate("newuser"); }}>New User</button>
+                </div><br></br>
+                <i className="popup-link" onClick={() => setForgotPasswordShown(true)}><u>Forgot password</u></i>
             </form>
             
 

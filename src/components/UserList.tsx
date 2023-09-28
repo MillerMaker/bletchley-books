@@ -1,27 +1,11 @@
 import { ChangeEvent, Fragment, useEffect, useState } from 'react'
 import { Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db } from '../firebase';
+import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString } from '../firebase';
 import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
-import { BrowserRouter, Route, Routes, Link } from 'react-router-dom'
 import RolePopup from './RolePopup';
-import CreateNewUser from '../pages/CreateNewUser';
 import NewUser from './NewUser';
-/*
 
-From Users Table
--Email Users
--Suspend any user from a start date to end date
--Change Role
--Activate/Deactivate User
-
-From Admin Home
--Update User Data - Send to Register Page
--Create Users     - Send to Register Page
--Report of Expired Passwords -
--The administrator should have a report where he can view all users in
-the system without going straight to the tables (WHAT DOES IT MEAN? Potentially show a list of active usernames + a button to navigate to full table?)
-*/
 
 
 function UserList() {
@@ -35,7 +19,6 @@ function UserList() {
     const [suspendStartDate, setSuspendStartDate] = useState(new Timestamp(0, 0));
     const [suspendEndDate, setSuspendEndDate] = useState(new Timestamp(0, 0));
     const [isDateValid, setIsDateValid] = useState(true);
-    const timezoneDiffMilli = new Date().getTimezoneOffset() * 60000; //Timezone difference from database in milliseconds
 
     //Email Popup State
     const [emailPopupShown, setEmailPopupShown] = useState(false);
@@ -113,19 +96,7 @@ function UserList() {
         setIsDateValid(true);
         setSuspendPopupShown(false);
     }
-    function GetTimeString(timeSeconds: number): string {
-        return new Date(timeSeconds * 1000 + timezoneDiffMilli).toLocaleDateString();
-    }
-    function TimeStampToDateString(timestamp: Timestamp): string {
-        var now = new Date(timestamp.seconds * 1000 + timezoneDiffMilli);
-
-        var day = ("0" + now.getDate()).slice(-2);
-        var month = ("0" + (now.getMonth() + 1)).slice(-2);
-
-        var today = now.getFullYear() + "-" + (month) + "-" + (day);
-
-        return today;
-    }
+    
 
     function HandleChangeRole(selectedRole: string) {
         userDocs[selectedIndex].userData.role = selectedRole;
@@ -189,14 +160,18 @@ function UserList() {
                             <td>{userDoc.userData.first}</td>
                             <td>{userDoc.userData.last}</td>
                             <td>{userDoc.userData.address}</td>
-                            <td>{GetTimeString(userDoc.userData.dob.seconds)}</td>
-                            <td>{GetTimeString(userDoc.userData.doc.seconds)}</td>
+                            <td>{TimeStampToDateString(userDoc.userData.dob)}</td>
+                            <td>{TimeStampToDateString(userDoc.userData.doc)}</td>
                             <td>{userDoc.userData.role}</td>
                             <td className={(userDoc.userData.active as boolean ? "table-success" : "table-danger")}>{userDoc.userData.active.toString()}</td>
                             <td>
-                                {userDoc.userData.suspendStartDate == undefined ? "" : GetTimeString(userDoc.userData.suspendStartDate.seconds)}
-                                -
-                                {userDoc.userData.suspendEndDate == undefined ? "" : GetTimeString(userDoc.userData.suspendEndDate.seconds)}
+                                {userDoc.userData.suspendEndDate.seconds > Date.now()/1000 && userDoc.userData.suspendEndDate > userDoc.userData.suspendStartDate &&
+                                    ( (userDoc.userData.suspendStartDate == undefined ? "" : TimeStampToDateString(userDoc.userData.suspendStartDate))
+                                    + "  -  " +
+                                    (userDoc.userData.suspendEndDate == undefined ? "" : TimeStampToDateString(userDoc.userData.suspendEndDate)))
+                                }
+                                
+                                
                             </td>
                         </tr>
                     )}
@@ -230,7 +205,7 @@ function UserList() {
                     </button>
                     <button
                         className="btn btn-warning"
-                        onClick={() => setSuspendPopupShown(true)}
+                        onClick={() => { setSuspendPopupShown(true); setSuspendStartDate(userDocs[selectedIndex].userData.suspendStartDate); setSuspendEndDate(userDocs[selectedIndex].userData.suspendEndDate); }}
                     >
                         Suspend
                     </button>

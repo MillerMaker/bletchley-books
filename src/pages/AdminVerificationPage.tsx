@@ -37,7 +37,7 @@ function AdminVerificationPage() {
         newUserDoc.userData.role = newRole;
         newUserDoc.userData.verified = true;
 
-        SendEmail(newUserDoc.userData.email, "Account Verified", "Your account has been verified please login at: http://localhost:5173/");
+        SendEmail(newUserDoc.userData.email, "Account Verified", "Your account has been verified!\n Your username is: " + newUserDoc.username + "\n\n please login at: http://localhost:5173/");
         saveDocAt("users/" + newUserDoc.username, newUserDoc.userData);
         setShowRoleSelection(false);
         UpdateUserDocs();

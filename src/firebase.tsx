@@ -22,6 +22,10 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 
+
+
+
+
 //Hash Function
 export async function HashString(toHash: string) {
     //const salt = await bcrypt.genSalt(10); //We have to store salt with passwords if we want to use it
@@ -30,7 +34,6 @@ export async function HashString(toHash: string) {
     //console.log("HASHED: " + hashed);
     return hashed;
 }
-
 //Returns whether a string contains an email
 export function ContainsEmail(toCheck: string): boolean {
     const atIndex = toCheck.indexOf("@");
@@ -38,6 +41,22 @@ export function ContainsEmail(toCheck: string): boolean {
 
     return (atIndex != -1 && periodIndex != -1 && periodIndex > atIndex);
 }
+const timezoneDiffMilli = new Date().getTimezoneOffset() * 60000; //Timezone difference from database in milliseconds
+//Converts a timestamp to a string compatible with Date Input fields taking local time into account
+export function TimeStampToDateString(timestamp: Timestamp): string {
+    var now = new Date(timestamp.seconds * 1000 + timezoneDiffMilli);
+
+    var day = ("0" + now.getDate()).slice(-2);
+    var month = ("0" + (now.getMonth() + 1)).slice(-2);
+
+    var today = now.getFullYear() + "-" + (month) + "-" + (day);
+
+    return today;
+}
+
+
+
+
 
 
 //User Doc Classes and Methods
@@ -73,8 +92,9 @@ export class UserData {
         this.oldPasswords = userData.oldPasswords;
         this.verified = userData.verified;
         this.securityQuestions = userData.securityQuestions;
-        if (this.securityQuestions == undefined) { this.securityQuestions = ["a", "b", "c"]; console.log("SET DEFAULT SEC QUESTION VALUES"); }
+        if (this.securityQuestions == undefined) { this.securityQuestions = ["a", "b", "c"]; }
         this.passwordExpiration = userData.passwordExpiration;
+        if (this.passwordExpiration == undefined) this.passwordExpiration = new Timestamp(0,0);
     }
 }
 export class UserDoc {
