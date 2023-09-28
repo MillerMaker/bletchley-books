@@ -17,9 +17,11 @@ export const Auth = function() {
 
     //Forgot Password State
     const [forgotPasswordShown, setForgotPasswordShown] = useState(false);
-    const [incorrectPasswordShown, setIncorrectPasswordShown] = useState(false);
     const [incorrectPasswordMessage, setIncorrectPasswordMessage] = useState("");
 
+    //inactive/unverified/suspended account
+    const [inactiveAccount, setInactiveAccount] = useState(false);
+    const [accountAlert, setAccountAlert] = useState("");
 
     //firebase functions must use await. 
     const logIn = async (event: React.FormEvent) => {
@@ -28,8 +30,16 @@ export const Auth = function() {
         const auth = getAuth();
         //find document using username 
         const userData = new UserData((await getDocAt("users/" + username)).data())
-        console.log(userData.email)
-
+        //Is this user suspended?
+        const time = new Date()
+        const isSuspended = time.getTime() >= userData.suspendStartDate.toDate().getTime() && time.getTime() <= userData.suspendEndDate.toDate().getTime() ? true : false;
+        console.log("Suspended = " + isSuspended);
+        
+        //if User is inactive/suspended/unverified, show error. Otherwise, log in. 
+        if(!userData.active || isSuspended || !userData.verified) {
+            setAccountAlert("Account is unverified, inactive, or suspended. Please contact your administrator.");
+            setInactiveAccount(true);
+        } else { 
         //query document for email address, and sign in with email. 
         signInWithEmailAndPassword(auth, userData.email, password).then((userCredential) => {
         const user = userCredential.user;
@@ -44,7 +54,6 @@ export const Auth = function() {
                 setIncorrectPasswordMessage("Password is incorrect. you have " + (remainingAttempts) + " attempt(s) remaining");
                 } else {
                 setIncorrectPasswordMessage("Password is incorrect. Your account has been suspended for 24 hours. Please contact your administrator.");
-                
                 const today = new Date()
                 const tomorrow= new Date
                 tomorrow.setHours(24);
@@ -57,10 +66,14 @@ export const Auth = function() {
                 saveDocAt("users/"+ username, userData); 
                 }
             })
+        }
     }
 
     return (
         <div className="wrapper">
+            {inactiveAccount &&
+                <Alert text = {accountAlert} color = "danger" />
+            }
             {remainingAttempts !=2 &&
             <Alert text = {incorrectPasswordMessage} color = "danger" />
             }

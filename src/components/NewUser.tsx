@@ -100,7 +100,6 @@ function NewUser(props: Props) {
           userData.email = formData.emailAddress;
           userData.dob = new Timestamp(toTimeStamp(formData.dateOfBirth), 0);
           userData.address = formData.address;
-
           saveDocAt("users/" + props.defaultUserDoc.username, userData);
       }
       else { //Save New User
@@ -118,6 +117,7 @@ function NewUser(props: Props) {
               "suspendStartDate": new Timestamp(0, 0),
               "email": formData.emailAddress,
               "verified": props.createType == "adminCreate" ? true : false,
+              "oldPasswords" : [],
               "password": hashedPass,
               "passwordExpiration": new Timestamp(0, 0),
               "securityQuestions": secQuestions,
