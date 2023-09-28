@@ -112,7 +112,7 @@ function NewUser(props: Props) {
           const secQuestions = [formData.secQuestion1, formData.secQuestion2, formData.secQuestion3];
           const hashedPass = await HashString(formData.password);
           var userData = {
-              "active": false,
+              "active": true,
               "address": formData.address,
               "dob": new Timestamp(toTimeStamp(formData.dateOfBirth), 0),
               "doc": Timestamp.now(),
