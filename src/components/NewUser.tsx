@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
-import { HashString, UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
+import { ContainsEmail, HashString, UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
 import { CollectionReference, Timestamp, addDoc, collection } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate} from "react-router-dom"
@@ -33,7 +33,9 @@ function NewUser(props: Props) {
 
     const[formSubmitted, setFormSubmitted] = useState(false);
     const[currentPass, setCurrentPass] = useState("");
-    const[isValid, setIsValid] = useState(false);
+    const [isValid, setIsValid] = useState(false);
+    const [alertShown, setAlertShown] = useState(false);
+    const [alertText, setAlertText] = useState("");
 
 
 
@@ -63,12 +65,15 @@ function NewUser(props: Props) {
   };
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
-      e.preventDefault();
+    e.preventDefault();
 
+    //If an email is entered that firebase does not accept they were added to firestore but not auth
+      if (!ContainsEmail(formData.emailAddress)) { setAlertShown(true); setAlertText("Invalid Email Address!"); return; }
+      else setAlertShown(false);
     if(isValid) {
-    console.log('Form Data:', formData);
-    handleFireBaseDocument();
+        console.log('Form Data:', formData);
     addFirebaseUser(); 
+    handleFireBaseDocument();
     setFormSubmitted(true);
     } else {
       console.log("invalid password");
@@ -113,7 +118,7 @@ function NewUser(props: Props) {
               "suspendStartDate": new Timestamp(0, 0),
               "email": formData.emailAddress,
               "verified": props.createType == "adminCreate" ? true : false,
-              "password": [currentPass],
+              "password": hashedPass,
               "passwordExpiration": new Timestamp(0, 0),
               "securityQuestions": secQuestions,
           }
@@ -136,7 +141,8 @@ function NewUser(props: Props) {
 
 return (
     <div>
-      <h5 className = "heading"> New User Information  </h5>
+      <h5 className="heading"> New User Information  </h5>
+      {alertShown && <Alert text={alertText} color={"danger"}></Alert>}
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="firstName">First Name:</label>
@@ -267,8 +273,8 @@ return (
             <CustomPopup child={
            <>
               <h2>Account Confirmation Needed</h2><br/>
-              <h4>Please wait for administrator verification of your account before logging in.</h4><br />
-              <button onClick={() => {setFormSubmitted(false)}}>Close</button>
+                <h4>Please wait for administrator verification of your account before logging in.</h4><br />
+                <button onClick={() => { window.location.replace("/") }}>Close</button>
           </>
             }/>
         }

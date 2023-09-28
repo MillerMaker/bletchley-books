@@ -46,12 +46,13 @@ function Header(props: Props) {
 }
 
 function ShowUsername() {
-    const auth = getAuth();
+    const navigate = useNavigate();
     if (auth.currentUser) {
     return (
         <>
         <img src = {userImage}
-        className = "userImage"
+            className="userImage"
+            onClick={() => navigate("/private-outlet/password-change")}
         />
             <h4 className="username">{auth.currentUser.displayName}</h4>
             <span>   </span>

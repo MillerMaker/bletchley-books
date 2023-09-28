@@ -24,13 +24,20 @@ export const db = getFirestore(app);
 
 //Hash Function
 export async function HashString(toHash: string) {
-    const salt = await bcrypt.genSalt(10);
-    const hashed = await bcrypt.hash(toHash, salt);
+    //const salt = await bcrypt.genSalt(10); //We have to store salt with passwords if we want to use it
+    const hashed = await bcrypt.hash(toHash, 10);
 
-    console.log("HASHED: " + hashed);
+    //console.log("HASHED: " + hashed);
     return hashed;
 }
 
+//Returns whether a string contains an email
+export function ContainsEmail(toCheck: string): boolean {
+    const atIndex = toCheck.indexOf("@");
+    const periodIndex = toCheck.indexOf(".");
+
+    return (atIndex != -1 && periodIndex != -1 && periodIndex > atIndex);
+}
 
 
 //User Doc Classes and Methods
@@ -46,8 +53,9 @@ export class UserData {
     suspendStartDate: Timestamp;
     email: string;
     password: string;
+    oldPasswords: string[];
     verified: boolean;
-    securityQuestions: string[]
+    securityQuestions: string[];
     passwordExpiration: Timestamp;
 
     constructor(userData: any) {
@@ -62,6 +70,7 @@ export class UserData {
         this.suspendStartDate = userData.suspendStartDate;
         this.email = userData.email;
         this.password = userData.password;
+        this.oldPasswords = userData.oldPasswords;
         this.verified = userData.verified;
         this.securityQuestions = userData.securityQuestions;
         if (this.securityQuestions == undefined) { this.securityQuestions = ["a", "b", "c"]; console.log("SET DEFAULT SEC QUESTION VALUES"); }
