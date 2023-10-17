@@ -3,7 +3,10 @@ import logoImage from "../assets/BletchleyBooksLogo.jpg"
 import userImage from "../assets/noun-user-6126605.png"
 import {getAuth} from "firebase/auth"
 import { NavigateFunction, useNavigate } from "react-router"
-import { auth } from "../firebase"
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { auth, UserData, getDocAt} from "../firebase"
+import {useState} from "react";
+
 
 
 
@@ -22,10 +25,11 @@ interface Props {
 
 function Header(props: Props) {
     const navigate = useNavigate();
-
+    const [userRole, setUserRole] = useState("");
+    getRole();
     return (
     <div className="header">
-            <div className = "col-sm">
+            <div className = "col-2">
                 <img
                     src={logoImage}
                     alt="Home"
@@ -33,16 +37,45 @@ function Header(props: Props) {
                     onClick={() => navigate(props.homePath)}
                 />  
             </div>
-            <div className = "col-8"> 
-                <div className = "header-page-name">
-                    <h1>{props.title}</h1>
-                </div>
+            <div className = "col-sm">
+                  <ShowNavBar></ShowNavBar>
             </div>
-            <div className = "col-sm" >
+            <div className = "col-3" >
                 <ShowUsername />
             </div> 
         </div>
     )
+  async function getRole() {
+    const navigate = useNavigate();
+    const userData= new UserData((await getDocAt("users/" + auth.currentUser?.displayName)).data());
+    setUserRole(userData.role);
+  }
+
+    
+function ShowNavBar () {
+  if(userRole != '') {
+
+    return(
+      <>
+      <div className = {props.homePath == '/private-outlet/dashboard'? 'chart-of-accounts active' : 'chart-of-accounts inactive'} onClick = {() => navigate("/private-outlet/dashboard")}> 
+            Accounts
+      </div>
+      <div className = "journal inactive" > 
+            Journal
+      </div>
+      <div className = "Edit-Log inactive"> 
+            Edit Log
+      </div>
+      {userRole == 'admin' &&
+      <div className = {props.homePath == '/private-outlet/admin'? 'admin-home active' : 'admin-home inactive'} onClick = {() => navigate("/private-outlet/admin")}> 
+            Admin Home
+      </div>
+      }
+ </>
+    )
+  }
+}
+
 }
 
 function ShowUsername() {
@@ -65,5 +98,7 @@ function ShowUsername() {
         )
     }
 }
+
+
 
 export default Header;
