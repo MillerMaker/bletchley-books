@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc, addDoc } from "firebase/firestore";
 import bcrypt from "bcryptjs-react";
 
 
@@ -133,6 +133,10 @@ export async function saveDocAt(path: string, dataObject: any) {
     const retrievedDoc = await doc(db, path);
     const genericDataObj: object = { ...dataObject }; //Data must be in generic map to save to firebase
     setDoc(retrievedDoc, genericDataObj, { merge: true });
+}
+export async function addDocRandomID(collectionPath: string, dataObject: any) {
+    //For adding Docs with Random ID eg: accounts
+    await addDoc(collection(db, collectionPath), dataObject);
 }
 //Deletes doc at "path"
 export async function deleteDocAt(path: string) {
