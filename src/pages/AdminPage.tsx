@@ -20,7 +20,9 @@ function AdminPage() {
             <button className="btn btn-lg btn-block btn-secondary"
                 onClick={() => {navigate("/private-outlet/admin/passwords")}}>
                 Password Report</button><br /><br />
-
+            <button className="btn btn-lg btn-block btn-secondary"
+                onClick={() => { navigate("/private-outlet/chart-of-accounts") }}>
+                Chart of Accounts</button><br /><br />
         </>
     )
 
