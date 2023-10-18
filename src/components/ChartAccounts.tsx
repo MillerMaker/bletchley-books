@@ -23,7 +23,9 @@ function ChartAccounts() {
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
     const navigate = useNavigate();
-
+    //Searching State
+    const [searchText, setSearchText] = useState("");
+    const [searchColumn, setSearchColumn] = useState("number");
 
     function GetBalance(accountData: any): number{
         return accountData.initialBalance - accountData.credit + accountData.debit;
@@ -55,13 +57,13 @@ function ChartAccounts() {
 
     /* Handle Toggleing User.Active */
     function HandleClickToggleActivate() {
-
         setAlertShown(false);
 
         //Only Deactivate accounts with no balance
         const acctData = accountDocs[selectedIndex].data;
-        console.log(acctData.initialBalance + acctData.debit - acctData.initialBalance);
-        if (acctData.initialBalance + acctData.debit - acctData.credit != 0) { setAlertText("Account cannot be activated with a balance!"); setAlertShown(true); setAlertColor("danger"); return; }
+        if (acctData.initialBalance + acctData.debit - acctData.credit != 0) { setAlertText("Account has a balance. It cannot be deactivated!"); setAlertShown(true); setAlertColor("danger"); return; }
+
+
 
         let newAccountDocs = [...accountDocs];
         accountDocs[selectedIndex].data.active = !accountDocs[selectedIndex].data.active;
@@ -71,17 +73,48 @@ function ChartAccounts() {
 
 
 
+    function MatchesSearch(accountDoc: { id: string, data: any }): boolean {
+        //Returns Whether or not the accountDoc's
+        //  searchColumn field includes the current searchText
+
+        //Special Case for balance as it is not a field in account
+        if (searchColumn == "balance") return GetBalance(accountDoc.data).toString().toLowerCase().includes(searchText.toLowerCase());
+
+        return accountDoc.data[searchColumn].toString().toLowerCase().includes(searchText.toLowerCase());
+    }
 
 
     /* RETURN HTML */
     return (
         <>
             {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
-            <button
-                className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
-            >
-                Create Account
-            </button>
+            <div>
+                <label>Search:</label>
+                <select
+                    value={searchColumn}
+                    onChange={(e) => { setSearchColumn(e.target.value) }}
+                >
+                    <option value="number">Number</option>
+                    <option value="name">Name</option>
+                    <option value="category">Category</option>
+                    <option value="subcategory">Subcategory</option>
+                    <option value="balance">Balance</option>
+                    <option value="statement">Statement</option>
+                    <option value="active">Active</option>
+                </select>
+                <input
+                    type="text"
+                    value={searchText}
+                    onChange={(e) => { setSearchText(e.target.value) }}
+                />
+
+                <button
+                    className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
+                >
+                    Create Account
+                </button>
+            </div>
+            
             <br></br><br></br>
             {accountDocs.length == 0 && <p>No Accounts Found</p>}
             <table className="table table-bordered table-hover">
@@ -93,22 +126,25 @@ function ChartAccounts() {
                         <th>SubCategory</th>
                         <th>Balance</th>
                         <th>Financial Statement</th>
+                        <th>Active</th>
                     </tr>
                 </thead>
                 <tbody>
                     {accountDocs.map((accountDoc: { id: string, data: any }, index: number) =>
-                        <tr
-                            className={"" + (selectedIndex == index && "table-primary")}
-                            key={accountDoc.id}
-                            onClick={() => setSelectedIndex(index)}>
-                            <td>{accountDoc.id}</td>
-                            <td>{accountDoc.data.name}</td>
-                            <td>{accountDoc.data.category}</td>
-                            <td>{accountDoc.data.subcategory}</td>
-                            <td>{GetBalance(accountDoc.data)}</td>
-                            <td>{accountDoc.data.statement}</td>
-
-                        </tr>
+                    (MatchesSearch(accountDoc) &&
+                                <tr
+                                className={"" + (selectedIndex == index && "table-primary")}
+                                key={accountDoc.id}
+                                onClick={() => setSelectedIndex(index)}>
+                                <td>{accountDoc.data.number}</td>
+                                <td>{accountDoc.data.name}</td>
+                                <td>{accountDoc.data.category}</td>
+                                <td>{accountDoc.data.subcategory}</td>
+                                <td>{GetBalance(accountDoc.data).toLocaleString()}</td>
+                                <td>{accountDoc.data.statement}</td>
+                            <td className={(accountDoc.data.active as boolean ? "table-success" : "table-danger")}>{accountDoc.data.active.toString()}</td>
+                            </tr>
+                        )     
                     )}
                 </tbody>
             </table>
