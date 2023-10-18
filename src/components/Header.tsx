@@ -63,9 +63,11 @@ function ShowNavBar () {
       <div className = "journal inactive" > 
             Journal
       </div>
-      <div className = "Edit-Log inactive"> 
-            Edit Log
+      {userRole == 'admin' &&
+      <div className = {props.homePath == '/private-outlet/event-log'? 'event-log active' : 'event-log inactive'} onClick = {() => navigate("/private-outlet/event-log")}> 
+            Event Log
       </div>
+      }
       {userRole == 'admin' &&
       <div className = {props.homePath == '/private-outlet/admin'? 'admin-home active' : 'admin-home inactive'} onClick = {() => navigate("/private-outlet/admin")}> 
             Admin Home

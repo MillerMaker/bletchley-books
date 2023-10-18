@@ -11,6 +11,8 @@ import React, { useState } from 'react';
 import { getAuth, onAuthStateChanged} from "firebase/auth"
 import PasswordChangePage from './pages/PasswordResetPage'
 import ChartAccountsPage from './pages/ChartAccountsPage'
+import EditLogPage from './pages/EventLogPage'
+import EventLogPage from './pages/EventLogPage'
 
 const auth = getAuth();
 
@@ -35,6 +37,7 @@ const [token, setToken] = useState();
             <Route path='dashboard' element={<Dashboard />} />
             <Route path='password-change' element={<PasswordChangePage />} />
             <Route path='chart-of-accounts' element={<ChartAccountsPage />} />
+            <Route path='event-log' element={<EventLogPage />} />
         </Route>
       </Routes>
       </main>

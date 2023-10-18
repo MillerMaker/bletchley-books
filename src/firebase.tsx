@@ -2,8 +2,9 @@
 import { initializeApp } from "firebase/app";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc, addDoc } from "firebase/firestore";
 import bcrypt from "bcryptjs-react";
+import { EventData } from "./components/EventLog";
 
 
 const firebaseConfig = {
@@ -20,8 +21,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
-
 
 
 
@@ -133,6 +132,7 @@ export async function saveDocAt(path: string, dataObject: any) {
     const retrievedDoc = await doc(db, path);
     const genericDataObj: object = { ...dataObject }; //Data must be in generic map to save to firebase
     setDoc(retrievedDoc, genericDataObj, { merge: true });
+    captureEvent(path, dataObject);
 }
 //Deletes doc at "path"
 export async function deleteDocAt(path: string) {
@@ -147,4 +147,11 @@ onAuthStateChanged(auth,user => {
   }
 });
 
-
+async function captureEvent(path: string, dataObject: any){
+    const eventCollection = await collection(db, 'event-log');
+    const userID = path.split('/')[1];
+    const document = JSON.stringify(dataObject);
+    const eventDateTime = Timestamp.now();
+    const genericDataObj: object = {userID, eventDateTime, document};
+    addDoc(eventCollection, genericDataObj);
+}
