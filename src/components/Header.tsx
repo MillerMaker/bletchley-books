@@ -57,7 +57,7 @@ function ShowNavBar () {
 
     return(
       <>
-      <div className = {props.homePath == '/private-outlet/dashboard'? 'chart-of-accounts active' : 'chart-of-accounts inactive'} onClick = {() => navigate("/private-outlet/dashboard")}> 
+      <div className = {props.homePath == '/private-outlet/chart-of-accounts'? 'chart-of-accounts active' : 'chart-of-accounts inactive'} onClick = {() => navigate("/private-outlet/chart-of-accounts")}> 
             Accounts
       </div>
       <div className = "journal inactive" > 
