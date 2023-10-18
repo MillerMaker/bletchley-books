@@ -13,6 +13,7 @@ import PasswordChangePage from './pages/PasswordResetPage'
 import ChartAccountsPage from './pages/ChartAccountsPage'
 import EditLogPage from './pages/EventLogPage'
 import EventLogPage from './pages/EventLogPage'
+import ViewAccount from './pages/ViewAccount'
 
 const auth = getAuth();
 
@@ -38,6 +39,7 @@ const [token, setToken] = useState();
             <Route path='password-change' element={<PasswordChangePage />} />
             <Route path='chart-of-accounts' element={<ChartAccountsPage />} />
             <Route path='event-log' element={<EventLogPage />} />
+            <Route path='view-account' element={<ViewAccount/>} />
         </Route>
       </Routes>
       </main>

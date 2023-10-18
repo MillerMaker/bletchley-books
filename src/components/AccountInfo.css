@@ -1,0 +1,96 @@
+@font-face {
+    font-family: 'MyLato';
+    src: url('../assets/font/Lato/Lato-Regular.ttf')
+}
+
+.Banner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-family: 'MyLato';
+}
+.main-info {
+    padding-top: 50px;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    font-family: 'MyLato';
+    font-size: x-large;
+    text-align:left;
+    column-gap: 50px;
+    border: solid;
+    border-width: 0px 0px 0px 0px;
+
+    border-color:#a5aaaf;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    color:#47525E;
+    row-gap: 60px;
+}
+
+.created-info {
+    font-size:large;
+    color: #8B8B8B
+}
+
+.subcategory {
+    font-size: large;
+}
+.account-name{
+    font-size:xx-large;
+    color:#47525E;
+}
+
+.normal-side {
+    padding-left: 1%;
+    padding-right: 4%;
+    font-size: xx-large;
+    color: #8B8B8B
+}
+
+.back {
+    padding-left: 4%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: x-large;
+    color:#675CFF;
+    cursor: pointer;
+}
+
+.backIcon {
+width: 50px;
+height: 50px;
+max-height: 35px;
+max-width: 25px;
+}
+
+.description {
+    justify-self: left;
+
+}
+.description-text {
+    justify-self: left;
+    text-align:left;
+    font-size: large;
+    color: #8B8B8B
+}
+
+.current-balance {
+    display:flex;
+    flex-direction: column;
+    row-gap: 50px;
+    color:#47525E;
+}
+
+
+.financial-statements{
+    color:#675CFF;
+    text-decoration-line:underline;
+    text-decoration-color:#675CFF;
+    cursor: pointer;
+    font-size:large;
+}
