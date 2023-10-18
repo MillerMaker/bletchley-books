@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
-import { ContainsEmail, HashString, UserData, UserDoc, auth, db, getDocAt, saveDocAt } from "../firebase";
+import { ContainsEmail, HashString, UserData, UserDoc, addDocRandomID, auth, db, getDocAt, saveDocAt } from "../firebase";
 import { CollectionReference, Timestamp, addDoc, collection, getDocs, or, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate } from "react-router-dom"
@@ -25,8 +25,8 @@ function NewAccountPopup(props: Props) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        normalSide: '',
-        category: '',
+        normalSide: 'debit',
+        category: 'asset',
         subcategory:   '',
         initialBalance: 0,
         order: 0,
@@ -72,44 +72,59 @@ function NewAccountPopup(props: Props) {
             case "revenue": leadingNum = 4; break;
             case "expense": leadingNum = 5; break;
         }                                   //Add Leading zeroes to accountOrder
-        const accountNumber = leadingNum + formData.order.toString().padStart(3, "0");
+
+        console.log(formData.category + leadingNum + "  " + (formData.order.toString().substring(0, 3).padStart(3, "0")));
+        const accountNumber = leadingNum + (formData.order.toString().substring(0,3).padStart(3, "0"));
 
         /* BAD DATA CHECKS */
+        if (formData.order.toString().length > 3) { setAlertShown(true); setAlertText("Account Order cannot be longer than 3 digits!"); setAlertColor("danger"); return; }
         //Account Num Taken
-        if (!Editing && (await getDocAt("accounts/" + accountNumber)).exists()) { setAlertShown(true); setAlertText("Account Order is taken"); setAlertColor("danger"); return; }
+        let queryResults = await getDocs(query(collection(db, "accounts"), where("number", "==", accountNumber)));
+        console.log( (Editing() && props.toEdit.data.number == accountNumber) + "   NUM" + accountNumber);
+        if ((!Editing() || props.toEdit.data.number != accountNumber) && !queryResults.empty)
+        { setAlertShown(true); setAlertText("Account Order is taken"); setAlertColor("danger"); return; }
         //Account Name Taken
-        let queryResults = await getDocs(query(collection(db, "accounts"), where("name", "==", formData.name)));
-        if (!Editing() && !queryResults.empty) { setAlertShown(true); setAlertText("Account name is taken"); setAlertColor("danger"); return; }
+        queryResults = await getDocs(query(collection(db, "accounts"), where("name", "==", formData.name)));
+        if ((!Editing() || props.toEdit.data.name != formData.name) && !queryResults.empty)
+        { setAlertShown(true); setAlertText("Account name is taken"); setAlertColor("danger"); return; }
 
 
 
 
         //Create Object
         const accountDoc = {
+            number: accountNumber,
             name: formData.name,
             description: formData.description,
             normalSide: formData.normalSide,
             category: formData.category,
             subcategory: formData.subcategory,
-            initialBalance: Number(formData.initialBalance).toFixed(2),
+            initialBalance: Number(Number(formData.initialBalance).toFixed(2)), // 0.00610023 -> 0.01
             order: formData.order,
             statement: formData.statement,
             comment: formData.comment,
 
             active: true,
-            debit: Number(0).toFixed(2),
-            credit: Number(0).toFixed(2),
+            debit:  0,
+            credit: 0,
             date: Timestamp.now(),
         }
 
-        //Save Doc Show Alert
-        saveDocAt('accounts/' + accountNumber, accountDoc);
+        //Save Doc
+        //Editing --> Save Doc
+        //!Editing --> New Doc
+        if (Editing()) saveDocAt('accounts/' + props.toEdit.id, accountDoc);
+        else addDocRandomID('accounts', accountDoc);
+
+        //No Resubmits
         setFormSubmitted(true);
+
+        //Completion Alert
         setAlertShown(true);
         setAlertText("Account " + (Editing() ? "Edited" : "Created") + "!");
         setAlertColor("success");
 
-
+        props.confirmCallback(); //Fire off Callback
     };
 
 
@@ -117,7 +132,7 @@ function NewAccountPopup(props: Props) {
     return (
         <CustomPopup child={
             <>
-                <h5 className="heading"> Account Information  </h5>
+                <h3 className="heading"> Account Information  </h3>
                 {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -198,8 +213,6 @@ function NewAccountPopup(props: Props) {
                         <label htmlFor="order">Order:</label>
                         <input
                             type="number"
-                            min={0}
-                            max={999}
                             id="order"
                             name="order"
                             value={formData.order}
@@ -229,9 +242,10 @@ function NewAccountPopup(props: Props) {
                             required
                         />
                     </div>
-                    <div className="form-group">
+                    <br></br>
+                    <div className="btn-group">
                         <button className="btn btn-primary" type="submit">{Editing() ? "Confirm Edit" : "Create Account"}</button>
-                        <button className="btn btn-primary" onClick={props.backCallback}>Back</button>
+                        <button className="btn btn-secondary" onClick={props.backCallback}>Back</button>
                     </div>
                 </form>
             </>} />

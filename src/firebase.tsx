@@ -134,6 +134,10 @@ export async function saveDocAt(path: string, dataObject: any) {
     setDoc(retrievedDoc, genericDataObj, { merge: true });
     captureEvent(path, dataObject);
 }
+export async function addDocRandomID(collectionPath: string, dataObject: any) {
+    //For adding Docs with Random ID eg: accounts
+    await addDoc(collection(db, collectionPath), dataObject);
+}
 //Deletes doc at "path"
 export async function deleteDocAt(path: string) {
     await deleteDoc(doc(db, path));
