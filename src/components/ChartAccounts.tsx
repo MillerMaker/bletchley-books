@@ -168,6 +168,12 @@ function ChartAccounts() {
                     >
                         View
                     </button>
+                    <button title="View this account's details"
+                        className="btn btn-primary"
+                        onClick={() => { navigate("/private-outlet/ledger", { state: accountDocs[selectedIndex] }) }}
+                    >
+                        Ledger
+                    </button>
                     {isAdmin && //Only Show Activate/Edit Button if user is Admin
                         <>
                             <button title="Edit this account's details"
