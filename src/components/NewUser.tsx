@@ -280,15 +280,15 @@ return (
                         </div>
                     </div>
                     </>}
-            <div> 
-                <button className="btn btn-primary" type="submit">{props.createType=="edit" ? "Confirm Edit": "Create Account"}</button>
+                <div>
+                    <button title="Confirm your new account details" className="btn btn-primary" type="submit">{props.createType == "edit" ? "Confirm Edit" : "Create Account"}</button>
             </div>
           </div>
       </form>
         {props.createType == "create" &&
             <>
             <i>Already have an account? </i>
-            <button className="btn btn-secondary" onClick={() => { navigate('../'); }}>Log in</button>
+            <button title="Go to login page" className="btn btn-secondary" onClick={() => { navigate('../'); }}>Log in</button>
             </>
         }   
         {formSubmitted && props.createType == "create" &&
@@ -297,7 +297,7 @@ return (
                 <h2>Account Confirmation Needed</h2><br />
                 <h5>Your username is: {userID}</h5>
                 <h5>Please wait for administrator verification before logging in.</h5><br />
-                <button onClick={() => { window.location.replace("/") }}>Close</button>
+                <button title="Go back" onClick={() => { window.location.replace("/") }}>Close</button>
           </>
             }/>
         }

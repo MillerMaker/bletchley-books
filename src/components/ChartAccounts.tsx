@@ -119,7 +119,7 @@ function ChartAccounts() {
                     onChange={(e) => { setSearchText(e.target.value) }}
                 />
                 {isAdmin && //Only Show Create Account if user is Admin
-                    <button
+                    <button title="Create a new Account"
                         className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
                     >
                         Create Account
@@ -162,7 +162,7 @@ function ChartAccounts() {
             </table>
             {accountDocs.length != 0 && selectedIndex != -1 && // USER BUTTONS  Only Display Buttons if a User is Selected AND there are users Loaded
                 <div className="btn-group">
-                    <button
+                    <button title ="View this account's details"
                         className="btn btn-secondary"
                         onClick={() => {navigate("/private-outlet/view-account", { state : accountDocs[selectedIndex]})}}
                     >
@@ -170,13 +170,13 @@ function ChartAccounts() {
                     </button>
                     {isAdmin && //Only Show Activate/Edit Button if user is Admin
                         <>
-                            <button
+                            <button title="Edit this account's details"
                                 className="btn btn-secondary"
                                 onClick={() => { setEditPopupShown(true); }}
                             >
                                 Edit
                             </button>
-                            <button
+                            <button title="De/activate this account"
                                 className={"btn" + (accountDocs[selectedIndex].data.active ? " btn-danger" : " btn-success")}
                                 onClick={(choice) => HandleClickToggleActivate()}
                             >
