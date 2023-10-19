@@ -3,11 +3,12 @@ import { Timestamp, getDocs, query, collection } from 'firebase/firestore';
 import { TimeStampToDateString, db } from '../firebase';
 import CustomPopup from './CustomPopup';
 import { json } from 'react-router-dom';
+import EventLogTable from './EventLogTable';
 
 export class EventData {
     userID: string;
     eventDateTime: Timestamp;
-    eventDocument: any;
+    eventDocument: string;
 
     constructor(userID: string, eventDateTime: Timestamp, eventData: any){
         this.userID = userID;
@@ -21,6 +22,7 @@ function EventLog() {
     const [requestedData, setRequestedData] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [viewDocPopupShown, setViewDocPopupShown] = useState(false);
+    const [selectedDocumentType, setSelectedDocumentType] = useState("none");
 
     async function getEventData() {
         if(requestedData)
@@ -54,7 +56,6 @@ function EventLog() {
             {eventDocs.map((eventDoc: EventData, index: number) => 
                 <tr 
                 className={"" + (selectedIndex == index && "table-primary")}
-                key={eventDoc.userID}
                 onClick={() => setSelectedIndex(index)}
                 >
                     <td>{eventDoc.userID}</td>
@@ -64,6 +65,12 @@ function EventLog() {
             )}
         </tbody>
     </table>
+    {viewDocPopupShown && <CustomPopup child = {
+        <>
+            <EventLogTable documentData={eventDocs[selectedIndex].eventDocument}/>
+            <button onClick={() => {setViewDocPopupShown(false)}}>Close</button>
+        </>
+    } />}
     </>
   )
 }

@@ -147,7 +147,7 @@ export async function saveDocAt(path: string, dataObject: any) {
     const retrievedDoc = await doc(db, path);
     const genericDataObj: object = { ...dataObject }; //Data must be in generic map to save to firebase
     setDoc(retrievedDoc, genericDataObj, { merge: true });
-    captureEvent(path, dataObject);
+    captureEvent(dataObject);
 }
 export async function addDocRandomID(collectionPath: string, dataObject: any) {
     //For adding Docs with Random ID eg: accounts
@@ -166,9 +166,9 @@ onAuthStateChanged(auth,user => {
   }
 });
 
-async function captureEvent(path: string, dataObject: any){
+async function captureEvent(dataObject: any){
     const eventCollection = await collection(db, 'event-log');
-    const userID = path.split('/')[1];
+    const userID = auth.currentUser == undefined ? "Unknown User" : auth.currentUser.displayName; 
     const document = JSON.stringify(dataObject);
     const eventDateTime = Timestamp.now();
     const genericDataObj: object = {userID, eventDateTime, document};
