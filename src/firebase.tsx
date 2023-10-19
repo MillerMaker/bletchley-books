@@ -108,6 +108,21 @@ export class UserDoc {
             this.userData = new UserData(userData);
     }
 }
+export async function GetAuthUserDoc(): Promise<any> {
+    //Returns a doc snapshot for the user logged in via Auth
+    //  searches the users collection for user with matching email
+    //
+    //  May return various strings for errors:
+    //  "null" if auth doesn't have a current user
+    //  "notFound"" if a user isn't found with the currentUser's email
+    //  multipleUsers if multiple users found with the currentUser's email
+
+    if (auth.currentUser == null) return "null";
+    const queryResults = await getDocs(query(collection(db, "users"), where("email", "==", auth.currentUser.email))); //Get Users with the authorized user's email
+    if (queryResults.size == 0) return "notFound";
+    if (queryResults.size > 1) return "multipleUsers";
+    return queryResults.docs[0];
+}
 //Converts a Query Snapshot to an array of userDocs
 export function toUserDocArray(queryResults: QuerySnapshot): UserDoc[] {
     let userDocs: Array<UserDoc> = new Array();
