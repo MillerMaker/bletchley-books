@@ -28,12 +28,18 @@ export const Auth = function() {
         event.preventDefault();//Stop page reload
 
         const auth = getAuth();
+
+        if (username == "" || password == "") { setAccountAlert("Invalid login information!"); setInactiveAccount(true); return; } //Return if there is no user with that id
+
         //find document using username 
-        const userData = new UserData((await getDocAt("users/" + username)).data())
+        const userDoc = await getDocAt("users/" + username);
+        if (!userDoc.exists()) {setAccountAlert("Invalid login information!"); setInactiveAccount(true); return; } //Return if there is no user with that id
+        const userData = new UserData((userDoc).data());
+
+
         //Is this user suspended?
         const time = new Date()
         const isSuspended = time.getTime() >= userData.suspendStartDate.toDate().getTime() && time.getTime() <= userData.suspendEndDate.toDate().getTime() ? true : false;
-        console.log("Suspended = " + isSuspended);
         
         //if User is inactive/suspended/unverified, show error. Otherwise, log in. 
         if(!userData.active || isSuspended || !userData.verified) {

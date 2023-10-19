@@ -38,7 +38,7 @@ function Header(props: Props) {
                 />  
             </div>
             <div className = "col-sm">
-                  <ShowNavBar></ShowNavBar>
+                  <ShowNavBar />
             </div>
             <div className = "col-3" >
                 <ShowUsername />
@@ -47,6 +47,7 @@ function Header(props: Props) {
     )
     async function getRole() {
         const authUserDoc = await GetAuthUserDoc();
+
         if (authUserDoc == "null" || authUserDoc == "multipleUsers" || authUserDoc == "notFound") return "noUser";
         setUserRole(authUserDoc.data().role);
     }

@@ -110,7 +110,7 @@ function NewUser(props: Props) {
           const userData = props.defaultUserDoc.userData;
           userData.first = formData.firstName;
           userData.last = formData.lastName;
-          userData.email = formData.emailAddress;
+          userData.email = formData.emailAddress.toLowerCase();
           userData.dob = new Timestamp(toTimeStamp(formData.dateOfBirth), 0);
           userData.address = formData.address;
           saveDocAt("users/" + props.defaultUserDoc.username, userData);
@@ -128,7 +128,7 @@ function NewUser(props: Props) {
               "role": "accountant",
               "suspendEndDate": new Timestamp(0, 0),
               "suspendStartDate": new Timestamp(0, 0),
-              "email": formData.emailAddress,
+              "email": formData.emailAddress.toLowerCase(),
               "verified": props.createType == "adminCreate" ? true : false,
               "oldPasswords" : [],
               "password": hashedPass,
