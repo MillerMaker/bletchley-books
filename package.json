@@ -16,6 +16,7 @@
     "firebase": "^10.4.0",
     "js": "^0.1.0",
     "react": "^18.2.0",
+    "react-calendar": "^4.6.1",
     "react-dom": "^18.2.0",
     "react-password-checklist": "^1.4.3",
     "react-router-dom": "^6.16.0"

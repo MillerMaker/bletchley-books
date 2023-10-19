@@ -1,9 +1,14 @@
-import {  useState } from 'react'
+import {  useState, useCallback } from 'react'
 import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
 import NewAccountPopup from './NewAccountPopup';
 import Alert from './Alert';
 import { useNavigate} from "react-router-dom";
+import calendarImage from "../assets/calendar-icon.png"
+import "./Header.css"
+import CustomPopup from './CustomPopup';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 
 
@@ -17,6 +22,7 @@ function ChartAccounts() {
     //Create/Edit Popup State
     const [createPopupShown, setCreatePopupShown] = useState(false);
     const [editPopupShown, setEditPopupShown] = useState(false);
+    const [calendarPopupShown, setCalendarPopupShown] = useState(false);
 
     //Alert State
     const [alertShown, setAlertShown] = useState(false);
@@ -100,6 +106,7 @@ function ChartAccounts() {
         <>
             {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
             <div>
+                <button className='calendar-button' onClick={() => {setCalendarPopupShown(true)}}><img src={calendarImage} className='calendar'/></button>
                 <label>Search:</label>
                 <select
                     value={searchColumn}
@@ -192,6 +199,16 @@ function ChartAccounts() {
             {editPopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <NewAccountPopup backCallback={() => setEditPopupShown(false)} confirmCallback={() => { setRequestedData(false); }} toEdit={accountDocs[selectedIndex]} />
             }
+            {calendarPopupShown && 
+                <CustomPopup child={
+                    <>
+                        <div className='calendar-popup'>
+                            <Calendar />
+                        </div>
+                        <button onClick={() => {setCalendarPopupShown(false)}}>Close</button>
+                    </>
+                }/>
+            } 
         </>
     );
 }
