@@ -14,6 +14,7 @@ import ChartAccountsPage from './pages/ChartAccountsPage'
 import EditLogPage from './pages/EventLogPage'
 import EventLogPage from './pages/EventLogPage'
 import ViewAccount from './pages/ViewAccount'
+import LedgerPage from './pages/LedgerPage'
 import HelpPage from './pages/HelpPage'
 
 const auth = getAuth();
@@ -42,6 +43,7 @@ const [token, setToken] = useState();
             <Route path='event-log' element={<EventLogPage />} />
             <Route path='view-account' element={<ViewAccount/>} />
             <Route path='help' element={<HelpPage/>} />
+            <Route path='ledger' element={<LedgerPage />} />
         </Route>
       </Routes>
       </main>
