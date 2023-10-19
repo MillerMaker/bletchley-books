@@ -75,13 +75,13 @@ function AdminVerificationPage() {
                 </tbody>
             </table>
             <div className="btn-group">
-                <button
+                <button title="Accept new user"
                     className={"btn btn-success" + (userDocs.length == 0 ? " disabled" : "")}
                     onClick={() => setShowRoleSelection(true)}
                 >
                     ACCEPT
                 </button>
-                <button
+                <button title="Reject new user"
                     className={"btn btn-danger" + (userDocs.length == 0 ? " disabled" : "")}
                     onClick={HandleReject}
                 >

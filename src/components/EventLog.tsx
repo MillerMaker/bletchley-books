@@ -59,7 +59,7 @@ function EventLog() {
                 >
                     <td>{eventDoc.userID}</td>
                     <td>{TimeStampToDateString(eventDoc.eventDateTime)}</td>
-                    <td><button onClick={() => {setViewDocPopupShown(true)}}>View</button></td>
+                    <td><button title="View this event's details" onClick={() => { setViewDocPopupShown(true) }}>View</button></td>
                 </tr>
             )}
         </tbody>

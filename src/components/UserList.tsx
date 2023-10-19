@@ -127,7 +127,7 @@ function UserList() {
     /* RETURN HTML */
     return (
         <>
-            <button
+            <button title="Create a new verified user"
                 className="btn-block btn btn-success long" onClick = {() => setUserPopupShown(true)}
             >
                 Create User
@@ -179,31 +179,31 @@ function UserList() {
             </table>
             {userDocs.length != 0 && selectedIndex != -1 && // USER BUTTONS  Only Display Buttons if a User is Selected AND there are users Loaded
                 <div className="btn-group">
-                    <button
+                    <button title="De/Activate the selected user"
                         className={"btn" + (userDocs[selectedIndex].userData.active ? " btn-danger" : " btn-success")}
                         onClick={(choice) => HandleClickToggleActivate()}
                     >
                         {userDocs[selectedIndex].userData.active ? "Deactivate" : "Activate"}
                     </button>
-                    <button
+                    <button title="Edit the selected user's details"
                         className="btn btn-secondary"
                         onClick={() => setEditUserPopupShown(true)}
                     >
                         Edit
                     </button>
-                        <button
+                    <button title="Change the selected user's role"
                             className="btn btn-secondary"
                             onClick={() => {setChangeRolePopupShown(true); console.log("CHANGE ROLE PRESSED");}}
                         >
                             Change Role
-                        </button>
-                    <button
+                    </button>
+                    <button title="Email the selected user"
                         className="btn btn-primary"
                         onClick={() => setEmailPopupShown(true)}
                     >
                         Email
                     </button>
-                    <button
+                    <button title="Temporarily suspend the selected user"
                         className="btn btn-warning"
                         onClick={() => { setSuspendPopupShown(true); setSuspendStartDate(userDocs[selectedIndex].userData.suspendStartDate); setSuspendEndDate(userDocs[selectedIndex].userData.suspendEndDate); }}
                     >
@@ -227,17 +227,17 @@ function UserList() {
                         </input>
                         <br></br><br></br><br></br>
                         <div className="btn-group">
-                            <button
+                            <button title="Confirm the suspension"
                                 onClick={HandleSubmitSuspension}
                                 className="btn btn-primary">
                                 Submit
                             </button>
-                            <button
+                            <button title="Clear the current suspension"
                                 onClick={() => ClearSuspension()}
                                 className="btn btn-secondary">
                                 Clear Suspension
                             </button>
-                            <button
+                            <button title="Go back"
                                 onClick={() => CloseSuspensionPopup()}
                                 className="btn btn-secondary">
                                 Back
@@ -270,13 +270,13 @@ function UserList() {
                     </form>
                     <br></br>
                     <div className="btn-group">
-                    <button
-                        onClick={HandleEmailRequest}
+                        <button title="Send the email"
+                            onClick={HandleEmailRequest}
                             className="btn btn-primary">
                             Send
                         </button>
-                    <button
-                        onClick={CloseEmailPopup}
+                        <button title="Go back"
+                            onClick={CloseEmailPopup}
                             className="btn btn-secondary">
                             Back
                         </button>
@@ -294,7 +294,7 @@ function UserList() {
                 <CustomPopup child={
                 <>
                     <NewUser createType="admin" defaultUserDoc={new UserDoc("", null)} />
-                   <button onClick={() => setUserPopupShown(false)}
+                    <button title="Close popup" onClick={() => setUserPopupShown(false)}
                     className="btn btn-primary"
                     >
                         Close
@@ -306,7 +306,7 @@ function UserList() {
                 <CustomPopup child={
                     <>
                     <NewUser createType="edit" defaultUserDoc={userDocs[selectedIndex]} />
-                    <button onClick={() => setEditUserPopupShown(false)}
+                    <button title="Close popup" onClick={() => setEditUserPopupShown(false)}
                             className="btn btn-primary"
                         >
                             Close

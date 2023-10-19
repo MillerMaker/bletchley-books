@@ -96,13 +96,13 @@ function ForgotPassword(props: Props) {
                 <span>Mother's maiden name: </span>
                 <input required id="a3" name="a3" value={formData.a3} onChange={handleChange} /><br></br><br></br>
                 <div className="btn-group">
-                    <button
+                    <button title="Reset your password"
                         type="submit"
                         className="btn btn-primary"
                     >
                         Reset
                     </button>
-                    <button
+                    <button title="Go back"
                         onClick={props.backCallback}
                         className="btn btn-secondary">
                         Back

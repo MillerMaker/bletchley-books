@@ -18,6 +18,7 @@ function AccountInfo(props: Props) {
         number: 0,
         credit: 0,
         debit: 0, 
+        userID: '',
         date: new Timestamp(0,0),
         description: '',
         normalSide: '',
@@ -66,8 +67,8 @@ function AccountInfo(props: Props) {
                         {accountDoc.statement}
                     </div>
                 </div>
-                <div className = "created-info">
-                    {"Created by: " }
+                    <div className="created-info">
+                        {"Created by: " + accountDoc.userID }
                     <br></br>
                     {"Created on: " + TimeStampToDateString(accountDoc.date)}
                     <br></br>

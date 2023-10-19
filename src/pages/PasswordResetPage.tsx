@@ -95,7 +95,7 @@ function PasswordChangePage() {
                         onChange={setIsValid}
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">
+                <button title="Change your password" type="submit" className="btn btn-primary">
                     Change Password
                 </button>
             </form>
