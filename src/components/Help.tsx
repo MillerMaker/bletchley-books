@@ -1,4 +1,4 @@
-import { useNavigate, redirect } from "react-router"
+import { useNavigate, useLocation } from "react-router"
 import backButton from "../assets/back_arrow_icon.png";
 import './Help.css'
 
@@ -9,10 +9,17 @@ interface Props {
 
 function Help (props: Props) {
     const navigate = useNavigate(); 
+    const location = useLocation(); 
+
+    function handleBack() {
+        location.hash = '';
+        console.log(props.backPath)
+       //navigate('' + props.backPath); 
+    }
     return (
         <>
         <div className = "banner">
-            <div className = "back"  onClick={() => navigate('' + props.backPath)}>
+            <div className = "back"  onClick= {() => {navigate("../chart-of-accounts")}}>
                 <img src = {backButton} className = "backIcon"/>
                 Back
             </div>

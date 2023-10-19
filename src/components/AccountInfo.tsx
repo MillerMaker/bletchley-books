@@ -79,8 +79,8 @@ function AccountInfo(props: Props) {
             <div className = "current-balance">
                 <div>
                 {accountDoc.normalSide =='credit' ?  "Current Balance: " 
-                + (accountDoc.initialBalance + accountDoc.credit - accountDoc.debit): "Current Balance: " 
-                + (accountDoc.initialBalance + accountDoc.debit-accountDoc.credit)}
+                + (accountDoc.initialBalance + accountDoc.credit - accountDoc.debit).toLocaleString(): "Current Balance: " 
+                + (accountDoc.initialBalance + accountDoc.debit-accountDoc.credit).toLocaleString()}
                 </div>
 
             </div>
