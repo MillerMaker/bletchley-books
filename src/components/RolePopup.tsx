@@ -29,13 +29,13 @@ function RolePopup(props: Props) {
             </select>
             <br></br><br></br><br></br>
             <div className="btn-group">
-                <button
+                <button title="Change role"
                     onClick={() => props.roleChosenCallback(selectedRole)}
                     className="btn btn-primary"
                 >
                     Change
                 </button>
-                <button
+                <button title="Go back"
                     onClick={props.backPressedCallback}
                     className="btn btn-secondary">
                     Back

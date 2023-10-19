@@ -246,8 +246,8 @@ function NewAccountPopup(props: Props) {
                     </div>
                     <br></br>
                     <div className="btn-group">
-                        <button className="btn btn-primary" type="submit">{Editing() ? "Confirm Edit" : "Create Account"}</button>
-                        <button className="btn btn-secondary" onClick={props.backCallback}>Back</button>
+                        <button title="Confirm these account details" className="btn btn-primary" type="submit">{Editing() ? "Confirm Edit" : "Create Account"}</button>
+                        <button title="Go back" className="btn btn-secondary" onClick={props.backCallback}>Back</button>
                     </div>
                 </form>
             </>} />

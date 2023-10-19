@@ -17,13 +17,13 @@ function ConfirmPopup(props: Props) {
             <br></br>
             <br></br><br></br><br></br>
             <div className="btn-group">
-                <button
+                <button title="Confirm"
                     onClick={props.confirmCallback}
                     className="btn btn-primary"
                 >
                     Confirm
                 </button>
-                <button
+                <button title="Go back"
                     onClick={props.backCallback}
                     className="btn btn-secondary">
                     Back
