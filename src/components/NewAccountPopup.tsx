@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
-import { ContainsEmail, HashString, UserData, UserDoc, addDocRandomID, auth, db, getDocAt, saveDocAt } from "../firebase";
+import { ContainsEmail, GetAuthUserDoc, GetUserDoc, HashString, UserData, UserDoc, addDocRandomID, auth, db, getDocAt, saveDocAt } from "../firebase";
 import { CollectionReference, Timestamp, addDoc, collection, getDocs, or, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate } from "react-router-dom"
@@ -87,7 +87,8 @@ function NewAccountPopup(props: Props) {
         queryResults = await getDocs(query(collection(db, "accounts"), where("name", "==", formData.name)));
         if ((!Editing() || props.toEdit.data.name != formData.name) && !queryResults.empty)
         { setAlertShown(true); setAlertText("Account name is taken"); setAlertColor("danger"); return; }
-
+        //Get AuthUserID
+        const authUserDoc = await Promise.resolve(GetAuthUserDoc());
 
 
 
@@ -107,6 +108,7 @@ function NewAccountPopup(props: Props) {
             active: true,
             debit:  0,
             credit: 0,
+            userID: authUserDoc.id,
             date: Timestamp.now(),
         }
 
