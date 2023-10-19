@@ -10,7 +10,7 @@ interface Props {
 function Help (props: Props) {
     const navigate = useNavigate(); 
     const location = useLocation(); 
-    handleBack();
+
     function handleBack() {
         location.hash = '';
         console.log(props.backPath)

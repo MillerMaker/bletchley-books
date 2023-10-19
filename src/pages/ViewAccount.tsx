@@ -12,7 +12,7 @@ function ViewAccount() {
     const {state} = useLocation();
     const id = state;
 
-    console.log("ViewAccountsSaysHi")
+
     return (
         <>
             <Header title="View Account" homePath="/private-outlet/chart-of-accounts" />
