@@ -2,7 +2,6 @@ import { useState }from 'react'
 import { Timestamp, getDocs, query, collection } from 'firebase/firestore';
 import { TimeStampToDateString, db } from '../firebase';
 import CustomPopup from './CustomPopup';
-import { json } from 'react-router-dom';
 import EventLogTable from './EventLogTable';
 
 export class EventData {
