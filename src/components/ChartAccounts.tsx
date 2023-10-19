@@ -3,7 +3,7 @@ import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } fr
 import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
 import NewAccountPopup from './NewAccountPopup';
 import Alert from './Alert';
-import { Navigate } from 'react-router-dom';
+import { useNavigate} from "react-router-dom";
 
 
 
@@ -22,7 +22,7 @@ function ChartAccounts() {
     const [alertShown, setAlertShown] = useState(false);
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
-
+    const navigate = useNavigate();
     //Searching State
     const [searchText, setSearchText] = useState("");
     const [searchColumn, setSearchColumn] = useState("number");
@@ -164,7 +164,7 @@ function ChartAccounts() {
                 <div className="btn-group">
                     <button
                         className="btn btn-secondary"
-                        onClick={() => { }}
+                        onClick={() => {navigate("/private-outlet/view-account", { state : accountDocs[selectedIndex]})}}
                     >
                         View
                     </button>

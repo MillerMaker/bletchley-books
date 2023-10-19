@@ -5,7 +5,7 @@ import Header from '../components/Header'
 function ChartAccountsPage() {
     return (
         <>
-            <Header title="Chart of Accounts" homePath="/private-outlet/admin" />
+            <Header title="Chart of Accounts" homePath="/private-outlet/chart-of-accounts" />
             <ChartAccounts />
         </>
     )
