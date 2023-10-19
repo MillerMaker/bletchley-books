@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router"
+import { useNavigate, redirect } from "react-router"
 import backButton from "../assets/back_arrow_icon.png";
 import './Help.css'
 
