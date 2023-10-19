@@ -1,8 +1,9 @@
 import {  useState } from 'react'
 import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString } from '../firebase';
+import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
 import NewAccountPopup from './NewAccountPopup';
 import Alert from './Alert';
+import { Navigate } from 'react-router-dom';
 
 
 
@@ -17,7 +18,7 @@ function ChartAccounts() {
     const [createPopupShown, setCreatePopupShown] = useState(false);
     const [editPopupShown, setEditPopupShown] = useState(false);
 
-
+    //Alert State
     const [alertShown, setAlertShown] = useState(false);
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
@@ -26,16 +27,27 @@ function ChartAccounts() {
     const [searchText, setSearchText] = useState("");
     const [searchColumn, setSearchColumn] = useState("number");
 
+    //User Role State
+    const [isAdmin, setIsAdmin] = useState(false);
+
     function GetBalance(accountData: any): number{
         return accountData.initialBalance - accountData.credit + accountData.debit;
     }
 
 
-    async function GetAccountDocs() {
-        /* Request User Docs Once */
+    async function GetData() {
+        /* REQUEST DATA ONCE */
         setRequestedData(true);
 
+        /* GET USER ROLE */
+        const userDocSnapshot = await Promise.resolve(GetAuthUserDoc());
+        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText("NOT AUTHORIZED"); return; }
+        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText("MULRIPLE USERS W/SAME EMAIL"); return; }
+        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText("NO USER W/EMAIL"); return; }
+        setIsAdmin(userDocSnapshot.data().role == "admin");
 
+
+        /* GET ACCOUNT DATA */
         const queryResult = await getDocs(collection(db, "accounts"));
 
         let allAccountDocs: Array<{ id: string, data: any }> = new Array();
@@ -46,7 +58,7 @@ function ChartAccounts() {
         setAccountDocs(allAccountDocs);
     }
     if (!requestedData)
-        GetAccountDocs();
+        GetData();
 
 
 
@@ -106,12 +118,13 @@ function ChartAccounts() {
                     value={searchText}
                     onChange={(e) => { setSearchText(e.target.value) }}
                 />
-
-                <button
-                    className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
-                >
-                    Create Account
-                </button>
+                {isAdmin && //Only Show Create Account if user is Admin
+                    <button
+                        className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
+                    >
+                        Create Account
+                    </button>
+                }
             </div>
             
             <br></br><br></br>
@@ -155,18 +168,21 @@ function ChartAccounts() {
                     >
                         View
                     </button>
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => { setEditPopupShown(true); }}
-                    >
-                        Edit
-                    </button>
-                    <button
-                        className={"btn" + (accountDocs[selectedIndex].data.active ? " btn-danger" : " btn-success")}
-                        onClick={(choice) => HandleClickToggleActivate()}
-                    >
-                        {accountDocs[selectedIndex].data.active ? "Deactivate" : "Activate"}
-                    </button>
+                    {isAdmin && //Only Show Activate/Edit Button if user is Admin
+                        <>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => { setEditPopupShown(true); }}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                className={"btn" + (accountDocs[selectedIndex].data.active ? " btn-danger" : " btn-success")}
+                                onClick={(choice) => HandleClickToggleActivate()}
+                            >
+                                {accountDocs[selectedIndex].data.active ? "Deactivate" : "Activate"}
+                            </button>
+                        </>}
                 </div>
             }
 
