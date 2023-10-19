@@ -42,14 +42,6 @@ function Header(props: Props) {
             </div>
             <div className = "col-3" >
                 <ShowUsername />
-                <div className = "utilities">
-                    <div className = "help inactive"  onClick={() => {navigate("/private-outlet/help", { state : props.homePath})}}> 
-                        Help
-                    </div>
-                    <div className="logoff inactive" onClick={HandleLogoff}>
-                        Logoff
-                    </div>
-                </div>
             </div> 
         </div>
     )
@@ -85,9 +77,6 @@ function ShowNavBar () {
     )
   }
 }
-
-}
-
 function ShowUsername() {
     const navigate = useNavigate();
     if (auth.currentUser) {
@@ -98,6 +87,14 @@ function ShowUsername() {
                 onClick={() => navigate("/private-outlet/password-change")}
             />
             <div className="username">{auth.currentUser.displayName} </div>
+            <div className = "utilities">
+                    <div className = "help inactive"  onClick={() => {navigate("/private-outlet/help", { state : props.homePath})}}> 
+                        Help
+                    </div>
+                    <div className="logoff inactive" onClick={HandleLogoff}>
+                        Logoff
+                    </div>
+            </div>
         </>
     )
     } else {
@@ -106,6 +103,10 @@ function ShowUsername() {
         )
     }
 }
+
+}
+
+
 
 
 
