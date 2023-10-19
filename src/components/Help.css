@@ -1,0 +1,29 @@
+.banner {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    column-gap: 39%;
+    font-family: 'MyLato';
+    padding-bottom: 40px;
+}
+
+.info {
+    height: 600px;
+    max-width:80%;
+    padding-left: 20%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-family: 'MyLato';
+
+    text-align:left;
+}
+
+.scrollspy-example{
+    position:relative;
+    overflow-y:scroll;
+}
+
+.scrollspy-example {
+    padding-left: 20px;
+}

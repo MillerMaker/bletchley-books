@@ -77,21 +77,24 @@ function ShowNavBar () {
     )
   }
 }
-
-}
-
 function ShowUsername() {
     const navigate = useNavigate();
     if (auth.currentUser) {
     return (
         <>
-        <img src = {userImage}
-            className="userImage"
-            onClick={() => navigate("/private-outlet/password-change")}
-        />
-            <h4 className="username">{auth.currentUser.displayName}</h4>
-            <span>   </span>
-            <button title="Logout of your account" className="btn btn-secondary" onClick={HandleLogoff}>Logoff</button>
+            <img src = {userImage}
+                className="userImage"
+                onClick={() => navigate("/private-outlet/password-change")}
+            />
+            <div className="username">{auth.currentUser.displayName} </div>
+            <div className = "utilities">
+                    <div className = "help inactive"  onClick={() => {navigate("/private-outlet/help", { state : props.homePath})}}> 
+                        Help
+                    </div>
+                    <div className="logoff inactive" onClick={HandleLogoff}>
+                        Logoff
+                    </div>
+            </div>
         </>
     )
     } else {
@@ -100,6 +103,10 @@ function ShowUsername() {
         )
     }
 }
+
+}
+
+
 
 
 

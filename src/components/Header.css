@@ -50,7 +50,7 @@
 }
 
 .userImage {
-    width: fit-content;
+    width: 45px;
     max-height: 45px;
     cursor: pointer;
 }
@@ -60,9 +60,20 @@
     flex-direction: column;
     font-size:x-large;
     color: white; 
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 .btn {
     margin-left: 10px;
+}
+
+.utilities {
+    padding-left: 10px;
+    color: #3b486e;
+    text-decoration:underline; 
+    display: flex;
+    flex-direction:row;
+    align-items: center;
+    gap: 10px;
 }
 
 .active{
