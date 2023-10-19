@@ -65,7 +65,7 @@ function AdminPasswordPage() {
                 </tbody>
             </table>
             {userDocs.length != 0 && selectedIndex != -1 &&
-                    <button
+                    <button title="Notify user of their password expiration date"
                         className="btn btn-danger"
                         onClick={(choice) => onNotify()}
                     >
@@ -75,7 +75,7 @@ function AdminPasswordPage() {
             {showUserNotifiedPopup && <CustomPopup child = {
                 <>
                     <h4>Email sent to {userDocs[selectedIndex].userData.first} {userDocs[selectedIndex].userData.last}!</h4>
-                    <button onClick={() => setShowUserNotifiedPopup(false)}>Okay</button>
+                    <button title="Close popup" onClick={() => setShowUserNotifiedPopup(false)}>Okay</button>
                 </>
             }/>}
         </>

@@ -4,7 +4,7 @@ import userImage from "../assets/noun-user-6126605.png"
 import {getAuth} from "firebase/auth"
 import { NavigateFunction, useNavigate } from "react-router"
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import { auth, UserData, getDocAt} from "../firebase"
+import { auth, UserData, getDocAt, GetAuthUserDoc} from "../firebase"
 import {useState} from "react";
 
 
@@ -53,11 +53,11 @@ function Header(props: Props) {
             </div> 
         </div>
     )
-  async function getRole() {
-    const navigate = useNavigate();
-    const userData= new UserData((await getDocAt("users/" + auth.currentUser?.displayName)).data());
-    setUserRole(userData.role);
-  }
+    async function getRole() {
+        const authUserDoc = await GetAuthUserDoc();
+        if (authUserDoc == "null" || authUserDoc == "multipleUsers" || authUserDoc == "notFound") return "noUser";
+        setUserRole(authUserDoc.data().role);
+    }
 
     
 function ShowNavBar () {
