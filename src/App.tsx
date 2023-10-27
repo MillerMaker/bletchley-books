@@ -16,6 +16,7 @@ import EventLogPage from './pages/EventLogPage'
 import ViewAccount from './pages/ViewAccount'
 import LedgerPage from './pages/LedgerPage'
 import HelpPage from './pages/HelpPage'
+import JournalPage from './pages/JournalPage'
 
 const auth = getAuth();
 
@@ -44,6 +45,7 @@ const [token, setToken] = useState();
             <Route path='view-account' element={<ViewAccount/>} />
             <Route path='help' element={<HelpPage/>} />
             <Route path='ledger' element={<LedgerPage />} />
+            <Route path='journal' element={<JournalPage />} />
         </Route>
       </Routes>
       </main>

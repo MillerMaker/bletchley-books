@@ -1,0 +1,206 @@
+import { useState, useCallback } from 'react'
+import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
+import NewAccountPopup from '../components/NewAccountPopup';
+import Alert from '../components/Alert';
+import { useNavigate } from "react-router-dom";
+import calendarImage from "../assets/calendar-icon.png"
+import Header from '../components/Header';
+import NewJournalPopup from '../components/NewJournalPopup';
+
+
+
+function JournalPage() {
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+
+    //Journal Docs
+    const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any }>);
+    const [requestedData, setRequestedData] = useState(false);
+
+    //Account ID to Name Map
+    const [accountNames, setAccountNames] = useState(new Map<string, string>);
+
+    //Create/Edit Popup State
+    const [createPopupShown, setCreatePopupShown] = useState(false);
+
+    //Alert State
+    const [alertShown, setAlertShown] = useState(false);
+    const [alertText, setAlertText] = useState("");
+    const [alertColor, setAlertColor] = useState("danger");
+    const navigate = useNavigate();
+    //Searching State
+    const [searchText, setSearchText] = useState("");
+    const [searchColumn, setSearchColumn] = useState("number");
+
+    //User Role State
+    const [userRole, setUserRole] = useState("");
+
+    function GetBalance(accountData: any): number {
+        return accountData.initialBalance - accountData.credit + accountData.debit;
+    }
+
+
+    async function GetData() {
+        /* REQUEST DATA ONCE */
+        setRequestedData(true);
+
+        /* GET USER ROLE */
+        const userDocSnapshot = await Promise.resolve(GetAuthUserDoc());
+        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText("NOT AUTHORIZED"); return; }
+        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText("MULRIPLE USERS W/SAME EMAIL"); return; }
+        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText("NO USER W/EMAIL"); return; }
+        setUserRole(userDocSnapshot.data().role);
+
+
+        /* GET JOURNAL DATA */
+        let queryResult = await getDocs(collection(db, "journals"));
+
+        let allJournalDocs: Array<{ id: string, data: any }> = new Array();
+        queryResult.forEach((doc) => {
+            allJournalDocs.push({ id: doc.id, data: doc.data() });
+        })
+
+        setJournalDocs(allJournalDocs);
+
+
+        /* GET ACCOUNT DATA */
+        queryResult = await getDocs(collection(db, "accounts"));
+
+        let allAccountsMap = new Map<string, string>();
+        queryResult.forEach((doc) => {
+            allAccountsMap.set(doc.id, doc.data().name);
+        })
+
+        setAccountNames(allAccountsMap);
+    }
+    if (!requestedData)
+        GetData();
+
+
+
+
+    function HandleJudgeJournal(approve: boolean) {
+        //Change the selected journal entries status 
+        //  to the value of approve parameter
+        let newJournalDocs = [...journalDocs];
+        newJournalDocs[selectedIndex].data.status = approve ? "approved" : "rejected";
+        saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
+        console.log("journals/" + newJournalDocs[selectedIndex].id);
+        setJournalDocs(newJournalDocs);
+    }
+
+
+
+
+
+    function MatchesSearch(accountDoc: { id: string, data: any }): boolean {
+        //Returns Whether or not the accountDoc's
+        //  searchColumn field includes the current searchText
+
+        //Special Case for balance as it is not a field in account
+        if (searchColumn == "balance") return GetBalance(accountDoc.data).toString().toLowerCase().includes(searchText.toLowerCase());
+
+        return accountDoc.data[searchColumn].toString().toLowerCase().includes(searchText.toLowerCase());
+    }
+
+
+    /* RETURN HTML */
+    return (
+        <>
+            <Header homePath="/private-outlet/journal" title="Journal" />
+            {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
+            <div>
+                <label>Search:</label>
+                <select
+                    value={searchColumn}
+                    onChange={(e) => { setSearchColumn(e.target.value) }}
+                >
+                    <option value="number">Number</option>
+                    <option value="name">Name</option>
+                    <option value="category">Category</option>
+                    <option value="subcategory">Subcategory</option>
+                    <option value="balance">Balance</option>
+                    <option value="statement">Statement</option>
+                    <option value="active">Active</option>
+                </select>
+                <input
+                    type="text"
+                    value={searchText}
+                    onChange={(e) => { setSearchText(e.target.value) }}
+                />
+                {true && //Only Show Create Account if user is Admin
+                    <button
+                        className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
+                    >
+                        Create a Journal Entry
+                    </button>
+                }
+            </div>
+
+            <br></br><br></br>
+            {journalDocs.length == 0 && <p>No Journal Entries Found</p>}
+            <table className="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Documents</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
+                    (/*MatchesSearch(accountDoc) &&*/
+                        <>
+                            <tr
+                                className={"" + (selectedIndex == index && "table-primary")}
+                                key={journalDoc.id}
+                                onClick={() => setSelectedIndex(index)}>
+                                <td>{TimeStampToDateString(journalDoc.data.date)}</td>
+                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{accountNames.get(infoObj.id)}<br></br></>)))}</td>
+                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.debit).toFixed(2)}<br></br></>)))}</td>
+                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.credit).toFixed(2)}<br></br></>)))}</td>
+                                <td>DOCUMENTS GO HERE</td>
+                                <td className={(journalDoc.data.status == "approved" ? "table-success" : journalDoc.data.status == "rejected" ? "table-danger" : "table-warning")}>{journalDoc.data.status}</td>
+                            </tr>
+                            {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
+                        </>
+                    )
+                    )}
+                </tbody>
+            </table>
+            {selectedIndex != -1 && // USER BUTTONS  Only Display Buttons if a User is Selected AND there are users Loaded
+                <div className="btn-group">
+                    <button title="View this account's details"
+                        className="btn btn-secondary"
+                        onClick={() => { navigate("/private-outlet/view-account", { state: journalDocs[selectedIndex] }) }}
+                    >
+                        View
+                    </button>
+
+                    {journalDocs[selectedIndex].data.status == "pending" &&
+                        <>
+                        <button title="Approve this journal entry"
+                            className="btn btn-success"
+                            onClick={() => HandleJudgeJournal(true)}>
+                            Approve
+                        </button>
+                        <button title="Reject this journal entry"
+                            className="btn btn-danger"
+                            onClick={() => HandleJudgeJournal(false)}>
+                            Reject
+                        </button>
+                        </>}
+                </div>
+            }
+
+            {createPopupShown && //Show Change Role Popup if Change Role Popup Shown
+                <NewJournalPopup backCallback={() => setCreatePopupShown(false)} confirmCallback={() => { setRequestedData(false); }} accountNames={accountNames} />
+            }
+        </>
+    );
+}
+
+export default JournalPage

@@ -61,7 +61,7 @@ function ShowNavBar () {
       <div className = {props.homePath == '/private-outlet/chart-of-accounts'? 'chart-of-accounts active' : 'chart-of-accounts inactive'} onClick = {() => navigate("/private-outlet/chart-of-accounts")}> 
             Accounts
       </div>
-      <div className = "journal inactive" > 
+      <div className={props.homePath == '/private-outlet/journal' ? 'journal active' : 'journal inactive'} onClick={() => navigate("/private-outlet/journal")}> 
             Journal
       </div>
       {userRole == 'admin' &&
