@@ -41,6 +41,10 @@
     cursor: pointer;
 }
 
+.journal {
+    align-items: right;
+    cursor: pointer;
+}
 
 .logo {
     width: fit-content;
