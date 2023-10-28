@@ -46,9 +46,8 @@ function Ledger(props: Props) {
         /* REQUEST DATA ONCE */
         setRequestedData(true);
 
-        //get Account Data
+        /* GET ACCOUNT DATA */
         setAccountDoc(props.toView.data); 
-        console.log( props.toView.data.journals); 
 
         /* GET JOURNAL DATA */
         let q = query(collection(db, "journals"), where('__name__', 'in', props.toView.data.journals));
@@ -90,7 +89,7 @@ function Ledger(props: Props) {
                         <th>Debit</th>
                         <th>Credit</th>
                         <th>Balance</th>
-
+                        <th>PR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -131,9 +130,30 @@ function Ledger(props: Props) {
                                             <></>
                                             )
                                         }
-                                    }))}
+                                    }))} 
                                 </td>
-                                <td>BALANCE GOES HERE</td>
+                                <td>{journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => { 
+                                        if (infoObj.id == props.toView.id) {
+                                            let balance;
+                                            if(accountDoc.normalSide == 'credit') {
+                                                balance = Number(accountDoc.initialBalance + infoObj.credit - infoObj.debit).toFixed(2);
+                                            } else {
+                                                balance = Number(accountDoc.initialBalance + infoObj.debit - infoObj.credit).toFixed(2);
+                                            }
+                                            return(
+                                                <> 
+                                                {balance}
+                                                <br></br>
+                                                </>
+                                            )
+                                        } else {
+                                            return(
+                                            <></>
+                                            )
+                                        }
+                                    }))} 
+                                </td>
+                                <td>PR</td>
                             </tr>
                             {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
@@ -145,13 +165,6 @@ function Ledger(props: Props) {
         </div>
         </>
     )
-
-    async function getAccount() {
-        if(!gottenDoc) {
-            setAccountDoc(props.toView.data); 
-            setGottenDoc(true); 
-        }
-    }
 }
 
 export default Ledger; 

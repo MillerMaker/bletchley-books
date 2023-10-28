@@ -36,7 +36,11 @@ function JournalPage() {
     const [userRole, setUserRole] = useState("");
 
     function GetBalance(accountData: any): number {
-        return accountData.initialBalance - accountData.credit + accountData.debit;
+        if (accountData.normalSide == 'credit') {
+            return accountData.initialBalance + accountData.credit - accountData.debit;
+        } else {
+            return accountData.initialBalance - accountData.credit + accountData.debit;
+        }
     }
 
 

@@ -9,6 +9,7 @@ import "./Header.css"
 import CustomPopup from './CustomPopup';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import './ChartAccounts.css'
 
 
 
@@ -36,8 +37,12 @@ function ChartAccounts() {
     //User Role State
     const [isAdmin, setIsAdmin] = useState(false);
 
-    function GetBalance(accountData: any): number{
-        return accountData.initialBalance - accountData.credit + accountData.debit;
+    function GetBalance(accountData: any): number {
+        if (accountData.normalSide == 'credit') {
+            return accountData.initialBalance + accountData.credit - accountData.debit;
+        } else {
+            return accountData.initialBalance - accountData.credit + accountData.debit;
+        }
     }
 
 
@@ -156,7 +161,7 @@ function ChartAccounts() {
                                 key={accountDoc.id}
                                 onClick={() => setSelectedIndex(index)}>
                                 <td>{accountDoc.data.number}</td>
-                                <td>{accountDoc.data.name}</td>
+                                <td >{ <div className = "account-title" onClick = {() => { navigate("/private-outlet/ledger", { state: accountDocs[index]})}}>{accountDoc.data.name}</div>}</td>
                                 <td>{accountDoc.data.category}</td>
                                 <td>{accountDoc.data.subcategory}</td>
                                 <td>{GetBalance(accountDoc.data).toLocaleString()}</td>
