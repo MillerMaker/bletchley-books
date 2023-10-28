@@ -9,6 +9,7 @@ import "./Header.css"
 import CustomPopup from './CustomPopup';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import EmailUserList from './EmailUserList';
 
 
 
@@ -23,6 +24,7 @@ function ChartAccounts() {
     const [createPopupShown, setCreatePopupShown] = useState(false);
     const [editPopupShown, setEditPopupShown] = useState(false);
     const [calendarPopupShown, setCalendarPopupShown] = useState(false);
+    const [emailPopupShown, setEmailPopupShown] = useState(false);
 
     //Alert State
     const [alertShown, setAlertShown] = useState(false);
@@ -132,6 +134,11 @@ function ChartAccounts() {
                         Create Account
                     </button>
                 }
+                <button title="Email User"
+                        className="btn btn-primary" onClick={() => setEmailPopupShown(true)}
+                    >
+                        Email
+                    </button>
             </div>
             
             <br></br><br></br>
@@ -214,6 +221,14 @@ function ChartAccounts() {
                         <button onClick={() => {setCalendarPopupShown(false)}}>Close</button>
                     </>
                 }/>
+            }
+            {emailPopupShown && 
+                <CustomPopup child={
+                    <>
+                        <EmailUserList />
+                        <button className="btn btn-primary btn-danger" onClick={() => {setEmailPopupShown(false)}}>Cancel</button>
+                    </>
+            } />
             } 
         </>
     );
