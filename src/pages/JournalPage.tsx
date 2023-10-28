@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
+import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
 import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
 import NewAccountPopup from '../components/NewAccountPopup';
 import Alert from '../components/Alert';
@@ -36,7 +36,11 @@ function JournalPage() {
     const [userRole, setUserRole] = useState("");
 
     function GetBalance(accountData: any): number {
-        return accountData.initialBalance - accountData.credit + accountData.debit;
+        if (accountData.normalSide == 'credit') {
+            return accountData.initialBalance + accountData.credit - accountData.debit;
+        } else {
+            return accountData.initialBalance - accountData.credit + accountData.debit;
+        }
     }
 
 
@@ -84,9 +88,31 @@ function JournalPage() {
         //  to the value of approve parameter
         let newJournalDocs = [...journalDocs];
         newJournalDocs[selectedIndex].data.status = approve ? "approved" : "rejected";
+        //save journal document
         saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
         console.log("journals/" + newJournalDocs[selectedIndex].id);
+
+        // if approved, do the following:
+        // 1. Get All of the Transactions in the given Journal entry
+        // 2. Associate the journal id with every account associated with the transaction. 
+        // 3. Update the credit and debit fields for each account
+        if (approve) {
+            const trans = newJournalDocs[selectedIndex].data.transactions;
+            const accountIds = trans.map(updateAccounts);
+        }
         setJournalDocs(newJournalDocs);
+    }
+
+    async function updateAccounts(infoObj: { id: string, credit: number, debit: number }) {
+        const document1 = await getDocAt("accounts/" + infoObj.id);
+        await setDoc(doc(db, "accounts", infoObj.id), {
+            credit: document1.get("credit") + infoObj.credit, 
+            debit: document1.get("debit") + infoObj.debit, 
+            journals: arrayUnion(journalDocs[selectedIndex].id)
+        }, {merge:true});
+        const name = document1.get("name")
+        console.log(name);
+        return infoObj.id 
     }
 
 

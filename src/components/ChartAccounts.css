@@ -1,0 +1,12 @@
+
+.account-title{
+    width: fit-content;
+    cursor: pointer;
+    color: rgb(0, 0, 0);
+}
+
+.account-title:hover{
+    cursor: pointer;
+    color:  #5d53df;
+    text-decoration: underline;
+}
