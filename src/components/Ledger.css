@@ -1,0 +1,29 @@
+
+.search-filter{
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    column-gap: 50px;
+}
+
+.Page {
+    display:flex;
+    flex-direction:column;
+    row-gap: 50px;
+    justify-items:center;
+}
+
+.final-row {
+    padding:100px;
+    color:#666666;
+}
+.final-row:hover {
+    background-color:white;
+    color:#666666;
+}
+
+.final-balance {
+
+    color:#675CFF;
+}
+
