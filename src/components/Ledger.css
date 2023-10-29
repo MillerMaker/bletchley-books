@@ -23,7 +23,11 @@
 }
 
 .final-balance {
-
     color:#675CFF;
+}
+
+.forward-arrow:hover {
+font-size: large;
+cursor: pointer;
 }
 

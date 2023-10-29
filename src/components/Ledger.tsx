@@ -1,4 +1,5 @@
 import backButton from "../assets/back_arrow_icon.png";
+import forwardButton from "../assets/forward_arrow_icon.png"
 import { Timestamp, getDocs, collection, where, query, FieldPath} from 'firebase/firestore';
 import { TimeStampToDateString, db} from '../firebase';
 import { useState } from 'react';
@@ -233,7 +234,7 @@ function Ledger(props: Props) {
                                         }
                                     }))} 
                                 </td>
-                                <td>{">"}</td>
+                                <td className = "forward-arrow" onClick = {() => navigate('/private-outlet/journal')}>{">"}</td>
                             </tr>
                             {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
