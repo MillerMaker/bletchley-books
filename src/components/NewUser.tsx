@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
-import { ContainsEmail, HashString, UserData, UserDoc, db, getDocAt, saveDocAt} from "../firebase";
-import { CollectionReference, Timestamp, addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { ContainsEmail, HashString, UserDoc, db, saveDocAt} from "../firebase";
+import { Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate} from "react-router-dom"
-import bcrypt from "bcryptjs-react";
 import PasswordChecklist from "react-password-checklist"
 import Alert from "./Alert";
 import "./NewUser.css";

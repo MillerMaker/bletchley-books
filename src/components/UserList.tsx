@@ -1,6 +1,6 @@
-import { ChangeEvent, Fragment, useEffect, useState } from 'react'
-import { Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString } from '../firebase';
+import { useState } from 'react'
+import { Timestamp, collection, getDocs, query, where } from 'firebase/firestore';
+import { toUserDocArray, saveDocAt, UserDoc, db, TimeStampToDateString } from '../firebase';
 import CustomPopup from './CustomPopup';
 import SendEmail from '../Email';
 import RolePopup from './RolePopup';

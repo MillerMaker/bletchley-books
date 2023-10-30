@@ -1,7 +1,7 @@
 import {useState} from "react"
 import Header from '../components/Header'
 import { UserDoc, toUserDocArray, db, TimeStampToDateString } from "../firebase";
-import { collection, deleteDoc, doc, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where} from 'firebase/firestore';
 import CustomPopup from "../components/CustomPopup";
 import SendEmail from '../Email';
 

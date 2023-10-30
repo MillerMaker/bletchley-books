@@ -1,6 +1,6 @@
-import { DocumentSnapshot, doc, getDoc , DocumentData,Timestamp,} from 'firebase/firestore';
-import {getDocAt , db, TimeStampToDateString} from '../firebase';
-import { useEffect, useState } from 'react';
+import {Timestamp} from 'firebase/firestore';
+import {TimeStampToDateString} from '../firebase';
+import {useState } from 'react';
 import backButton from "../assets/back_arrow_icon.png";
 import { useNavigate } from "react-router"
 import './AccountInfo.css';
