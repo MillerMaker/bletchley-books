@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { } from "firebase/auth"
 import { GetAuthUserDoc, addDocRandomID, db, saveDocAt } from "../firebase";
-import { Timestamp, collection, getDocs,  query, where } from "firebase/firestore";
+import {  Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate } from "react-router-dom"
 import Alert from "./Alert";
