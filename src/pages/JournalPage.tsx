@@ -1,6 +1,6 @@
-import { useState} from 'react'
-import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
-import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc } from '../firebase';
+import { useState } from 'react'
+import {collection, getDocs,  setDoc, doc, arrayUnion, Timestamp} from 'firebase/firestore';
+import { getDocAt,saveDocAt,  db, TimeStampToDateString, GetAuthUserDoc } from '../firebase';
 import Alert from '../components/Alert';
 import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
@@ -26,10 +26,11 @@ function JournalPage() {
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
     const navigate = useNavigate();
+
     //Searching State
-    const [searchText, setSearchText] = useState("");
-    const [searchColumn, setSearchColumn] = useState("account-name");
-    const [selectedDate, setSelectedDate] = useState("");
+    const [startDate, setStartDate] = useState(new Timestamp(1672549200, 0));
+    const [endDate, setEndDate] = useState(Timestamp.now);
+    const [shownStatus, setShownStatus] = useState("all");
 
     //User Role State
     const [userRole, setUserRole] = useState("");
@@ -116,40 +117,12 @@ function JournalPage() {
 
 
 
+    function dateWithinStartEnd(toTest: Timestamp): boolean {
+        //Returns whether the passed in date is within
+        //  the current startDate and endDate
 
-
-    function MatchesSearch(journalDoc: { id: string, data: any }, index: number): boolean {
-        if(searchColumn == "debit-credit"){
-            if(searchText == "") return true;
-            const trans = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
-                if(infoObj.credit.toString().toLowerCase().includes(searchText.toLowerCase()) || infoObj.debit.toString().toLowerCase().includes(searchText.toLowerCase())) {
-                    return true;
-                } else return false;        
-            });
-            return trans.includes(true);
-        }
-        else if(searchColumn == "date"){
-            if(selectedDate == "") return true;
-            const date = new Date(selectedDate); 
-            date.setHours(24);
-            console.log(date.toLocaleDateString() + " and " + journalDoc.data.date.toDate().toLocaleDateString());
-            if (date.toLocaleDateString() == journalDoc.data.date.toDate().toLocaleDateString()) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        else{
-            if(searchText == "") return true;
-            const des = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
-                if(accountNames.get(infoObj.id)?.toLowerCase().includes(searchText.toLowerCase())) {
-                    return true;
-                } else return false;        
-            });
-            return des.includes(true);
-        }
+        return toTest >= startDate && toTest <= endDate;
     }
-
 
     /* RETURN HTML */
     return (
@@ -157,36 +130,34 @@ function JournalPage() {
             <Header homePath="/private-outlet/journal" title="Journal" />
             {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
             <div>
-                <label>Search:</label>
-                <select
-                    value={searchColumn}
-                    onChange={(e) => { setSearchColumn(e.target.value); setSelectedDate(''); setSearchText(""); }}
-                >
-                    <option value="account-name">Account Name</option>
-                    <option value="debit-credit">Debit/Credit</option>
-                    <option value="date">Date</option>
-                </select>
-                {searchColumn != "date" &&
-                        <input
-                            type="text"
-                            value={searchText}
-                            onChange={(e) => { setSearchText(e.target.value) }}
-                        />
-                }
-                { searchColumn == "date" &&
-                            <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => { setSelectedDate(e.target.value) }}
-                        />
-                }
-                {true && //Only Show Create Account if user is Admin
+                <label>Date Range:</label>
+                <input
+                    type="date"
+                    value={TimeStampToDateString(startDate)}
+                    onChange={(e) => { setStartDate(new Timestamp(e.target.valueAsNumber / 1000, 0)) }}
+                />
+                <input
+                    type="date"
+                    value={TimeStampToDateString(endDate)}
+                    onChange={(e) => { setEndDate(new Timestamp(e.target.valueAsNumber / 1000, 0)) }}
+                />
+                {
                     <button
                         className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
                     >
                         Create a Journal Entry
                     </button>
                 }
+                <label>Show:</label>
+                <select
+                    value={shownStatus}
+                    onChange={(e) => { setShownStatus(e.target.value) }}
+                >
+                    <option value="all">All</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                </select>
             </div>
 
             <br></br><br></br>
@@ -204,12 +175,13 @@ function JournalPage() {
                 </thead>
                 <tbody>
                     {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
-                    (MatchesSearch(journalDoc, index) &&
+                    (dateWithinStartEnd(journalDoc.data.date) && (shownStatus == "all" || journalDoc.data.status == shownStatus) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
                                 key={journalDoc.id}
-                                onClick={() => setSelectedIndex(index)}>
+                                onClick={() => setSelectedIndex(index)}
+                            >
                                 <td>{TimeStampToDateString(journalDoc.data.date)}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{accountNames.get(infoObj.id)}<br></br></>)))}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.debit).toFixed(2)}<br></br></>)))}</td>
