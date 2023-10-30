@@ -28,7 +28,8 @@ function JournalPage() {
     const navigate = useNavigate();
     //Searching State
     const [searchText, setSearchText] = useState("");
-    const [searchColumn, setSearchColumn] = useState("number");
+    const [searchColumn, setSearchColumn] = useState("account-name");
+    const [selectedDate, setSelectedDate] = useState("");
 
     //User Role State
     const [userRole, setUserRole] = useState("");
@@ -117,14 +118,36 @@ function JournalPage() {
 
 
 
-    function MatchesSearch(accountDoc: { id: string, data: any }): boolean {
-        //Returns Whether or not the accountDoc's
-        //  searchColumn field includes the current searchText
-
-        //Special Case for balance as it is not a field in account
-        if (searchColumn == "balance") return GetBalance(accountDoc.data).toString().toLowerCase().includes(searchText.toLowerCase());
-
-        return accountDoc.data[searchColumn].toString().toLowerCase().includes(searchText.toLowerCase());
+    function MatchesSearch(journalDoc: { id: string, data: any }, index: number): boolean {
+        if(searchColumn == "debit-credit"){
+            if(searchText == "") return true;
+            const trans = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
+                if(infoObj.credit.toString().toLowerCase().includes(searchText.toLowerCase()) || infoObj.debit.toString().toLowerCase().includes(searchText.toLowerCase())) {
+                    return true;
+                } else return false;        
+            });
+            return trans.includes(true);
+        }
+        else if(searchColumn == "date"){
+            if(selectedDate == "") return true;
+            const date = new Date(selectedDate); 
+            date.setHours(24);
+            console.log(date.toLocaleDateString() + " and " + journalDoc.data.date.toDate().toLocaleDateString());
+            if (date.toLocaleDateString() == journalDoc.data.date.toDate().toLocaleDateString()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else{
+            if(searchText == "") return true;
+            const des = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
+                if(accountNames.get(infoObj.id)?.toLowerCase().includes(searchText.toLowerCase())) {
+                    return true;
+                } else return false;        
+            });
+            return des.includes(true);
+        }
     }
 
 
@@ -137,21 +160,26 @@ function JournalPage() {
                 <label>Search:</label>
                 <select
                     value={searchColumn}
-                    onChange={(e) => { setSearchColumn(e.target.value) }}
+                    onChange={(e) => { setSearchColumn(e.target.value); setSelectedDate(''); setSearchText(""); }}
                 >
-                    <option value="number">Number</option>
-                    <option value="name">Name</option>
-                    <option value="category">Category</option>
-                    <option value="subcategory">Subcategory</option>
-                    <option value="balance">Balance</option>
-                    <option value="statement">Statement</option>
-                    <option value="active">Active</option>
+                    <option value="account-name">Account Name</option>
+                    <option value="debit-credit">Debit/Credit</option>
+                    <option value="date">Date</option>
                 </select>
-                <input
-                    type="text"
-                    value={searchText}
-                    onChange={(e) => { setSearchText(e.target.value) }}
-                />
+                {searchColumn != "date" &&
+                        <input
+                            type="text"
+                            value={searchText}
+                            onChange={(e) => { setSearchText(e.target.value) }}
+                        />
+                }
+                { searchColumn == "date" &&
+                            <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => { setSelectedDate(e.target.value) }}
+                        />
+                }
                 {true && //Only Show Create Account if user is Admin
                     <button
                         className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
@@ -176,7 +204,7 @@ function JournalPage() {
                 </thead>
                 <tbody>
                     {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
-                    (/*MatchesSearch(accountDoc) &&*/
+                    (MatchesSearch(journalDoc, index) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
