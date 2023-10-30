@@ -19,7 +19,7 @@ function Ledger(props: Props) {
     //Journal Docs
     const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any }>);
     const [requestedData, setRequestedData] = useState(false);
-    const [balances, setBalances] =useState([0]);
+    const [balances, setBalances] =useState([props.toView.data.initialBalance]);
 
     //Account information
     const [gottenDoc, setGottenDoc] = useState(false);
@@ -41,12 +41,15 @@ function Ledger(props: Props) {
         journals: []
     }); 
 
-    //current sum of transactions used for displaying balance
+
     //navigate, obviously. 
     const navigate = useNavigate();
 
     //Searching State
     const [searchText, setSearchText] = useState("");
+    const [date1, setDate1] = useState("");
+    const [date2, setDate2] = useState("");
+    const [searchText2, setSearchText2] = useState("");
     const [searchColumn, setSearchColumn] = useState("balance");
 
     
@@ -72,28 +75,38 @@ function Ledger(props: Props) {
     if (!requestedData)
         GetData();
 
-    function MatchesSearch(journalDoc: { id: string, data: any }): boolean {
+    function MatchesSearch(journalDoc: { id: string, data: any }, index: number): boolean {
         //Returns Whether or not the accountDoc's
         //  searchColumn field includes the current searchText
 
-        //Special Case for balance as it is not a field in account
-        if (searchColumn == "balance") return balances.findLast.toString().toLowerCase().includes(searchText.toLowerCase());
-
-       return journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
-            if(infoObj.id == props.toView.id) {
-                if(infoObj.credit.toString().toLowerCase().includes(searchText.toLowerCase()) || infoObj.debit.toString().toLowerCase().includes(searchText.toLowerCase())) {
-                   console.log("true");
-                    return true;
-                } else {
-                    console.log("false");
-                    return false
-                }
+        //Get Balance based on journal's index
+        if (searchColumn == "balance" && balances.length > index + 1) return balances[index+1].toString().toLowerCase().includes(searchText.toLowerCase()); 
+        else if (searchColumn == "date") {
+            //Search based on a single date
+            const date = new Date(date1); 
+            date.setHours(24);
+            console.log(date.toLocaleDateString() + " and " + journalDoc.data.date.toDate().toLocaleDateString());
+            if (date.toLocaleDateString() == journalDoc.data.date.toDate().toLocaleDateString()) {
+                return true;
             } else {
-                console.log("false");
                 return false;
-            }           
-        });
-        return true;
+            }
+        } else  if (searchColumn == "date-range") {
+            const t1 = new Date(date1).getTime(); 
+            const t2 = new Date(date2).getTime(); 
+            const journalTime = journalDoc.data.date.toDate().getTime();
+            if (t1 <= journalTime && t2 >= journalTime) return true; else return false;
+        } else {
+            //check each transaction in the journal entry for valid credits/debits that match the search
+            const trans = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }):boolean => {
+                if(infoObj.id == props.toView.id) {
+                    if(infoObj.credit.toString().toLowerCase().includes(searchText.toLowerCase()) || infoObj.debit.toString().toLowerCase().includes(searchText.toLowerCase())) {
+                    return true;
+                    } else return false;
+                } else return false;         
+            });
+            return trans.includes(true);
+        }
     }
     
 
@@ -118,21 +131,44 @@ function Ledger(props: Props) {
                     <label>Search by:</label>
                         <select
                             value={searchColumn}
-                            onChange={(e) => { setSearchColumn(e.target.value) }}
+                            onChange={(e) => { setSearchColumn(e.target.value); setDate1(""); setDate2(""); setSearchText("")}}
                         >
-                        <option value="debit">Debit</option>
-                        <option value="credit">Credit</option>
+                        <option value="debit-credit">Debit/Credit</option>
                         <option value="balance">Balance</option>
+                        <option value="date">Date</option>
+                        <option value="date-range">Date Range</option>
                      </select>   
+                        {searchColumn != "date" && searchColumn != 'date-range' &&
                         <input
                             type="text"
                             value={searchText}
                             onChange={(e) => { setSearchText(e.target.value) }}
                         />
-                </div>  
-                <div>
-                    <label> Filter </label>
-                </div>
+                         }
+                        { searchColumn == "date" &&
+                            <input
+                            type="date"
+                            value={date1}
+                            onChange={(e) => { setDate1(e.target.value) }}
+                        />
+                        }
+                        { searchColumn == "date-range" &&
+                        <>  
+                            From:
+                            <input
+                                type="date"
+                                value={date1}
+                                onChange={(e) => { setDate1(e.target.value) }}
+                            />
+                            To:
+                            <input
+                                type="date"
+                                value={date2}
+                                onChange={(e) => { setDate2(e.target.value) }}
+                            />
+                        </>
+                        }
+                </div> 
             </div>
 
             <table className="table table-bordered table-hover">
@@ -150,7 +186,7 @@ function Ledger(props: Props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {searchText == '' &&
+                    {searchText == '' && date1 =='' && date2 == '' &&
                      <tr>
                         <td>Initial Balance</td>
                         <td></td>
@@ -160,7 +196,7 @@ function Ledger(props: Props) {
                     </tr>  
                     }       
                     {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
-                    (/*MatchesSearch(journalDoc) && */
+                    (MatchesSearch(journalDoc, index) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
@@ -205,20 +241,15 @@ function Ledger(props: Props) {
                                             //Don't recalculate this for every page reload
                                                 if(accountDoc.normalSide == 'credit') {
 
-                                                    balance = accountDoc.initialBalance + balances[index] + infoObj.credit - infoObj.debit;
-
+                                                    balance = balances[index] + infoObj.credit - infoObj.debit;
                                                     if (balances.length <= index + 1)
                                                     balances.push(balance);
-
                                                     console.log(balances);
-                                                    //setTransactionIndex((transactionIndex)=> transactionIndex + 1);
 
                                                 } else {
-                                                    balance = accountDoc.initialBalance + balances[index] + infoObj.debit - infoObj.credit;
-
+                                                    balance =  balances[index] + infoObj.debit - infoObj.credit;
                                                     if (balances.length <= index + 1)
                                                     balances.push(balance);
-
                                                     console.log(balances);
                                                 }
                                             return(
@@ -240,7 +271,7 @@ function Ledger(props: Props) {
                         </>
                     )
                     )}   
-                    {searchText == '' &&
+                    {searchText == '' && date1 =='' && date2 == '' &&
                     <tr className = "final-row">
                         <td >Final Balance</td>
                         <td></td>
