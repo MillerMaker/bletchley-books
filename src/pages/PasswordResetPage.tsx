@@ -1,9 +1,8 @@
 import React, { Fragment, useState } from 'react'
-import { Auth } from '../components/auth'
 import Header from '../components/Header'
 import Alert from '../components/Alert';
 import PasswordChecklist from "react-password-checklist"
-import { HashString, UserData, UserDoc, auth, db, saveDocAt } from '../firebase';
+import { HashString, UserDoc, auth, db, saveDocAt } from '../firebase';
 import { updatePassword } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';

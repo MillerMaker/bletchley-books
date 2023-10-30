@@ -1,6 +1,5 @@
 import backButton from "../assets/back_arrow_icon.png";
-import forwardButton from "../assets/forward_arrow_icon.png"
-import { Timestamp, getDocs, collection, where, query, FieldPath} from 'firebase/firestore';
+import { Timestamp, getDocs, collection, where, query} from 'firebase/firestore';
 import { TimeStampToDateString, db} from '../firebase';
 import { useState } from 'react';
 import { useNavigate } from "react-router"

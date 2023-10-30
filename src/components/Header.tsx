@@ -1,10 +1,8 @@
 import "./Header.css"
 import logoImage from "../assets/BletchleyBooksLogo.jpg"
 import userImage from "../assets/noun-user-6126605.png"
-import {getAuth} from "firebase/auth"
-import { NavigateFunction, useNavigate } from "react-router"
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import { auth, UserData, getDocAt, GetAuthUserDoc} from "../firebase"
+import { useNavigate } from "react-router"
+import { auth, GetAuthUserDoc} from "../firebase"
 import {useState} from "react";
 
 

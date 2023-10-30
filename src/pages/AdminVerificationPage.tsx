@@ -1,6 +1,6 @@
 import Header from '../components/Header'
 import { useState } from 'react';
-import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import RolePopup from '../components/RolePopup';
 import ConfirmPopup from '../components/ConfirmPopup';
 import { UserDoc, db, deleteDocAt, saveDocAt, toUserDocArray } from '../firebase';

@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 import Ledger from "../components/Ledger";
-import { useNavigate, useLocation} from 'react-router'
+import { useLocation} from 'react-router'
 
 
 

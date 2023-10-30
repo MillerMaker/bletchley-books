@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { TimeStampToDateString, db } from '../firebase';
 
 interface Props {
     documentData: string;

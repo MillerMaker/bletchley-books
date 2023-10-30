@@ -1,14 +1,10 @@
-import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
-import { ContainsEmail, GetAuthUserDoc, GetUserDoc, HashString, UserData, UserDoc, addDocRandomID, auth, db, getDocAt, saveDocAt } from "../firebase";
-import { CollectionReference, Timestamp, addDoc, collection, getDocs, or, query, where } from "firebase/firestore";
+import { useState } from "react";
+import { GetAuthUserDoc, addDocRandomID, db, saveDocAt } from "../firebase";
+import {  Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate } from "react-router-dom"
-import PasswordChecklist from "react-password-checklist"
 import Alert from "./Alert";
 import "./NewUser.css";
-import SendEmail from "../Email";
-import { TimeStampToDateString } from "../firebase";
 
 interface Props {
     toEdit: { id: string, data: any };   //Pass in account if you want to edit rather than create

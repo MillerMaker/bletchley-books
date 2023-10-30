@@ -1,6 +1,6 @@
-import {  useState, useCallback } from 'react'
-import { DocumentData, Timestamp, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
+import {useState} from 'react'
+import {collection, getDocs} from 'firebase/firestore';
+import {saveDocAt, db, GetAuthUserDoc } from '../firebase';
 import NewAccountPopup from './NewAccountPopup';
 import Alert from './Alert';
 import { useNavigate} from "react-router-dom";

@@ -1,15 +1,11 @@
-import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
-import { ContainsEmail, GetAuthUserDoc, HashString, UserData, UserDoc, addDocRandomID, auth, db, getDocAt, saveDocAt } from "../firebase";
-import { CollectionReference, Timestamp, addDoc, collection, getDocs, or, query, where } from "firebase/firestore";
+import { useState } from "react";
+import { GetAuthUserDoc, addDocRandomID, db, UserDoc} from "../firebase";
+import { Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
-import { useNavigate } from "react-router-dom"
-import PasswordChecklist from "react-password-checklist"
 import Alert from "./Alert";
 import "./NewUser.css";
 import SendEmail from "../Email";
-import { TimeStampToDateString } from "../firebase";
-import JournalPage from "../pages/JournalPage";
+import { toUserDocArray } from "../firebase";
 
 interface Props {
     accountNames: Map<string, string>;//Pass in account ID to get account name
@@ -20,8 +16,6 @@ interface Props {
 
 function NewJournalPopup(props: Props) {
 
-
-    const navigate = useNavigate();
     const [transactions, setTransactions] = useState(Array<{ id: string, credit: number, debit: number }>);
     const [description, setDescription] = useState("");
 
@@ -77,6 +71,15 @@ function NewJournalPopup(props: Props) {
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
 
+        //Notify Manager of Journal Entry
+        const queryResults = await getDocs(query(collection(db, "users"), where("role", "==", "manager")));
+        const userDocs = toUserDocArray(queryResults);
+        userDocs.forEach((userDoc: UserDoc, index: number) => {
+            SendEmail( userDoc.userData.email, "New Journal Entry Awaiting Verification", 
+            "A new journal entry has been created, and is awaiting verification. Please " +
+            "head to the journal entry page to accept or decline this journal entry. ");
+            console.log("Sent an email to " + userDoc.userData.email);
+        }) 
 
         //Save Doc
         addDocRandomID('journals', journalDoc);
@@ -91,8 +94,6 @@ function NewJournalPopup(props: Props) {
         
         props.confirmCallback(); //Fire off Callback
     };
-
-
 
     return (
         <CustomPopup child={

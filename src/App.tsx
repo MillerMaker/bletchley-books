@@ -7,11 +7,10 @@ import AdminPasswordPage from './pages/AdminPasswordPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AdminVerificationPage from './pages/AdminVerificationPage'
 import Dashboard from './pages/Dashboard'
-import React, { useState } from 'react';
-import { getAuth, onAuthStateChanged} from "firebase/auth"
+import { useState } from 'react';
+import { getAuth} from "firebase/auth"
 import PasswordChangePage from './pages/PasswordResetPage'
 import ChartAccountsPage from './pages/ChartAccountsPage'
-import EditLogPage from './pages/EventLogPage'
 import EventLogPage from './pages/EventLogPage'
 import ViewAccount from './pages/ViewAccount'
 import LedgerPage from './pages/LedgerPage'

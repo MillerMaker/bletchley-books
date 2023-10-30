@@ -4,7 +4,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, setDoc, getDocs, doc, getDoc, Timestamp, query, where, QuerySnapshot, DocumentData, DocumentSnapshot, deleteDoc, addDoc } from "firebase/firestore";
 import bcrypt from "bcryptjs-react";
-import { EventData } from "./components/EventLog";
 
 
 const firebaseConfig = {

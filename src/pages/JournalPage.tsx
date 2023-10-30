@@ -1,10 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState} from 'react'
 import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
-import { getDocAt, toUserDocArray, UserData, saveDocAt, UserDoc, db, TimeStampToDateString, auth, GetAuthUserDoc } from '../firebase';
-import NewAccountPopup from '../components/NewAccountPopup';
+import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc } from '../firebase';
 import Alert from '../components/Alert';
 import { useNavigate } from "react-router-dom";
-import calendarImage from "../assets/calendar-icon.png"
 import Header from '../components/Header';
 import NewJournalPopup from '../components/NewJournalPopup';
 
