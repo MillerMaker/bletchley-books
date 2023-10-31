@@ -62,18 +62,24 @@ function JournalPage() {
         /* GET JOURNAL DATA */
         let queryResult = await getDocs(collection(db, "journals"));
         let allJournalDocs: Array<{ id: string, data: any, docURL: string}> = new Array();
-        //add document references to individual journalDocs and set Journal Data
-        queryResult.forEach((doc) => {
-            getDownloadURL(ref(storage, 'journalDocuments/Proposal.docx')).then((url) => {
-                console.log(url);
-                allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: url});
-                setJournalDocs(allJournalDocs);
-            }).catch((error) => {
+        //add document URLs to individual journalDoc objects and set Journal Data
+        for (const doc of queryResult.docs) {
+            if(doc.data().documents[0] !== "") {
+                const url = await getDownloadURL(ref(storage, doc.data().documents[0]));
+                if (url != null) {
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: url});
+                }
+                else {
+                    console.log("Error fetching journal or no document exists")
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
+                }
+            } else {
                 console.log("Error fetching journal or no document exists")
                 allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
-                setJournalDocs(allJournalDocs);
-            });
-        })
+            }
+        }
+        
+        setJournalDocs(allJournalDocs);
 
 
         /* GET ACCOUNT DATA */
@@ -220,12 +226,12 @@ function JournalPage() {
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{accountNames.get(infoObj.id)}<br></br></>)))}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.debit).toFixed(2)}<br></br></>)))}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.credit).toFixed(2)}<br></br></>)))}</td>
-                                <td><a href={journalDoc.docURL}>{"Proposal.docx"}</a></td>
+                                <td><a href={journalDoc.docURL}>{journalDoc.data.documents[0].substr(17)}</a></td>
                                 <td className={(journalDoc.data.status == "approved" ? "table-success" : journalDoc.data.status == "rejected" ? "table-danger" : "table-warning")}>{journalDoc.data.status}</td>
                             </tr>
                             {journalDocs.map((doc: { id: string, data: any}, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
-                    )
+                     )
                     )}
                 </tbody>
             </table>

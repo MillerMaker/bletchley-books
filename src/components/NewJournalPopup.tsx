@@ -59,6 +59,7 @@ function NewJournalPopup(props: Props) {
         if (formSubmitted) return;
         setAlertShown(false);
 
+
         /* ERROR HANDLING */
         //Confirm there are at least 2 transactions
         if (transactions.length < 2) { setAlertColor("danger"); setAlertShown(true); setAlertText("Must enter at least two transactions!"); return; }
@@ -83,19 +84,17 @@ function NewJournalPopup(props: Props) {
         //Get AuthUserID
         const authUserDoc = await Promise.resolve(GetAuthUserDoc());
 
-
         /* UPLOAD FILES */
-        const file = e.target.files[0]
+        const file = e.target.getElementsByClassName("doc")[0].files[0]
         if (!file) {
             console.log("Not a file");
         } else {
             const storageRef = ref(storage, `journalDocuments/${file.name}`);
             uploadBytes(storageRef, file).then(() => {
-                journalDoc
                 console.log("We Uploaded!!!!");
             });
         }
-
+        
         /* CREATE JOURNAL OBJECT */
         let journalDoc = {
             transactions: transactions,
@@ -103,7 +102,7 @@ function NewJournalPopup(props: Props) {
             status: "pending",
             userID: authUserDoc.id,
             date: Timestamp.now(),
-            document: `journalDocuments/${file.name}`
+            documents: [`journalDocuments/${file.name}`]
         }
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
@@ -182,7 +181,7 @@ function NewJournalPopup(props: Props) {
                     <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 1, credit: 2 }]; setTransactions(newTransactions); }}>Add Transaction</button>
                     <br></br><br></br>
                     <h6>Add Document (Optional)</h6>
-                            <input type='file' onChange = {testSubmission}/>
+                            <input type='file' className = "doc"/>
                     <br></br><br></br>
                     <div className="btn-group">
                         <button title="Submit this journal entry for approval" className="btn btn-primary" type="submit">Submit for Approval</button>
