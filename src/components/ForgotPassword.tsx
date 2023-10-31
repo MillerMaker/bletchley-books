@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import CustomPopup from "./CustomPopup";
-import { UserData, auth, getDocAt } from "../firebase";
+import { UserData, auth, getDocAt, getErrorMessage } from "../firebase";
 import Alert from "./Alert";
 import { sendSignInLinkToEmail } from "@firebase/auth";
 import { sendEmails } from "../Email";
@@ -57,7 +57,7 @@ function ForgotPassword(props: Props) {
                 formData.a3.toUpperCase() != userData.securityQuestions[2].toUpperCase() ||
                 formData.email != userData.email) {
                 setAlertShown(true);
-                setAlertText("Incorrect email and username or security questions");
+                setAlertText(await getErrorMessage("incorrectLogin"));
             }
             else {
                 setSuccess(true);
@@ -72,7 +72,7 @@ function ForgotPassword(props: Props) {
         catch {
             console.log("Password reset for: " + formData.username + " Failed!");
             setAlertShown(true);
-            setAlertText("Retrieval Failed!");
+            setAlertText(await getErrorMessage("passwordResetFailure"));
         }
 
     }

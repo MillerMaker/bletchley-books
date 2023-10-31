@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
-import { ContainsEmail, HashString, UserDoc, db, saveDocAt} from "../firebase";
+import { ContainsEmail, HashString, UserDoc, db, getErrorMessage, saveDocAt} from "../firebase";
 import { Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate} from "react-router-dom"
@@ -73,10 +73,10 @@ function NewUser(props: Props) {
         if (formSubmitted) return;
 
         //Fail if not in Email format
-        if (!ContainsEmail(formData.emailAddress)) { setAlertShown(true); setAlertText("Invalid Email Address!"); return; }
+        if (!ContainsEmail(formData.emailAddress)) { setAlertShown(true); setAlertText(await getErrorMessage("invalidEmail")); return; }
         //Fail if Email is already in system
         const queryResults = await getDocs(query(collection(db, "users"), where("email", "==", formData.emailAddress)));
-        if (props.createType !="edit" && queryResults.docs.length != 0) { setAlertShown(true); setAlertText("Email is already in use!"); return; }
+        if (props.createType != "edit" && queryResults.docs.length != 0) { setAlertShown(true); setAlertText(await getErrorMessage("repeatUserEmail")); return; }
 
         if (passIsValid || props.createType == "edit") { //Success
             console.log('Form Data:', formData);
