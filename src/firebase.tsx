@@ -173,3 +173,12 @@ async function captureEvent(dataObject: any){
     const genericDataObj: object = {userID, eventDateTime, document};
     addDoc(eventCollection, genericDataObj);
 }
+
+export async function getErrorMessage(errorType: string): Promise<string> {
+    //Returns the error message given an errorType
+    //  or an error string if the error type is not found
+    const errorDoc = await getDocAt("errors/" + errorType);
+    if (!errorDoc.exists()) return "ERRROR: ERROR OF TYPE: " + errorType + " NOT FOUND";
+
+    return errorDoc.data().txt;
+}

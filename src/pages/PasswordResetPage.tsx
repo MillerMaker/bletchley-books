@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react'
 import Header from '../components/Header'
 import Alert from '../components/Alert';
 import PasswordChecklist from "react-password-checklist"
-import { HashString, UserDoc, auth, db, saveDocAt } from '../firebase';
+import { HashString, UserDoc, auth, db, getErrorMessage, saveDocAt } from '../firebase';
 import { updatePassword } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ function PasswordChangePage() {
 
                 //Password is an old Password
                 setAlertShown(true);
-                setAlertText("New password cannot be one of your old passwords!");
+                setAlertText(await getErrorMessage("repeatPassword"));
                 setSubmitted(false);
                 return;
             }

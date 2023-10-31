@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {collection, getDocs} from 'firebase/firestore';
-import {saveDocAt, db, GetAuthUserDoc } from '../firebase';
+import {saveDocAt, db, GetAuthUserDoc, getDocAt, getErrorMessage } from '../firebase';
 import NewAccountPopup from './NewAccountPopup';
 import Alert from './Alert';
 import { useNavigate} from "react-router-dom";
@@ -54,9 +54,9 @@ function ChartAccounts() {
 
         /* GET USER ROLE */
         const userDocSnapshot = await Promise.resolve(GetAuthUserDoc());
-        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText("NOT AUTHORIZED"); return; }
-        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText("MULRIPLE USERS W/SAME EMAIL"); return; }
-        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText("NO USER W/EMAIL"); return; }
+        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("unauthorized")); return; }
+        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("repeatUserEmail")); return; }
+        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("noUserEmail")); return; }
         setIsAdmin(userDocSnapshot.data().role == "admin");
 
 
@@ -80,12 +80,12 @@ function ChartAccounts() {
 
 
     /* Handle Toggleing User.Active */
-    function HandleClickToggleActivate() {
+    async function HandleClickToggleActivate() {
         setAlertShown(false);
 
         //Only Deactivate accounts with no balance
         const acctData = accountDocs[selectedIndex].data;
-        if (acctData.initialBalance + acctData.debit - acctData.credit != 0) { setAlertText("Account has a balance. It cannot be deactivated!"); setAlertShown(true); setAlertColor("danger"); return; }
+        if (acctData.initialBalance + acctData.debit - acctData.credit != 0) { setAlertText(await getErrorMessage("accountBalanceDeactivate")); setAlertShown(true); setAlertColor("danger"); return; }
 
 
 
