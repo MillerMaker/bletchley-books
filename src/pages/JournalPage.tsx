@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import {collection, getDocs,  setDoc, doc, arrayUnion, Timestamp} from 'firebase/firestore';
-import { getDocAt,saveDocAt,  db, TimeStampToDateString, GetAuthUserDoc } from '../firebase';
+import { useState} from 'react'
+import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
+import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage } from '../firebase';
 import Alert from '../components/Alert';
 import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
@@ -51,9 +51,9 @@ function JournalPage() {
 
         /* GET USER ROLE */
         const userDocSnapshot = await Promise.resolve(GetAuthUserDoc());
-        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText("NOT AUTHORIZED"); return; }
-        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText("MULRIPLE USERS W/SAME EMAIL"); return; }
-        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText("NO USER W/EMAIL"); return; }
+        if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("unauthorized")); return; }
+        if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("repeatUserEmail")); return; }
+        if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("noUserEmail")); return; }
         setUserRole(userDocSnapshot.data().role);
 
 
