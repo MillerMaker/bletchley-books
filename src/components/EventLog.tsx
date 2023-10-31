@@ -21,7 +21,6 @@ function EventLog() {
     const [requestedData, setRequestedData] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [viewDocPopupShown, setViewDocPopupShown] = useState(false);
-    const [selectedDocumentType, setSelectedDocumentType] = useState("none");
 
     async function getEventData() {
         if(requestedData)
@@ -57,9 +56,9 @@ function EventLog() {
                 className={"" + (selectedIndex == index && "table-primary")}
                 onClick={() => setSelectedIndex(index)}
                 >
-                    <td>{eventDoc.userID}</td>
+                    <td>{eventDoc.userID == undefined || eventDoc.userID == "" ? "Unkown User" : eventDoc.userID}</td>
                     <td>{TimeStampToDateString(eventDoc.eventDateTime)}</td>
-                    <td><button title="View this event's details" onClick={() => { setViewDocPopupShown(true) }}>View</button></td>
+                    <td><button className='btn btn-primary' title="View this event's details" onClick={() => { setViewDocPopupShown(true) }}>View</button></td>
                 </tr>
             )}
         </tbody>
@@ -67,7 +66,7 @@ function EventLog() {
     {viewDocPopupShown && <CustomPopup child = {
         <>
             <EventLogTable documentData={eventDocs[selectedIndex].eventDocument}/>
-            <button onClick={() => {setViewDocPopupShown(false)}}>Close</button>
+            <button className='btn btn-danger' onClick={() => {setViewDocPopupShown(false)}}>Close</button>
         </>
     } />}
     </>
