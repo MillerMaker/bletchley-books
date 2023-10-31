@@ -69,8 +69,9 @@ function NewJournalPopup(props: Props) {
         let failedInLoop = false;
         await transactions.map(async (infoObj: { id: string, credit: number, debit: number }, index: number) =>
         {
-            //Confirm debit and credit are positive
+            //Confirm debit and credit are positive, Confirm only debit or credit
             if (infoObj.debit < 0 || infoObj.credit < 0) { failedInLoop = true; setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("negativeDebitOrCredit")); return; }
+            if (infoObj.debit > 0 && infoObj.credit > 0) { failedInLoop = true; setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("negativeDebitOrCredit")); return; }
 
             total += infoObj.debit - infoObj.credit;
 
@@ -105,7 +106,7 @@ function NewJournalPopup(props: Props) {
             status: "pending",
             userID: authUserDoc.id,
             date: Timestamp.now(),
-            documents: [`journalDocuments/${file.name}`]
+            documents: [file ? `journalDocuments/${file.name}` : ''] 
         }
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
@@ -181,7 +182,7 @@ function NewJournalPopup(props: Props) {
                             </button>
                         </div>
                     ))}
-                    <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 1, credit: 2 }]; setTransactions(newTransactions); }}>Add Transaction</button>
+                    <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 0, credit: 0 }]; setTransactions(newTransactions); }}>Add Transaction</button>
                     <br></br><br></br>
                     <h6>Add Document (Optional)</h6>
                             <input type='file' className = "doc"/>
