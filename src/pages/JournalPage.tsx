@@ -252,7 +252,7 @@ function JournalPage() {
                         View
                     </button>
 
-                    {journalDocs[selectedIndex].data.status == "pending" &&
+                    {journalDocs[selectedIndex].data.status == "pending" && userRole !== "accountant" &&
                         <>
                         <button title="Approve this journal entry"
                             className="btn btn-success"
