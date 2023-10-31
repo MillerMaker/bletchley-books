@@ -263,8 +263,8 @@ function Ledger(props: Props) {
                                             )
                                         }
                                     }))} 
-                                </td>
-                                <td className = "forward-arrow" onClick = {() => navigate('/private-outlet/journal')}>{">"}</td>
+                            </td>
+                            <td className="forward-arrow" onClick={() => navigate('/private-outlet/journal', { state: journalDocs[index].id })}> {">"} </td>
                             </tr>
                             {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>

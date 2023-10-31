@@ -2,7 +2,7 @@ import { useState} from 'react'
 import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
 import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage, storage } from '../firebase';
 import Alert from '../components/Alert';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import NewJournalPopup from '../components/NewJournalPopup';
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
@@ -10,6 +10,7 @@ import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 
 
 function JournalPage() {
+    const { state } = useLocation();
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     //Journal Docs
@@ -93,6 +94,18 @@ function JournalPage() {
         })
 
         setAccountNames(allAccountsMap);
+
+
+        //Set Selected index to passed in state
+        let foundIndex = -1;
+        allJournalDocs.forEach((doc, index) =>
+        {
+            if (doc.id == state) {
+                foundIndex = index
+                return;
+            }
+        });
+        setSelectedIndex(foundIndex);
     }
     if (!requestedData)
         GetData();
