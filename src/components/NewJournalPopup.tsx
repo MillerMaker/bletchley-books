@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { GetAuthUserDoc, addDocRandomID, db, UserDoc, getErrorMessage} from "../firebase";
+import { GetAuthUserDoc, addDocRandomID, db, UserDoc, getErrorMessage, storage} from "../firebase";
 import { Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import Alert from "./Alert";
 import "./NewUser.css";
 import SendEmail from "../Email";
 import { toUserDocArray } from "../firebase";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 
 interface Props {
     accountNames: Map<string, string>;//Pass in account ID to get account name
@@ -24,16 +25,41 @@ function NewJournalPopup(props: Props) {
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
 
+    //Document Storage
+    const [docUrl, setDocUrl] = useState("");
+    const [progresspercent, setProgresspercent] = useState(0);
+
+    //test submit
+    const [testSubmitted, setTestSubmitted] = useState(false);
+
+    function testSubmission(e: { preventDefault: () => void; target: any }) {
+
+        if(testSubmitted== false) {
+              /* UPLOAD FILES */
+            e.preventDefault();
+            const file = e.target.files[0]
+            console.log("This file's name is: " + file.name );
+            if (!file) {
+                console.log("Not a file");
+            } else {
+                const storageRef = ref(storage, `journalDocuments/${file.name}`);
+                uploadBytes(storageRef, file).then(() => {
+                    console.log("We Uploaded!!!!");
+                });
+            }
+        }
+        setTestSubmitted(true);
+    }
 
 
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) =>  {
+    const handleSubmit = async (e: { preventDefault: () => void; target: any }) => {
         e.preventDefault();
         
         if (formSubmitted) return;
         setAlertShown(false);
 
-      
+
         /* ERROR HANDLING */
         //Confirm there are at least 2 transactions
         if (transactions.length < 2) { setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("minTwoTransactions")); return; }
@@ -61,15 +87,25 @@ function NewJournalPopup(props: Props) {
         //Get AuthUserID
         const authUserDoc = await Promise.resolve(GetAuthUserDoc());
 
-
-
+        /* UPLOAD FILES */
+        const file = e.target.getElementsByClassName("doc")[0].files[0]
+        if (!file) {
+            console.log("Not a file");
+        } else {
+            const storageRef = ref(storage, `journalDocuments/${file.name}`);
+            uploadBytes(storageRef, file).then(() => {
+                console.log("We Uploaded!!!!");
+            });
+        }
+        
         /* CREATE JOURNAL OBJECT */
         let journalDoc = {
             transactions: transactions,
             description: description,
             status: "pending",
             userID: authUserDoc.id,
-            date: Timestamp.now()
+            date: Timestamp.now(),
+            documents: [`journalDocuments/${file.name}`]
         }
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
@@ -105,7 +141,7 @@ function NewJournalPopup(props: Props) {
                 {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="statement">Description:</label>
+                        <h6>Description (Optional)</h6>
                         <input
                             type="text"
                             value={description}
@@ -113,6 +149,7 @@ function NewJournalPopup(props: Props) {
                             required
                         />
                     </div>
+                    <br></br>
                     {transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) =>
                     (
                         <div>
@@ -145,6 +182,9 @@ function NewJournalPopup(props: Props) {
                         </div>
                     ))}
                     <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 1, credit: 2 }]; setTransactions(newTransactions); }}>Add Transaction</button>
+                    <br></br><br></br>
+                    <h6>Add Document (Optional)</h6>
+                            <input type='file' className = "doc"/>
                     <br></br><br></br>
                     <div className="btn-group">
                         <button title="Submit this journal entry for approval" className="btn btn-primary" type="submit">Submit for Approval</button>

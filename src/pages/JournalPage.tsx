@@ -1,10 +1,11 @@
 import { useState} from 'react'
 import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
-import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage } from '../firebase';
+import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage, storage } from '../firebase';
 import Alert from '../components/Alert';
 import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import NewJournalPopup from '../components/NewJournalPopup';
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 
 
 
@@ -12,7 +13,7 @@ function JournalPage() {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     //Journal Docs
-    const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any }>);
+    const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any , docURL: string}>);
     const [requestedData, setRequestedData] = useState(false);
 
     //Account ID to Name Map
@@ -31,6 +32,9 @@ function JournalPage() {
     const [searchText, setSearchText] = useState("");
     const [searchColumn, setSearchColumn] = useState("account-name");
     const [selectedDate, setSelectedDate] = useState("");
+
+    //url
+    const [url, setURL] = useState("");
     const [shownStatus, setShownStatus] = useState("all");
 
     //User Role State
@@ -59,12 +63,24 @@ function JournalPage() {
 
         /* GET JOURNAL DATA */
         let queryResult = await getDocs(collection(db, "journals"));
-
-        let allJournalDocs: Array<{ id: string, data: any }> = new Array();
-        queryResult.forEach((doc) => {
-            allJournalDocs.push({ id: doc.id, data: doc.data() });
-        })
-
+        let allJournalDocs: Array<{ id: string, data: any, docURL: string}> = new Array();
+        //add document URLs to individual journalDoc objects and set Journal Data
+        for (const doc of queryResult.docs) {
+            if(doc.data().documents[0] !== "") {
+                const url = await getDownloadURL(ref(storage, doc.data().documents[0]));
+                if (url != null) {
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: url});
+                }
+                else {
+                    console.log("Error fetching journal or no document exists")
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
+                }
+            } else {
+                console.log("Error fetching journal or no document exists")
+                allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
+            }
+        }
+        
         setJournalDocs(allJournalDocs);
 
 
@@ -80,9 +96,6 @@ function JournalPage() {
     }
     if (!requestedData)
         GetData();
-
-
-
 
     function HandleJudgeJournal(approve: boolean) {
         //Change the selected journal entries status 
@@ -209,7 +222,7 @@ function JournalPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
+                    {journalDocs.map((journalDoc: { id: string, data: any , docURL: string }, index: number) =>
                     (MatchesSearch(journalDoc, index) && (shownStatus == "all" || journalDoc.data.status == shownStatus) &&
                         <>
                             <tr
@@ -221,12 +234,12 @@ function JournalPage() {
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{accountNames.get(infoObj.id)}<br></br></>)))}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.debit).toFixed(2)}<br></br></>)))}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.credit).toFixed(2)}<br></br></>)))}</td>
-                                <td>DOCUMENTS GO HERE</td>
+                                <td><a href={journalDoc.docURL}>{journalDoc.data.documents[0].substr(17)}</a></td>
                                 <td className={(journalDoc.data.status == "approved" ? "table-success" : journalDoc.data.status == "rejected" ? "table-danger" : "table-warning")}>{journalDoc.data.status}</td>
                             </tr>
-                            {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
+                            {journalDocs.map((doc: { id: string, data: any}, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
-                    )
+                     )
                     )}
                 </tbody>
             </table>
