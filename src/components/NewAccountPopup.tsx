@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GetAuthUserDoc, addDocRandomID, db, saveDocAt } from "../firebase";
+import { GetAuthUserDoc, addDocRandomID, db, getErrorMessage, saveDocAt } from "../firebase";
 import {  Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import { useNavigate } from "react-router-dom"
@@ -73,16 +73,16 @@ function NewAccountPopup(props: Props) {
         const accountNumber = leadingNum + (formData.order.toString().substring(0,3).padStart(3, "0"));
 
         /* BAD DATA CHECKS */
-        if (formData.order.toString().length > 3) { setAlertShown(true); setAlertText("Account Order cannot be longer than 3 digits!"); setAlertColor("danger"); return; }
+        if (formData.order.toString().length > 3) { setAlertShown(true); setAlertText(await getErrorMessage("invalidAccountOrder")); setAlertColor("danger"); return; }
         //Account Num Taken
         let queryResults = await getDocs(query(collection(db, "accounts"), where("number", "==", accountNumber)));
         console.log( (Editing() && props.toEdit.data.number == accountNumber) + "   NUM" + accountNumber);
         if ((!Editing() || props.toEdit.data.number != accountNumber) && !queryResults.empty)
-        { setAlertShown(true); setAlertText("Account Order is taken"); setAlertColor("danger"); return; }
+        { setAlertShown(true); setAlertText(await getErrorMessage("repeatAccountOrder")); setAlertColor("danger"); return; }
         //Account Name Taken
         queryResults = await getDocs(query(collection(db, "accounts"), where("name", "==", formData.name)));
         if ((!Editing() || props.toEdit.data.name != formData.name) && !queryResults.empty)
-        { setAlertShown(true); setAlertText("Account name is taken"); setAlertColor("danger"); return; }
+        { setAlertShown(true); setAlertText(await getErrorMessage("repeatAccountName")); setAlertColor("danger"); return; }
         //Get AuthUserID
         const authUserDoc = await Promise.resolve(GetAuthUserDoc());
 
