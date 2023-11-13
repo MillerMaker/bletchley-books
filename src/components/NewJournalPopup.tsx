@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { GetAuthUserDoc, addDocRandomID, db, UserDoc, getErrorMessage} from "../firebase";
+import { GetAuthUserDoc, addDocRandomID, db, UserDoc, getErrorMessage, storage} from "../firebase";
 import { Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import CustomPopup from "./CustomPopup";
 import Alert from "./Alert";
 import "./NewUser.css";
 import SendEmail from "../Email";
 import { toUserDocArray } from "../firebase";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 
 interface Props {
     accountNames: Map<string, string>;//Pass in account ID to get account name
@@ -16,7 +17,7 @@ interface Props {
 
 function NewJournalPopup(props: Props) {
 
-    const [transactions, setTransactions] = useState(Array<{ id: string, credit: number, debit: number }>);
+    const [transactions, setTransactions] = useState(Array<{ id: string, type: string, amount: number }>);
     const [description, setDescription] = useState("");
     const [adjusting, setAdjusting] = useState(false);
 
@@ -25,16 +26,38 @@ function NewJournalPopup(props: Props) {
     const [alertText, setAlertText] = useState("");
     const [alertColor, setAlertColor] = useState("danger");
 
+    //Document Storage
+    const [docUrl, setDocUrl] = useState("");
+    const [progresspercent, setProgresspercent] = useState(0);
 
+    //test submit
+    const [testSubmitted, setTestSubmitted] = useState(false);
 
+    function testSubmission(e: { preventDefault: () => void; target: any }) {
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) =>  {
+        if(testSubmitted== false) {
+              /* UPLOAD FILES */
+            e.preventDefault();
+            const file = e.target.files[0]
+            console.log("This file's name is: " + file.name );
+            if (!file) {
+                console.log("Not a file");
+            } else {
+                const storageRef = ref(storage, `journalDocuments/${file.name}`);
+                uploadBytes(storageRef, file).then(() => {
+                    console.log("We Uploaded!!!!");
+                });
+            }
+        }
+        setTestSubmitted(true);
+    }
+    const handleSubmit = async (e: { preventDefault: () => void; target: any }) => {
         e.preventDefault();
         
         if (formSubmitted) return;
         setAlertShown(false);
 
-      
+
         /* ERROR HANDLING */
         //Confirm there are at least 2 transactions
         if (transactions.length < 2) { setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("minTwoTransactions")); return; }
@@ -42,35 +65,57 @@ function NewJournalPopup(props: Props) {
         let total = 0;
         let usedAccounts = new Array<string>;
         let failedInLoop = false;
-        await transactions.map(async (infoObj: { id: string, credit: number, debit: number }, index: number) =>
+        await transactions.map(async (infoObj: { id: string, type: string, amount: number }, index: number) =>
         {
-            //Confirm debit and credit are positive
-            if (infoObj.debit < 0 || infoObj.credit < 0) { failedInLoop = true; setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("negativeDebitOrCredit")); return; }
+            //Confirm debit and credit are positive, Confirm only debit or credit
+            if (infoObj.amount < 0) { failedInLoop = true; setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("negativeDebitOrCredit")); return; }
 
-            total += infoObj.debit - infoObj.credit;
+            total += infoObj.amount * (infoObj.type == "debit" ? 1 : -1);
 
             //Confirm no account is associated with multiple transactions
             if (usedAccounts.includes(infoObj.id)) { failedInLoop = true; setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("repeatAccountInJournal")); return; }
             usedAccounts.push(infoObj.id);
         })
+        if (failedInLoop) return;
         //Confirm Total is 0
         if (total != 0) { setAlertColor("danger"); setAlertShown(true); setAlertText(await getErrorMessage("debitCreditNot0")); return; }
-        if (failedInLoop) return;
 
 
 
         //Get AuthUserID
         const authUserDoc = await Promise.resolve(GetAuthUserDoc());
 
+        /* UPLOAD FILES */
+        const file = e.target.getElementsByClassName("doc")[0].files[0]
+        if (!file) {
+            console.log("Not a file");
+        } else {
+            const storageRef = ref(storage, `journalDocuments/${file.name}`);
+            uploadBytes(storageRef, file).then(() => {
+                console.log("We Uploaded!!!!");
+            });
+        }
 
+        //Convert Transactions to Transactions 
+        //with debit / credit value rather than amount and type
+        let transactionsDebitCredit = new Array<{}>;
+        transactions.map((transaction: { id: string, type: string, amount: number }) => {
+            transactionsDebitCredit.push({
+                id: transaction.id,
+                debit: transaction.amount * (transaction.type == "debit" ? 1 : 0),
+                credit: transaction.amount * (transaction.type == "credit" ? 1 : 0),
+            });
+        });
 
         /* CREATE JOURNAL OBJECT */
         let journalDoc = {
-            transactions: transactions,
+            transactions: transactionsDebitCredit,
             description: description,
             status: "pending",
             userID: authUserDoc.id,
-            date: Timestamp.now()
+            date: Timestamp.now(),
+            documents: [file ? `journalDocuments/${file.name}` : ''],
+            type: adjusting ? "adjusting" : "general"
         }
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
@@ -105,8 +150,8 @@ function NewJournalPopup(props: Props) {
                 <h3 className="heading"> Account Information </h3>
                 {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
                 <form onSubmit={handleSubmit}>
-                    <div >
-                        <label>Description:</label>
+                    <div className="form-group">
+                        <h6>Description (Optional)</h6>
                         <input
                             type="text"
                             value={description}
@@ -114,9 +159,10 @@ function NewJournalPopup(props: Props) {
                             required
                         />
                     </div>
-                    {transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) =>
+                    <br></br>
+                    {transactions.map((infoObj: { id: string, type: string, amount: number }, index: number) =>
                     (
-                        <div>
+                        <div id={String(index)}>
                             <select
                                 value={infoObj.id}
                                 onChange={(e) => { const newTransactions = [...transactions]; newTransactions[index].id = e.target.value; setTransactions(newTransactions); }}
@@ -125,16 +171,18 @@ function NewJournalPopup(props: Props) {
                                     (<option value={accountIDNamePair[0]} >{accountIDNamePair[1]}</option>)
                                 )}
                             </select>
+                            <select
+                                value={infoObj.type}
+                                onChange={(e) => { const newTransactions = [...transactions]; newTransactions[index].type = e.target.value; setTransactions(newTransactions); }}
+                            >
+                                <option value={"debit"} >Debit</option>)
+                                <option value={"credit"} >Credit</option>)
+
+                            </select>
                             <input
                                 type="number"
-                                value={infoObj.debit}
-                                onChange={(e) => { const newTransactions = [...transactions]; newTransactions[index].debit = Number(e.target.value); setTransactions(newTransactions); }}
-                                required
-                            />
-                            <input
-                                type="number"
-                                value={infoObj.credit}
-                                onChange={(e) => { const newTransactions = [...transactions]; newTransactions[index].credit = Number(e.target.value); setTransactions(newTransactions); }}
+                                value={infoObj.amount}
+                                onChange={(e) => { const newTransactions = [...transactions]; newTransactions[index].amount = Number(e.target.value); setTransactions(newTransactions); }}
                                 required
                             />
                             <button
@@ -145,7 +193,10 @@ function NewJournalPopup(props: Props) {
                             </button>
                         </div>
                     ))}
-                    <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 1, credit: 2 }]; setTransactions(newTransactions); }}>Add Transaction</button>
+                    <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], type: "debit", amount: 0 }]; setTransactions(newTransactions); }}>Add Transaction</button>
+                    <br></br><br></br>
+                    <h6>Add Document (Optional)</h6>
+                            <input type='file' className = "doc"/>
                     <br></br><br></br>
                     <div>
                         <input
@@ -155,6 +206,7 @@ function NewJournalPopup(props: Props) {
                         />
                         <label>Adjusting Journal Entry</label>
                     </div>
+                    <br></br>
                     <div className="btn-group">
                         <button title="Submit this journal entry for approval" className="btn btn-primary" type="submit">Submit for Approval</button>
                         <button title="Go back" className="btn btn-secondary" onClick={props.backCallback} type="button">Back</button>

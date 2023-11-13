@@ -1,18 +1,22 @@
 import { useState} from 'react'
 import {collection, getDocs,  setDoc, doc, arrayUnion} from 'firebase/firestore';
-import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage } from '../firebase';
+import { getDocAt, saveDocAt, db, TimeStampToDateString, GetAuthUserDoc, getErrorMessage, storage } from '../firebase';
 import Alert from '../components/Alert';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import NewJournalPopup from '../components/NewJournalPopup';
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import CustomPopup from '../components/CustomPopup';
+import RejectJournalPopup from '../components/RejectJournalPopup';
 
 
 
 function JournalPage() {
+    const { state } = useLocation();
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     //Journal Docs
-    const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any }>);
+    const [journalDocs, setJournalDocs] = useState(Array<{ id: string, data: any , docURL: string}>);
     const [requestedData, setRequestedData] = useState(false);
 
     //Account ID to Name Map
@@ -20,6 +24,7 @@ function JournalPage() {
 
     //Create/Edit Popup State
     const [createPopupShown, setCreatePopupShown] = useState(false);
+    const [rejectPopupShown, setRejectPopupShown] = useState(false);
 
     //Alert State
     const [alertShown, setAlertShown] = useState(false);
@@ -31,7 +36,15 @@ function JournalPage() {
     const [searchText, setSearchText] = useState("");
     const [searchColumn, setSearchColumn] = useState("account-name");
     const [selectedDate, setSelectedDate] = useState("");
+    //Filtering
     const [shownStatus, setShownStatus] = useState("all");
+    const [shownType, setShownType] = useState("all"); //Type of Journal Entries to show eg: General, Adjusting
+
+
+
+    //url
+    const [url, setURL] = useState("");
+
 
     //User Role State
     const [userRole, setUserRole] = useState("");
@@ -59,12 +72,24 @@ function JournalPage() {
 
         /* GET JOURNAL DATA */
         let queryResult = await getDocs(collection(db, "journals"));
-
-        let allJournalDocs: Array<{ id: string, data: any }> = new Array();
-        queryResult.forEach((doc) => {
-            allJournalDocs.push({ id: doc.id, data: doc.data() });
-        })
-
+        let allJournalDocs: Array<{ id: string, data: any, docURL: string}> = new Array();
+        //add document URLs to individual journalDoc objects and set Journal Data
+        for (const doc of queryResult.docs) {
+            if(doc.data().documents[0] !== "") {
+                const url = await getDownloadURL(ref(storage, doc.data().documents[0]));
+                if (url != null) {
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: url});
+                }
+                else {
+                    console.log("Error fetching journal or no document exists")
+                    allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
+                }
+            } else {
+                console.log("Error fetching journal or no document exists")
+                allJournalDocs.push({ id: doc.id, data: doc.data(), docURL: ""});
+            }
+        }
+        
         setJournalDocs(allJournalDocs);
 
 
@@ -77,21 +102,27 @@ function JournalPage() {
         })
 
         setAccountNames(allAccountsMap);
+
+
+        //Set Selected index to passed in state
+        let foundIndex = -1;
+        allJournalDocs.forEach((doc, index) =>
+        {
+            if (doc.id == state) {
+                foundIndex = index
+                return;
+            }
+        });
+        setSelectedIndex(foundIndex);
     }
     if (!requestedData)
         GetData();
 
-
-
-
-    function HandleJudgeJournal(approve: boolean) {
+    function HandleJudgeJournal(approve: boolean, comment: string) {
         //Change the selected journal entries status 
         //  to the value of approve parameter
         let newJournalDocs = [...journalDocs];
         newJournalDocs[selectedIndex].data.status = approve ? "approved" : "rejected";
-        //save journal document
-        saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
-        console.log("journals/" + newJournalDocs[selectedIndex].id);
 
         // if approved, do the following:
         // 1. Get All of the Transactions in the given Journal entry
@@ -101,6 +132,15 @@ function JournalPage() {
             const trans = newJournalDocs[selectedIndex].data.transactions;
             const accountIds = trans.map(updateAccounts);
         }
+        else//Not approved, save a comment
+            newJournalDocs[selectedIndex].data.rejectionComment = comment;
+
+        //save journal document
+        saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
+        console.log("journals/" + newJournalDocs[selectedIndex].id);
+
+        
+
         setJournalDocs(newJournalDocs);
     }
 
@@ -116,6 +156,9 @@ function JournalPage() {
         return infoObj.id 
     }
     function MatchesSearch(journalDoc: { id: string, data: any }, index: number): boolean {
+        //Returns whether the passed in journal doc's
+        //variables matches the current search value
+
         if (searchColumn == "debit-credit") {
             if (searchText == "") return true;
             const trans = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }): boolean => {
@@ -152,6 +195,8 @@ function JournalPage() {
         <>
             <Header homePath="/private-outlet/journal" title="Journal" />
             {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
+            <button className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}> Create a Journal Entry </button>
+            <br /><br />
             <div>
                 <label>Search:</label>
                 <select
@@ -176,14 +221,7 @@ function JournalPage() {
                         onChange={(e) => { setSelectedDate(e.target.value) }}
                     />
                 }
-                {
-                    <button
-                        className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
-                    >
-                        Create a Journal Entry
-                    </button>
-                }
-                <label>Show:</label>
+                <label>Status:</label>
                 <select
                     value={shownStatus}
                     onChange={(e) => { setShownStatus(e.target.value) }}
@@ -193,9 +231,17 @@ function JournalPage() {
                     <option value="pending">Pending</option>
                     <option value="rejected">Rejected</option>
                 </select>
+                <label>Type:</label>
+                <select
+                    value={shownType}
+                    onChange={(e) => { setShownType(e.target.value) }}
+                >
+                    <option value="all">All</option>
+                    <option value="general">General</option>
+                    <option value="adjusting">Adjusting</option>
+                </select>
             </div>
 
-            <br></br><br></br>
             {journalDocs.length == 0 && <p>No Journal Entries Found</p>}
             <table className="table table-bordered table-hover">
                 <thead>
@@ -209,8 +255,8 @@ function JournalPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
-                    (MatchesSearch(journalDoc, index) && (shownStatus == "all" || journalDoc.data.status == shownStatus) &&
+                    {journalDocs.map((journalDoc: { id: string, data: any, docURL: string }, index: number) =>
+                    (MatchesSearch(journalDoc, index) && (shownStatus == "all" || journalDoc.data.status == shownStatus) && (shownType == "all" || journalDoc.data.type == shownType) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
@@ -219,14 +265,14 @@ function JournalPage() {
                             >
                                 <td>{TimeStampToDateString(journalDoc.data.date)}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{accountNames.get(infoObj.id)}<br></br></>)))}</td>
-                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.debit).toFixed(2)}<br></br></>)))}</td>
-                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{Number(infoObj.credit).toFixed(2)}<br></br></>)))}</td>
-                                <td>DOCUMENTS GO HERE</td>
+                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{infoObj.debit != 0 ? Number(infoObj.debit).toFixed(2) : ""}<br></br></>)))}</td>
+                                <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }, index: number) => (<>{infoObj.credit != 0 ? Number(infoObj.credit).toFixed(2) : ""}<br></br></>)))}</td>
+                                <td><a href={journalDoc.docURL}>{journalDoc.data.documents[0].substr(17)}</a></td>
                                 <td className={(journalDoc.data.status == "approved" ? "table-success" : journalDoc.data.status == "rejected" ? "table-danger" : "table-warning")}>{journalDoc.data.status}</td>
                             </tr>
-                            {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
+                            {journalDocs.map((doc: { id: string, data: any}, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
-                    )
+                     )
                     )}
                 </tbody>
             </table>
@@ -239,16 +285,16 @@ function JournalPage() {
                         View
                     </button>
 
-                    {journalDocs[selectedIndex].data.status == "pending" &&
+                    {journalDocs[selectedIndex].data.status == "pending" && userRole !== "accountant" &&
                         <>
                         <button title="Approve this journal entry"
                             className="btn btn-success"
-                            onClick={() => HandleJudgeJournal(true)}>
+                            onClick={() => HandleJudgeJournal(true,"")}>
                             Approve
                         </button>
                         <button title="Reject this journal entry"
                             className="btn btn-danger"
-                            onClick={() => HandleJudgeJournal(false)}>
+                            onClick={() => setRejectPopupShown(true)}>
                             Reject
                         </button>
                         </>}
@@ -257,6 +303,9 @@ function JournalPage() {
 
             {createPopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <NewJournalPopup backCallback={() => setCreatePopupShown(false)} confirmCallback={() => { setRequestedData(false); }} accountNames={accountNames} />
+            }
+            {rejectPopupShown && //Show Reject Journal Popup if Reject Popup Shown
+                <RejectJournalPopup backCallback={() => setRejectPopupShown(false)} confirmCallback={(comment) => { HandleJudgeJournal(false, comment); }} journalDoc={journalDocs[selectedIndex]} />
             }
         </>
     );

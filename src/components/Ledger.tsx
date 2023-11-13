@@ -50,6 +50,7 @@ function Ledger(props: Props) {
     const [date2, setDate2] = useState("");
     const [searchText2, setSearchText2] = useState("");
     const [searchColumn, setSearchColumn] = useState("balance");
+    const [shownType, setShownType] = useState("all");
 
     
     async function GetData() {
@@ -167,9 +168,19 @@ function Ledger(props: Props) {
                             />
                         </>
                         }
-                </div> 
+                        </div> 
+                <div>
+                    <label>Type:</label>
+                    <select
+                        value={shownType}
+                        onChange={(e) => { setShownType(e.target.value) }}
+                    >
+                        <option value="all">All</option>
+                        <option value="general">General</option>
+                        <option value="adjusting">Adjusting</option>
+                    </select>
+                </div>
             </div>
-
             <table className="table table-bordered table-hover">
                 <thead>
                     <tr>      
@@ -195,7 +206,7 @@ function Ledger(props: Props) {
                     </tr>  
                     }       
                     {journalDocs.map((journalDoc: { id: string, data: any }, index: number) =>
-                    (MatchesSearch(journalDoc, index) &&
+                    (MatchesSearch(journalDoc, index) && (shownType == "all" || shownType == journalDoc.data.type) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
@@ -263,8 +274,8 @@ function Ledger(props: Props) {
                                             )
                                         }
                                     }))} 
-                                </td>
-                                <td className = "forward-arrow" onClick = {() => navigate('/private-outlet/journal')}>{">"}</td>
+                            </td>
+                            <td className="forward-arrow" onClick={() => navigate('/private-outlet/journal', { state: journalDocs[index].id })}> {">"} </td>
                             </tr>
                             {journalDocs.map((doc: { id: string, data: any }, index: number) => (<tr></tr>)) /* Make new Rows for each transaction in the journal entry */}
                         </>
