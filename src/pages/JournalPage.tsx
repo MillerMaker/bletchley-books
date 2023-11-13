@@ -6,6 +6,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import NewJournalPopup from '../components/NewJournalPopup';
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import CustomPopup from '../components/CustomPopup';
+import RejectJournalPopup from '../components/RejectJournalPopup';
 
 
 
@@ -22,6 +24,7 @@ function JournalPage() {
 
     //Create/Edit Popup State
     const [createPopupShown, setCreatePopupShown] = useState(false);
+    const [rejectPopupShown, setRejectPopupShown] = useState(false);
 
     //Alert State
     const [alertShown, setAlertShown] = useState(false);
@@ -33,10 +36,15 @@ function JournalPage() {
     const [searchText, setSearchText] = useState("");
     const [searchColumn, setSearchColumn] = useState("account-name");
     const [selectedDate, setSelectedDate] = useState("");
+    //Filtering
+    const [shownStatus, setShownStatus] = useState("all");
+    const [shownType, setShownType] = useState("all"); //Type of Journal Entries to show eg: General, Adjusting
+
+
 
     //url
     const [url, setURL] = useState("");
-    const [shownStatus, setShownStatus] = useState("all");
+
 
     //User Role State
     const [userRole, setUserRole] = useState("");
@@ -110,14 +118,11 @@ function JournalPage() {
     if (!requestedData)
         GetData();
 
-    function HandleJudgeJournal(approve: boolean) {
+    function HandleJudgeJournal(approve: boolean, comment: string) {
         //Change the selected journal entries status 
         //  to the value of approve parameter
         let newJournalDocs = [...journalDocs];
         newJournalDocs[selectedIndex].data.status = approve ? "approved" : "rejected";
-        //save journal document
-        saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
-        console.log("journals/" + newJournalDocs[selectedIndex].id);
 
         // if approved, do the following:
         // 1. Get All of the Transactions in the given Journal entry
@@ -127,6 +132,15 @@ function JournalPage() {
             const trans = newJournalDocs[selectedIndex].data.transactions;
             const accountIds = trans.map(updateAccounts);
         }
+        else//Not approved, save a comment
+            newJournalDocs[selectedIndex].data.rejectionComment = comment;
+
+        //save journal document
+        saveDocAt("journals/" + newJournalDocs[selectedIndex].id, newJournalDocs[selectedIndex].data);
+        console.log("journals/" + newJournalDocs[selectedIndex].id);
+
+        
+
         setJournalDocs(newJournalDocs);
     }
 
@@ -142,6 +156,9 @@ function JournalPage() {
         return infoObj.id 
     }
     function MatchesSearch(journalDoc: { id: string, data: any }, index: number): boolean {
+        //Returns whether the passed in journal doc's
+        //variables matches the current search value
+
         if (searchColumn == "debit-credit") {
             if (searchText == "") return true;
             const trans = journalDoc.data.transactions.map((infoObj: { id: string, credit: number, debit: number }): boolean => {
@@ -178,6 +195,8 @@ function JournalPage() {
         <>
             <Header homePath="/private-outlet/journal" title="Journal" />
             {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
+            <button className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}> Create a Journal Entry </button>
+            <br /><br />
             <div>
                 <label>Search:</label>
                 <select
@@ -202,14 +221,7 @@ function JournalPage() {
                         onChange={(e) => { setSelectedDate(e.target.value) }}
                     />
                 }
-                {
-                    <button
-                        className="btn-block btn btn-success long" onClick={() => setCreatePopupShown(true)}
-                    >
-                        Create a Journal Entry
-                    </button>
-                }
-                <label>Show:</label>
+                <label>Status:</label>
                 <select
                     value={shownStatus}
                     onChange={(e) => { setShownStatus(e.target.value) }}
@@ -219,9 +231,17 @@ function JournalPage() {
                     <option value="pending">Pending</option>
                     <option value="rejected">Rejected</option>
                 </select>
+                <label>Type:</label>
+                <select
+                    value={shownType}
+                    onChange={(e) => { setShownType(e.target.value) }}
+                >
+                    <option value="all">All</option>
+                    <option value="general">General</option>
+                    <option value="adjusting">Adjusting</option>
+                </select>
             </div>
 
-            <br></br><br></br>
             {journalDocs.length == 0 && <p>No Journal Entries Found</p>}
             <table className="table table-bordered table-hover">
                 <thead>
@@ -235,8 +255,8 @@ function JournalPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {journalDocs.map((journalDoc: { id: string, data: any , docURL: string }, index: number) =>
-                    (MatchesSearch(journalDoc, index) && (shownStatus == "all" || journalDoc.data.status == shownStatus) &&
+                    {journalDocs.map((journalDoc: { id: string, data: any, docURL: string }, index: number) =>
+                    (MatchesSearch(journalDoc, index) && (shownStatus == "all" || journalDoc.data.status == shownStatus) && (shownType == "all" || journalDoc.data.type == shownType) &&
                         <>
                             <tr
                                 className={"" + (selectedIndex == index && "table-primary")}
@@ -269,12 +289,12 @@ function JournalPage() {
                         <>
                         <button title="Approve this journal entry"
                             className="btn btn-success"
-                            onClick={() => HandleJudgeJournal(true)}>
+                            onClick={() => HandleJudgeJournal(true,"")}>
                             Approve
                         </button>
                         <button title="Reject this journal entry"
                             className="btn btn-danger"
-                            onClick={() => HandleJudgeJournal(false)}>
+                            onClick={() => setRejectPopupShown(true)}>
                             Reject
                         </button>
                         </>}
@@ -283,6 +303,9 @@ function JournalPage() {
 
             {createPopupShown && //Show Change Role Popup if Change Role Popup Shown
                 <NewJournalPopup backCallback={() => setCreatePopupShown(false)} confirmCallback={() => { setRequestedData(false); }} accountNames={accountNames} />
+            }
+            {rejectPopupShown && //Show Reject Journal Popup if Reject Popup Shown
+                <RejectJournalPopup backCallback={() => setRejectPopupShown(false)} confirmCallback={(comment) => { HandleJudgeJournal(false, comment); }} journalDoc={journalDocs[selectedIndex]} />
             }
         </>
     );

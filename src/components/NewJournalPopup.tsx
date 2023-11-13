@@ -19,6 +19,7 @@ function NewJournalPopup(props: Props) {
 
     const [transactions, setTransactions] = useState(Array<{ id: string, type: string, amount: number }>);
     const [description, setDescription] = useState("");
+    const [adjusting, setAdjusting] = useState(false);
 
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [alertShown, setAlertShown] = useState(false);
@@ -50,9 +51,6 @@ function NewJournalPopup(props: Props) {
         }
         setTestSubmitted(true);
     }
-
-
-
     const handleSubmit = async (e: { preventDefault: () => void; target: any }) => {
         e.preventDefault();
         
@@ -116,7 +114,8 @@ function NewJournalPopup(props: Props) {
             status: "pending",
             userID: authUserDoc.id,
             date: Timestamp.now(),
-            documents: [file ? `journalDocuments/${file.name}` : ''] 
+            documents: [file ? `journalDocuments/${file.name}` : ''],
+            type: adjusting ? "adjusting" : "general"
         }
         //Add all transactions to a transaction array
         //transactions.map((infoObj: { id: string, credit: number, debit: number }, index: number) => { journalDoc[infoObj.id] = infoObj; });
@@ -199,6 +198,15 @@ function NewJournalPopup(props: Props) {
                     <h6>Add Document (Optional)</h6>
                             <input type='file' className = "doc"/>
                     <br></br><br></br>
+                    <div>
+                        <input
+                            type="checkbox"
+                            value={String(adjusting)}
+                            onChange={(e) => { setAdjusting(Boolean(e.target.value)) }}
+                        />
+                        <label>Adjusting Journal Entry</label>
+                    </div>
+                    <br></br>
                     <div className="btn-group">
                         <button title="Submit this journal entry for approval" className="btn btn-primary" type="submit">Submit for Approval</button>
                         <button title="Go back" className="btn btn-secondary" onClick={props.backCallback} type="button">Back</button>
