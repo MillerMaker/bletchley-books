@@ -18,6 +18,7 @@ function NewJournalPopup(props: Props) {
 
     const [transactions, setTransactions] = useState(Array<{ id: string, credit: number, debit: number }>);
     const [description, setDescription] = useState("");
+    const [adjusting, setAdjusting] = useState(false);
 
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [alertShown, setAlertShown] = useState(false);
@@ -104,8 +105,8 @@ function NewJournalPopup(props: Props) {
                 <h3 className="heading"> Account Information </h3>
                 {alertShown && <Alert text={alertText} color={alertColor}></Alert>}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="statement">Description:</label>
+                    <div >
+                        <label>Description:</label>
                         <input
                             type="text"
                             value={description}
@@ -146,6 +147,14 @@ function NewJournalPopup(props: Props) {
                     ))}
                     <button title="Add a transaction" className="btn btn-success" type="button" onClick={() => { const newTransactions = [...transactions, { id: Array.from(props.accountNames)[0][0], debit: 1, credit: 2 }]; setTransactions(newTransactions); }}>Add Transaction</button>
                     <br></br><br></br>
+                    <div>
+                        <input
+                            type="checkbox"
+                            value={String(adjusting)}
+                            onChange={(e) => { setAdjusting(Boolean(e.target.value)) }}
+                        />
+                        <label>Adjusting Journal Entry</label>
+                    </div>
                     <div className="btn-group">
                         <button title="Submit this journal entry for approval" className="btn btn-primary" type="submit">Submit for Approval</button>
                         <button title="Go back" className="btn btn-secondary" onClick={props.backCallback} type="button">Back</button>
