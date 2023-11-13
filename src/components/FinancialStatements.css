@@ -1,0 +1,28 @@
+.main{
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    text-align:left;
+    color:#686868;
+}
+
+.my-group {
+    justify-content:left;
+    text-align:left;
+    max-width: 400px;
+}
+
+.new-statement {
+    max-width: 130px;
+    color: #a5aaaf;
+    text-decoration-line:underline;
+    cursor:pointer;
+}
+
+
+.new-statement:hover {
+    max-width: 130px;
+    color: #686868;
+    text-decoration-line:underline;
+    cursor:pointer;
+}

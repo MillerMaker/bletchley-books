@@ -10,3 +10,15 @@
     color:  #5d53df;
     text-decoration: underline;
 }
+
+.functions {
+    display:flex;
+    flex-direction: row;
+    column-gap: 20px;
+    padding-bottom: 10px;
+}
+.file {
+    cursor:pointer;
+    color:#383838
+}
+
