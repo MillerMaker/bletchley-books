@@ -35,13 +35,13 @@ function BalanceSheet() {
         queryResult.forEach((doc) => {
             if (doc.data().category == 'asset') {
                 assetAcc.push({ id: doc.id, data: doc.data() });
-                setTotalAsset(totalAsset + doc.data().initialBalance);
+                setTotalAsset(totalAsset + (doc.data().credit + doc.data().debit));
             } else if (doc.data().category == 'liability') {
                 liabilityAcc.push({ id: doc.id, data: doc.data() });
-                setTotalLiability(totalLiability + doc.data().initialBalance);
+                setTotalLiability(totalLiability + (doc.data().credit + doc.data().debit));
             }else if (doc.data().category == 'equity') {
                 equityAcc.push({ id: doc.id, data: doc.data() });
-                setTotalEquity(totalEquity + doc.data().initialBalance);
+                setTotalEquity(totalEquity + (doc.data().credit + doc.data().debit));
             } else {
                 console.log("Something went wrong getting the financial statements");
             }
@@ -93,7 +93,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.initialBalance}
+                                    ${account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
@@ -120,7 +120,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.initialBalance}
+                                    ${account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
@@ -145,7 +145,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.initialBalance}
+                                    ${account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
