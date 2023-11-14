@@ -5,6 +5,8 @@ import { addDocRandomID, db, TimeStampToDateString } from '../firebase';
 
 import "./FinancialStatements.css"
 import CustomPopup from './CustomPopup';
+import BalanceSheet from './BalanceSheet';
+import backArrow from '../assets/back_arrow_icon.png';
 import ConfirmPopup from './ConfirmPopup';
 import Alert from './Alert';
 
@@ -21,6 +23,7 @@ function FinancialStatements() {
     const [balanceStatements, setBalanceStatements] = useState(Array<{ id: string, data: any }>);
     const [trialBalanceStatements, setTrialBalanceStatements] = useState(Array<{ id: string, data: any }>);
     const [retainedEarningsStatements, setRetainedEarningsStatements] = useState(Array<{ id: string, data: any }>);
+    const [balanceSheetPopupShown, setBalanceSheetPopupShown] = useState(false);
 
     /* CREATE STATEMENT VARS */
     const [showCreateStatement, setShowCreateStatement] = useState(false);
@@ -102,7 +105,7 @@ function FinancialStatements() {
                     <li className="list-group-item statement" onClick={() => navigate('/private-outlet/balance-sheet', { state: doc })}>{doc.data.name}</li>
                 </>
             ))}
-                <li className="list-group-item new-statement" onClick={() => { setCreateType("balance"); setShowCreateStatement(true); }}>New Statement</li>
+                <li className="list-group-item new-statement" onClick={() => {setBalanceSheetPopupShown(true)}} onClick={() => { setCreateType("balance"); setShowCreateStatement(true); }}>New Statement</li>
             <br></br>
             <h5> Income Statements </h5>
             {incomeStatements.map((doc, index) => (
@@ -121,6 +124,13 @@ function FinancialStatements() {
                 <li className="list-group-item new-statement" onClick={() => { setCreateType("retained"); setShowCreateStatement(true); }}>New Statement</li>
             <br></br>
         </div>
+    {balanceSheetPopupShown && 
+    <CustomPopup child={
+        <>
+            <button className = "btn" onClick={() => {setBalanceSheetPopupShown(false)}} style={{position: 'absolute', top: '10px', left:'30px'}}><img src={backArrow} width={'20px'}></img></button>
+            <BalanceSheet />
+        </>
+    } /> }
             {showCreateStatement &&
                 <CustomPopup child=
                 {<form className="form-group" onSubmit={handleSubmit}>
