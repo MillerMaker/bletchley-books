@@ -33,7 +33,6 @@ function BalanceSheet() {
         let assetAcc: Array<{ id: string, data: any }> = new Array();
 
         queryResult.forEach((doc) => {
-            console.log(doc)
             if (doc.data().category == 'asset') {
                 assetAcc.push({ id: doc.id, data: doc.data() });
                 setTotalAsset(totalAsset + doc.data().initialBalance);
