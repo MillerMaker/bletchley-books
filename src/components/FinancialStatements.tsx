@@ -62,7 +62,7 @@ function FinancialStatements() {
         <h5> Trial Balance Statements </h5>
         {trialBalanceStatements.map((doc, index) => (
             <>
-            <li className="list-group-item" onClick={() => navigate('/private-outlet/trial-balance' , { state: doc })}>{doc.data.name}</li>
+            <li className="list-group-item statement" onClick={() => navigate('/private-outlet/trial-balance' , { state: doc })}>{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
@@ -70,7 +70,7 @@ function FinancialStatements() {
         <h5> Balance Statements </h5>
         {balanceStatements.map((doc, index) => (
             <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
@@ -78,15 +78,15 @@ function FinancialStatements() {
         <h5> Income Statements </h5>
         {incomeStatements.map((doc, index) => (
             <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
         <br></br>
         <h5> Retained Earnings </h5>
         {retainedEarningsStatements.map((doc, index) => (
-            <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <> 
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
