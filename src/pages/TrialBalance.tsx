@@ -139,12 +139,16 @@ function TrialBalance() {
         const storageRef = ref(storage, `journalDocuments/${"myFile2.pdf"}`);
         console.log(blob)
         uploadBytes(storageRef, blob).then(() => {
-
+            getURL();
             console.log("We Uploaded!!!!");
         }).catch((error) => {
             console.error("Error uploading file:", error);
         });
-        
+
+
+    }
+
+    const getURL = async() => {
         const url = await getDownloadURL(ref(storage, 'journalDocuments/myFile2.pdf'));
         console.log(url);
     }
