@@ -1,14 +1,18 @@
 import { getDocs, collection, where, query} from 'firebase/firestore';
+import { useNavigate } from "react-router"
 import { useState } from 'react';
 import { db} from '../firebase';
 
 import "./FinancialStatements.css"
 
 function FinancialStatements() {
+    //navigate
+    const navigate = useNavigate();
+
     /*GET DATA BOOL */
     const [requestedData, setRequestedData] = useState(false);
 
-    
+
     /* STATEMENT DOCS */
     const [incomeStatements, setIncomeStatements] = useState(Array<{ id: string, data: any }>);
     const [balanceStatements, setBalanceStatements] = useState(Array<{ id: string, data: any }>);
@@ -58,7 +62,7 @@ function FinancialStatements() {
         <h5> Trial Balance Statements </h5>
         {trialBalanceStatements.map((doc, index) => (
             <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <li className="list-group-item statement" onClick={() => navigate('/private-outlet/trial-balance' , { state: doc })}>{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
@@ -66,7 +70,7 @@ function FinancialStatements() {
         <h5> Balance Statements </h5>
         {balanceStatements.map((doc, index) => (
             <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
@@ -74,15 +78,15 @@ function FinancialStatements() {
         <h5> Income Statements </h5>
         {incomeStatements.map((doc, index) => (
             <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
         <br></br>
         <h5> Retained Earnings </h5>
         {retainedEarningsStatements.map((doc, index) => (
-            <>
-            <li className="list-group-item">{doc.data.name}</li>
+            <> 
+            <li className="list-group-item statement">{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
