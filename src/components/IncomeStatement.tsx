@@ -80,6 +80,7 @@ function IncomeStatement() {
         <Header title="TrialBalance" homePath="/private-outlet/admin" ></Header>
         <StatementHeader GetDocument={() => <></>}
             body={<>
+                <h4>{state.data.name}</h4>
                 <h4> Income Statement</h4>
                 <h6>for {TimeStampToDateString(state.data.startDate)} : {TimeStampToDateString(state.data.endDate)}</h6>
                 <br></br>

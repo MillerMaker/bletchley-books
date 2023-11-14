@@ -109,6 +109,7 @@ function RetainedEarningsStatement() {
         <Header title="TrialBalance" homePath="/private-outlet/admin" ></Header>
         <StatementHeader GetDocument={() => <></>}
             body={<>
+                <h4>{state.data.name}</h4>
                 <h4> Retained Earnings Statement</h4>
                 <h6>for {startYear} - {endYear}</h6>
                 <br></br>

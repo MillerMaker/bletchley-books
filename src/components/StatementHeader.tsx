@@ -107,9 +107,6 @@ function StatementHeader(props: props) {
                 </div>
                 <br></br>
 
-                <h3>{state.data.name}</h3>
-
-
                 <div ref={componentRef}>
 
                     {props.body}
