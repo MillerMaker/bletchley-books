@@ -5,6 +5,8 @@ import React, { useState, useRef } from 'react';
 import {useReactToPrint} from 'react-to-print';
 import { db, storage} from '../firebase';
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import EmailUserList from '../components/EmailUserList';
+import CustomPopup from '../components/CustomPopup';
 
 import backButton from "../assets/back_arrow_icon.png";
 import Header from '../components/Header'
@@ -23,8 +25,9 @@ function TrialBalance() {
     const navigate = useNavigate();
     const {state} = useLocation(); //Gets the statement to be displayed
 
-    /* VARIOUS AND SUNDRY POPUPS */
+    /* Email Stuff */
     const [emailPopupShown, setEmailPopupShown] = useState(false);
+    const [attatchmentURL, setAttatchmentURL] = useState("");
 
     async function GetData() {
         /* REQUEST DATA ONCE */
@@ -136,7 +139,7 @@ function TrialBalance() {
     const handleEmail = async () => {
         
         const blob = await ReactPDF.pdf(MyDocument()).toBlob();
-        const storageRef = ref(storage, `journalDocuments/${"myFile2.pdf"}`);
+        const storageRef = ref(storage, `reports/${state.data.name}.pdf`);
         console.log(blob)
         uploadBytes(storageRef, blob).then(() => {
             getURL();
@@ -149,8 +152,9 @@ function TrialBalance() {
     }
 
     const getURL = async() => {
-        const url = await getDownloadURL(ref(storage, 'journalDocuments/myFile2.pdf'));
+        const url = await getDownloadURL(ref(storage, `reports/${state.data.name}.pdf`));
         console.log(url);
+        setAttatchmentURL(url);
     }
 
     
@@ -171,7 +175,7 @@ function TrialBalance() {
         <br></br>
         <div className = "trial-balance-document">
             <div className ="tools">
-            <svg onClick={handleEmail} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-envelope" viewBox="0 0 16 16">
+            <svg onClick={() => setEmailPopupShown(true)} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-envelope" viewBox="0 0 16 16">
                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
             </svg>
             <svg onClick = {handlePrint} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className ="bi bi-printer" viewBox="0 0 16 16">
@@ -208,8 +212,15 @@ function TrialBalance() {
                     </table>
                 </div>
             </div>
-
         </div>
+        {emailPopupShown && 
+                <CustomPopup child={
+                    <>
+                        <EmailUserList hasAttatchment = {true} AdditionalText = {attatchmentURL}  />
+                        <button className="btn btn-primary btn-danger" onClick={() => {setEmailPopupShown(false)}}>Cancel</button>
+                    </>
+            } />
+            } 
     </>
     );
 

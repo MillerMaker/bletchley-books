@@ -3,7 +3,13 @@ import { UserDoc, db, toUserDocArray } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import SendEmail from '../Email';
 
-function EmailUserList() {
+interface Props {
+    hasAttatchment: boolean;
+    AdditionalText: string
+}
+
+
+function EmailUserList(props: Props) {
     const [userDocs, setUserDocs] = useState(Array<UserDoc>);
     const [requestedData, setRequestedData] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -66,7 +72,7 @@ function EmailUserList() {
                     )}
                 </tbody>
             </table>}
-            {selectedIndex != -1 && 
+            {selectedIndex != -1 && !props.hasAttatchment &&
             <>
                 <h3>Email {userDocs[selectedIndex].userData.email}</h3>
                 <form>
@@ -83,6 +89,30 @@ function EmailUserList() {
                                 onChange={(event) => setEmailTextValue(event.target.value)}
                                 className="form-control no-resize" rows={3}
                                 placeholder="Email body..."
+                            >
+                            </textarea>
+                        </div>
+                </form>
+                {invalidEmailFormat && <h5>Invalid Email Format</h5>}
+                <button className='btn btn-success' onClick={() => {HandleEmailRequest()}}>Send</button>
+                <button className='btn btn-primary' onClick={() => {setSelectedIndex(-1)}}>Back</button>
+            </>
+            }
+            {selectedIndex != -1 && props.hasAttatchment &&
+            <>
+                <h3>Email {userDocs[selectedIndex].userData.email}</h3>
+                <form>
+                    <div className="form-group">
+                        <input
+                            placeholder="Subject..."
+                            className="form-control"
+                            value={emailSubjectValue}
+                            onChange={(e) => setEmailSubjectValue(e.target.value)}
+                        >
+                        </input>
+                            <textarea
+                                value={"Here's the Link to the report: "}
+                                className="form-control no-resize" rows={3}
                             >
                             </textarea>
                         </div>
