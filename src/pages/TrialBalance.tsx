@@ -3,7 +3,7 @@ import ReactPDF, { Page, Text, View, Document, StyleSheet,  PDFViewer ,renderToS
 import { useNavigate, useLocation } from "react-router"
 import React, { useState, useRef } from 'react';
 import {useReactToPrint} from 'react-to-print';
-import { db, storage} from '../firebase';
+import { TimeStampToDateString, db, storage} from '../firebase';
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import EmailUserList from '../components/EmailUserList';
 import CustomPopup from '../components/CustomPopup';
@@ -186,8 +186,9 @@ function TrialBalance() {
              <br></br>
             <div ref = {componentRef}>
                 <div className = "main">
-                    <h4> Trial Balance </h4>
-                    <h6> As At November 13, 2023</h6>
+                <h2>{state.data.name}</h2>
+                <h4> Trial Balance Statement</h4>
+                <h6>{TimeStampToDateString(state.data.startDate)} to {TimeStampToDateString(state.data.endDate)}</h6>
                 </div>
                 <div className = "table-div">
                     <table className = "trial-balance-table">

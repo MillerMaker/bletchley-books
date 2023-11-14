@@ -1,7 +1,7 @@
 import { getDocs, collection, where, query } from 'firebase/firestore';
 import { useNavigate, useLocation } from "react-router"
 import { useState } from 'react';
-import { db } from '../firebase';
+import { TimeStampToDateString, db } from '../firebase';
 
 import backButton from "../assets/back_arrow_icon.png";
 import Header from '../components/Header'
@@ -33,7 +33,6 @@ function BalanceSheet() {
         let assetAcc: Array<{ id: string, data: any }> = new Array();
 
         queryResult.forEach((doc) => {
-            console.log(doc)
             if (doc.data().category == 'asset') {
                 assetAcc.push({ id: doc.id, data: doc.data() });
                 setTotalAsset(totalAsset + doc.data().initialBalance);
@@ -74,7 +73,9 @@ function BalanceSheet() {
                     <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
                 </svg>
             </div>
-                <h2>Balance Sheet</h2>
+                <h2>{state.data.name}</h2>
+                <h4>Balance Statement</h4>
+                <h6>{TimeStampToDateString(state.data.startDate)} to {TimeStampToDateString(state.data.endDate)}</h6>
             <div className = "page-data">
                 <div>
                     <h4>Assets</h4>

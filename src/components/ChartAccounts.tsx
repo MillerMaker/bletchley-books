@@ -40,7 +40,7 @@ function ChartAccounts() {
     const [searchColumn, setSearchColumn] = useState("number");
 
     //User Role State
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [role, setRole] = useState("");
 
     function GetBalance(accountData: any): number {
         if (accountData.normalSide == 'credit') {
@@ -60,7 +60,7 @@ function ChartAccounts() {
         if (userDocSnapshot == "null") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("unauthorized")); return; }
         if (userDocSnapshot == "multipleUsers") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("repeatUserEmail")); return; }
         if (userDocSnapshot == "notFound") { setAlertShown(true); setAlertColor("danger"); setAlertText(await getErrorMessage("noUserEmail")); return; }
-        setIsAdmin(userDocSnapshot.data().role == "admin");
+        setRole(userDocSnapshot.data().role);
 
 
         /* GET ACCOUNT DATA */
@@ -127,13 +127,14 @@ function ChartAccounts() {
                 <svg onClick={() => setEmailPopupShown(true)} xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" className="bi bi-envelope" viewBox="0 0 16 16">
                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
                 </svg>
-                <div className='reports-button'   title="View Financial Statements" onClick={() => setStatementsPopupShown(true)}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill= "currentColor" className="bi bi-file-earmark-bar-graph-fill file" viewBox="0 0 16 16"> 
-                    <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z"/>
-                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                {role != "accountant" &&
+                <div className='reports-button' title="View Financial Statements" onClick={() => setStatementsPopupShown(true)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" className="bi bi-file-earmark-bar-graph-fill file" viewBox="0 0 16 16">
+                        <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z" />
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
                     </svg>
-                </div>
+                </div>}
             </div>
                             <label>Search:</label>
                 <select
@@ -200,7 +201,7 @@ function ChartAccounts() {
                     >
                         Ledger
                     </button>
-                    {isAdmin && //Only Show Activate/Edit Button if user is Admin
+                    {role =="admin" && //Only Show Activate/Edit Button if user is Admin
                         <>
                             <button title="Edit this account's details"
                                 className="btn btn-secondary"
@@ -218,7 +219,7 @@ function ChartAccounts() {
                 </div>
             }
 
-            {isAdmin && //Only Show Create Account if user is Admin
+            {role == "admin" && //Only Show Create Account if user is Admin
             <button title="Create a new Account"
                 className="btn-block btn btn-success btn-sm long" onClick={() => setCreatePopupShown(true)}
             >
