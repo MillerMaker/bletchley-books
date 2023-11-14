@@ -1,7 +1,7 @@
 import { getDocs, collection, where, query, Timestamp,} from 'firebase/firestore';
 import { useNavigate, useLocation } from "react-router"
 import { useState } from 'react';
-import { db} from '../firebase';
+import { TimeStampToDateString, db} from '../firebase';
 
 import backButton from "../assets/back_arrow_icon.png";
 import Header from '../components/Header'
@@ -87,8 +87,9 @@ function TrialBalance() {
             </div>
              <br></br>
             <div className = "main">
-                <h4> Trial Balance </h4>
-                <h6> As At November 13, 2023</h6>
+                <h2>{state.data.name}</h2>
+                <h4> Trial Balance Statement</h4>
+                <h6>{TimeStampToDateString(state.data.startDate)} to {TimeStampToDateString(state.data.endDate)}</h6>
             </div>
             <div className = "table-div">
                 <table className = "trial-balance-table">
