@@ -62,7 +62,7 @@ function FinancialStatements() {
         <h5> Trial Balance Statements </h5>
         {trialBalanceStatements.map((doc, index) => (
             <>
-            <li className="list-group-item" onClick={() => navigate('/private-outlet/trial-balance')}>{doc.data.name}</li>
+            <li className="list-group-item" onClick={() => navigate('/private-outlet/trial-balance' , { state: doc })}>{doc.data.name}</li>
             </>
         ))}
         <li className="list-group-item new-statement">New Statement</li>
