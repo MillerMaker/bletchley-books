@@ -216,7 +216,7 @@ function Ledger(props: Props) {
                                 <td> {}</td>
                                 <td> {journalDoc.data.transactions.map(((infoObj: { id: string, credit: number, debit: number }) => { 
                                         if (infoObj.id == props.toView.id) {
-                                            
+  
                                             return(
                                                 <> 
                                                 {Number(infoObj.debit).toFixed(2)}
@@ -250,7 +250,6 @@ function Ledger(props: Props) {
                                             let balance;
                                             //Don't recalculate this for every page reload
                                                 if(accountDoc.normalSide == 'credit') {
-
                                                     balance = balances[index] + infoObj.credit - infoObj.debit;
                                                     if (balances.length <= index + 1)
                                                     balances.push(balance);

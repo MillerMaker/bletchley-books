@@ -18,6 +18,14 @@
     text-decoration-line:underline;
     cursor:pointer;
 }
+.statement {
+    color:#675CFF;
+}
+.statement:hover {
+    color:#675CFF;
+    text-decoration-line:underline;
+    cursor:pointer;
+}
 
 
 .new-statement:hover {
