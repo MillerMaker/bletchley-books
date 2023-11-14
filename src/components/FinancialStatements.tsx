@@ -31,12 +31,17 @@ function FinancialStatements() {
     const [statementName, setStatementName] = useState("");
     const [startDate, setStartDate] = useState(Timestamp.now());
     const [endDate, setEndDate] = useState(Timestamp.now());
+    const [startYear, setStartYear] = useState(new Date(Date.now()).getFullYear());
+    const [endYear, setEndYear] = useState(new Date(Date.now()).getFullYear());
     const [showAlert, setShowAlert] = useState(false);
 
     function handleSubmit(e: { preventDefault: () => void; }) {
         e.preventDefault();
         //Handles submission of new Statement
-        addDocRandomID("statements", { startDate, endDate, name: statementName, type: createType });
+        if (createType != "retained")
+            addDocRandomID("statements", { startDate, endDate, name: statementName, type: createType });
+        else //Retained Docs have start and end Year rather than date must convert the years to dates
+            addDocRandomID("statements", { startDate: new Timestamp(new Date(startYear, 0, 1).getTime() / 1000, 0), endDate: new Timestamp(new Date(endYear, 0, 1).getTime() / 1000, 0), name: statementName, type: createType });
 
         //Get Data again
         setShowAlert(true);
@@ -121,7 +126,9 @@ function FinancialStatements() {
                     <li className="list-group-item statement" onClick={() => navigate('/private-outlet/retained-statement', { state: doc })}>{doc.data.name}</li>
                 </>
             ))}
-                <li className="list-group-item new-statement" onClick={() => { setCreateType("retained"); setShowCreateStatement(true); }}>New Statement</li>
+                <li className="list-group-item new-statement"
+                    onClick={() => {
+                        setCreateType("retained"); setShowCreateStatement(true);}} >New Statement</li>
             <br></br>
         </div>
     {balanceSheetPopupShown && 
@@ -146,21 +153,50 @@ function FinancialStatements() {
 
                     <br></br>
 
+                    {createType == "retained" && /* START/END YEAR INPUTS (ONLY FOR RETAINED EARNINGS) */<>
+                        <span>Start Year:</span>
+                        <input
+                        type="number"
+                        min={1970}
+                        max={9999}
+                        step={1}
+                        value={startYear}
+                        onChange={(e) => setStartYear(Number(e.target.value))}
+                        required
+                        />
+
+                        <br></br>
+
+                        <span>End Year:</span>
+                    <input
+                        type="number"
+                        min={1970}
+                        max={9999}
+                        step={1}
+                        value={endYear}
+                        onChange={(e) => setEndYear(Number(e.target.value))}
+                        required
+                        />
+                    </>}
+
+
+                    {createType != "retained" && /* START/END DATE INPUTS (FOR MOST STATEMENTS) */
+                    <> 
                     <span>Start Date:</span>
                     <input
                         type="date"
                         value={TimeStampToDateString(startDate)}
                         onChange={(e) => setStartDate(new Timestamp(e.target.valueAsNumber / 1000, 0))}
                     />
-
                     <br></br>
-
                     <span>End Date:</span>
                     <input
                         value={TimeStampToDateString(endDate)}
                         onChange={(e) => setEndDate(new Timestamp(e.target.valueAsNumber / 1000, 0))}
                         type="date"
                     />
+                    </>}
+
 
                     <br></br><br></br>
 

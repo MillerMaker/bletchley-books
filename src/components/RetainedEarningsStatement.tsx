@@ -11,41 +11,47 @@ import Year from "react-calendar/dist/cjs/DecadeView/Year";
 
 
 
-interface accountInfo {
-    accountData: any, accountID: string, balance: number
+interface transaction {
+    balance: number,
+    date: Timestamp,
+    accountID: string
 }
-async function GetAccountInfos(category: string, startDate: Timestamp, endDate: Timestamp): Promise<Array<accountInfo>> {
-    //Gets all account balances within a given account category and time range
-    //returns an array of account names and balances
+async function GetApplicableTransactions(category: string): Promise<Array<transaction>> {
+    //Gets all transactions that apply
+    //to the given account category
+    const transactions = new Array<transaction>;
+
+    const allJournals = await getDocs(collection(db, "journals"));
+
+    //Get all transactions into a list
+    allJournals.forEach((journal) => {
+        if (!journal.exists()) return;
+
+        journal.data().transactions.forEach((transaction: { debit: number, credit: number, id: string }) =>
+            transactions.push({ date: journal.data().date, balance: transaction.debit - transaction.credit, accountID: transaction.id }))
+    });
+
+    console.log("Num Trans:" + transactions.length)
 
 
-    const accountInfos = new Array<accountInfo>;
-
-    const queryResults = await getDocs(query(collection(db, "accounts"), where("category", "==", category)));
-
-    queryResults.forEach(async (account) => { if (account.exists()) accountInfos.push({ accountData: account.data(), accountID: account.id, balance: 0 }) });
-
-    for (const accountInfo of accountInfos) {
-
-        for (const journalID of accountInfo.accountData.journals) {
-            const journalDoc = await getDocAt("journals/" + journalID);
-            if (journalDoc.exists())
-                if (journalDoc.exists() && journalDoc.data().date.seconds >= startDate.seconds && journalDoc.data().date.seconds <= endDate.seconds)
-                    journalDoc.data().transactions.forEach((transaction: any) => {
-                        if (transaction.id == accountInfo.accountID)
-                            accountInfo.balance += (accountInfo.accountData.normalSide == "credit" ? -1 : 1) * (transaction.debit - transaction.credit);
-                    });
+    //Remove transactions that apply to other categories
+    for (let i = transactions.length-1; i >= 0; i--) {
+        const journalDoc = await getDocAt("accounts/" + transactions[i].accountID);
+        if (!journalDoc.exists() || journalDoc.data().category != category) {
+            transactions.splice(i, 1);
         }
-
     }
 
+    console.log("Total Applicable Trans:" + transactions.length)
 
-    return accountInfos;
+    return transactions;
 }
-function GetTotalBalance(accountInfos: Array<{ accountData: any, accountID: string, balance: number }>): number {
-    //Sums balances of a series of account infos
+function GetTotalBalance(transactions: Array<transaction>, startDate: Timestamp, endDate: Timestamp): number {
+    //Returns the total balance of all
+    //transactions that occured within the date range
+
     let total = 0;
-    accountInfos.forEach((a) => total += a.balance)
+    transactions.forEach((t) => { if (t.date >= startDate && t.date <= endDate) total += t.balance });
 
     return total;
 }
@@ -54,7 +60,7 @@ function GetTotalBalance(accountInfos: Array<{ accountData: any, accountID: stri
 
 
 function RetainedEarningsStatement() {
-    const [yearAccountInfos, setYearAccountInfos] = useState(Array<{ startBalance: number, changeBalance: number, endBalance: number }>);
+    const [yearlyEarnings, setYearlyEarnings] = useState(Array<{ startBalance: number, changeBalance: number, endBalance: number }>);
 
     const [requestedData, setRequestedData] = useState(false);
 
@@ -74,23 +80,26 @@ function RetainedEarningsStatement() {
 
     async function RetrieveData() {
         setRequestedData(true);
-        const yearAccountInfos = Array<{ startBalance: number, changeBalance: number, endBalance: number }>();
-        const zeroStamp = new Timestamp(0,0);
-        const startStamp = new Timestamp(state.data.startDate.seconds, 0);
-        const endStamp = new Timestamp(state.data.endDate.seconds, 0);
+        const yearlyEarnings = Array<{ startBalance: number, changeBalance: number, endBalance: number }>();
+
+        const zeroStamp = new Timestamp(0, 0);
+        const revenueTransactions = await GetApplicableTransactions("revenue");
+        const expenseTransactions = await GetApplicableTransactions("expense");
 
         for (let i = endYear; i >= startYear; i--) {
-            console.log(GetTotalBalance(await GetAccountInfos("asset", zeroStamp, startStamp)))
-            yearAccountInfos.push(
+
+            const startStamp = new Timestamp( new Date(i, 0, 1).getTime()/1000, 0);
+            const endStamp = new Timestamp(new Date(i+1, 0, 1).getTime()/1000, 0);
+
+            yearlyEarnings.push(
                 {
-                    startBalance: GetTotalBalance(await GetAccountInfos("asset", zeroStamp, startStamp)),
-                    changeBalance: GetTotalBalance(await GetAccountInfos("asset", startStamp, endStamp)),
-                    endBalance: GetTotalBalance(await GetAccountInfos("asset", zeroStamp, endStamp))
+                    startBalance:  GetTotalBalance(revenueTransactions, zeroStamp, startStamp) + GetTotalBalance(expenseTransactions, zeroStamp, startStamp),
+                    changeBalance: GetTotalBalance(revenueTransactions, startStamp, endStamp)  + GetTotalBalance(expenseTransactions, startStamp, endStamp),
+                    endBalance:    GetTotalBalance(revenueTransactions, zeroStamp, endStamp)   + GetTotalBalance(expenseTransactions, zeroStamp, endStamp)
                 });
         }
 
-        console.log("DONE");
-        setYearAccountInfos(yearAccountInfos);
+        setYearlyEarnings(yearlyEarnings);
     }
     if (!requestedData) RetrieveData();
 
@@ -118,7 +127,7 @@ function RetainedEarningsStatement() {
             <br></br>
             <h3>{state.data.name}</h3>
             <h4> Retained Earnings Statement</h4>
-            <h6>for {TimeStampToDateString(state.data.startDate)} : {TimeStampToDateString(state.data.endDate)}</h6>
+            <h6>for {startYear} - {endYear}</h6>
             <br></br>
             <table className="table">
                 <tbody>
@@ -128,16 +137,16 @@ function RetainedEarningsStatement() {
                     </tr>
                     <tr>
                         <th scope="row">Initial Balance</th>
-                        {yearAccountInfos.map((year) => <td id={String(year)}>{year.startBalance.toLocaleString()}</td>)}
+                        {yearlyEarnings.map((year) => <td id={String(year)}>{year.startBalance.toLocaleString()}</td>)}
                     </tr>
                     <tr>
                         <th scope="row">Net Income</th>
-                        {yearAccountInfos.map((year) => <td id={String(year)}>{year.changeBalance.toLocaleString()}</td>)}
+                        {yearlyEarnings.map((year) => <td id={String(year)}>{year.changeBalance.toLocaleString()}</td>)}
                         
                     </tr>
                     <tr>
                         <th scope="row">Retained Earnings</th>
-                        {yearAccountInfos.map((year) => <td id={String(year)}>{year.endBalance.toLocaleString()}</td>)}
+                        {yearlyEarnings.map((year) => <td id={String(year)}>{year.endBalance.toLocaleString()}</td>)}
                     </tr>
                 </tbody>
             </table>

@@ -34,7 +34,7 @@ async function GetAccountInfos(category: string, startDate: Timestamp, endDate: 
             if (journalDoc.exists() && journalDoc.data().date.seconds >= startDate.seconds && journalDoc.data().date.seconds <= endDate.seconds)
                 journalDoc.data().transactions.forEach((transaction: any) => {
                     if (transaction.id == accountInfo.accountID)
-                        accountInfo.balance += (accountInfo.accountData.normalSide == "credit" ? -1 : 1) * (transaction.debit - transaction.credit);
+                        accountInfo.balance += (accountInfo.accountData.normalSide == "credit" ? 1 : -1) * (transaction.debit - transaction.credit);
                 });
         }
 
@@ -69,7 +69,7 @@ function IncomeStatement() {
 
     async function RetrieveData() {
         setRequestedData(true);
-        setRevenueAccountInfos(await GetAccountInfos("asset", state.data.startDate, state.data.endDate));
+        setRevenueAccountInfos(await GetAccountInfos("revenue", state.data.startDate, state.data.endDate));
         setExpenseAccountInfos(await GetAccountInfos("expense", state.data.startDate, state.data.endDate));
     }
     if (!requestedData) RetrieveData();
