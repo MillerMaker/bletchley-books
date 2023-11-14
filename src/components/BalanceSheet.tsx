@@ -7,6 +7,7 @@ import backButton from "../assets/back_arrow_icon.png";
 import Header from '../components/Header'
 
 import "./BalanceSheet.css"
+import StatementHeader from './StatementHeader';
 
 function BalanceSheet() {
     const [requestedData, setRequestedData] = useState(false);
@@ -55,27 +56,9 @@ function BalanceSheet() {
 
   return (
     <div>
-        <Header title = "TrialBalance" homePath="/private-outlet/admin" ></Header>
-        <div className = "Banner">
-            <div className = "back"  onClick={() => navigate('/private-outlet/chart-of-accounts')}>
-                <img src = {backButton} className = "backIcon"/>
-                Back
-            </div>
-        </div>
-
-        <div className = "trial-balance-document">
-            <div className ="tools">
-                <svg onClick={() => setEmailPopupShown(true)} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-envelope" viewBox="0 0 16 16">
-                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
-                </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className ="bi bi-printer" viewBox="0 0 16 16">
-                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
-                </svg>
-            </div>
-                <h2>{state.data.name}</h2>
-                <h4>Balance Statement</h4>
-                <h6>{TimeStampToDateString(state.data.startDate)} to {TimeStampToDateString(state.data.endDate)}</h6>
+          <Header title="TrialBalance" homePath="/private-outlet/admin" ></Header>
+          <StatementHeader GetDocument={() => <></>}
+              body={<>
             <div className = "page-data">
                 <div>
                     <h4>Assets</h4>
@@ -163,7 +146,7 @@ function BalanceSheet() {
                     </table>
                 </div>
             </div>
-        </div>
+            </>} />
     </div>
   )
 }
