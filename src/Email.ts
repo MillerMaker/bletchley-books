@@ -21,7 +21,7 @@ export default function SendEmail( to_email: string, subject: string, body: stri
             (error) => { console.log(error.text); });
 }
 
-export function SendEmailWithAttatchment( to_email: string, subject: string, body: string, attatchment: any) {
+export function SendEmailWithLink(to_email: string, subject: string, body: string, link: string) {
     if (!sendEmails) {
         console.log("Emailing is Disabled! Enable it in Email.ts @ line: 3 \"const sendEmails = false;\"");
         return;
@@ -31,9 +31,10 @@ export function SendEmailWithAttatchment( to_email: string, subject: string, bod
         to_email: to_email,
         subject: subject,
         body: body,
+        link: link
     }
 
-    emailjs.send('service_80f8gkw', 'template_sdi19nb', emailObj, 'i-1jRU-M89bNtxz60')
+    emailjs.send('service_80f8gkw', 'template_bat376f', emailObj, 'i-1jRU-M89bNtxz60')
         .then((result) => { console.log("Email Result: " + result.text); },
             (error) => { console.log(error.text); });
 }
