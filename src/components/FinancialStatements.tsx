@@ -105,7 +105,7 @@ function FinancialStatements() {
                     <li className="list-group-item statement" onClick={() => navigate('/private-outlet/balance-sheet', { state: doc })}>{doc.data.name}</li>
                 </>
             ))}
-                <li className="list-group-item new-statement" onClick={() => {setBalanceSheetPopupShown(true)}} onClick={() => { setCreateType("balance"); setShowCreateStatement(true); }}>New Statement</li>
+                <li className="list-group-item new-statement" onClick={() => { setCreateType("balance"); setShowCreateStatement(true); }}>New Statement</li>
             <br></br>
             <h5> Income Statements </h5>
             {incomeStatements.map((doc, index) => (
