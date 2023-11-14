@@ -19,21 +19,22 @@ async function GetAccountInfos(category: string, startDate: Timestamp, endDate: 
     //returns an array of account names and balances
 
 
-    console.log(startDate);
+    //Get All Journal Docs into array
+    const journalDocs: Array<{ id: string, data: any }> = new Array();
+    (await getDocs(query(collection(db, "journals")))).forEach((doc) => { journalDocs.push({ id: doc.id, data: doc.data() }) });
 
+    //Get All Accounts of matching category into array
     const accountInfos = new Array<accountInfo>;
+    const accountDocs = await getDocs(query(collection(db, "accounts"), where("category", "==", category)));
 
-    const queryResults = await getDocs(query(collection(db, "accounts"), where("category", "==", category)));
+    accountDocs.forEach(async (account) => { if (account.exists()) accountInfos.push({ accountData: account.data(), accountID: account.id, balance: 0 }) });
 
-    queryResults.forEach(async (account) => { if (account.exists()) accountInfos.push({ accountData: account.data(), accountID: account.id, balance: 0 }) });
-
+    //Sum balances
     for (const accountInfo of accountInfos) {
-
         for (const journalID of accountInfo.accountData.journals) {
-            const journalDoc = await getDocAt("journals/" + journalID);
-            if (journalDoc.exists())
-            if (journalDoc.exists() && journalDoc.data().date.seconds >= startDate.seconds && journalDoc.data().date.seconds <= endDate.seconds)
-                journalDoc.data().transactions.forEach((transaction: any) => {
+            let i = journalDocs.findIndex((infoObj: { id: string, data: any }) => infoObj.id == journalID);
+            if (journalDocs[i].data.date.seconds >= startDate.seconds && journalDocs[i].data.date.seconds <= endDate.seconds)
+                journalDocs[i].data.transactions.forEach((transaction: any) => {
                     if (transaction.id == accountInfo.accountID)
                         accountInfo.balance += (accountInfo.accountData.normalSide == "credit" ? 1 : -1) * (transaction.debit - transaction.credit);
                 });

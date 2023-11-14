@@ -20,11 +20,10 @@ interface transaction {
 async function GetApplicableTransactions(category: string): Promise<Array<transaction>> {
     //Gets all transactions that apply
     //to the given account category
-    const transactions = new Array<transaction>;
-
-    const allJournals = await getDocs(collection(db, "journals"));
 
     //Get all transactions into a list
+    const transactions = new Array<transaction>;
+    const allJournals = await getDocs(collection(db, "journals"));
     allJournals.forEach((journal) => {
         if (!journal.exists()) return;
 
@@ -32,18 +31,17 @@ async function GetApplicableTransactions(category: string): Promise<Array<transa
             transactions.push({ date: journal.data().date, balance: transaction.debit - transaction.credit, accountID: transaction.id }))
     });
 
-    console.log("Num Trans:" + transactions.length)
 
+    //Get All Journal Docs into array
+    const accountDocs: Array<{ id: string, data: any }> = new Array();
+    (await getDocs(query(collection(db, "accounts")))).forEach((doc) => { accountDocs.push({ id: doc.id, data: doc.data() }) });
 
     //Remove transactions that apply to other categories
-    for (let i = transactions.length-1; i >= 0; i--) {
-        const journalDoc = await getDocAt("accounts/" + transactions[i].accountID);
-        if (!journalDoc.exists() || journalDoc.data().category != category) {
+    for (let i = transactions.length - 1; i >= 0; i--) {
+        let accountIndex = accountDocs.findIndex((infoObj: { id: string, data: any }) => infoObj.id == transactions[i].accountID);
+        if ( !(accountDocs[accountIndex].data.category != category))
             transactions.splice(i, 1);
-        }
     }
-
-    console.log("Total Applicable Trans:" + transactions.length)
 
     return transactions;
 }
@@ -77,7 +75,6 @@ function RetainedEarningsStatement() {
     for (let i = endYear; i >= startYear; i--)
         years.push(i);
 
-    console.log("Start: " + startYear + "    End: " + endYear);
 
     async function RetrieveData() {
         setRequestedData(true);
