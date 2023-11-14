@@ -186,8 +186,8 @@ function TrialBalance() {
              <br></br>
             <div ref = {componentRef}>
                 <div className = "main">
-                <h2>{state.data.name}</h2>
-                <h4> Trial Balance Statement</h4>
+                <h4>{state.data.name}</h4>
+                <h6> Trial Balance Statement</h6>
                 <h6>{TimeStampToDateString(state.data.startDate)} to {TimeStampToDateString(state.data.endDate)}</h6>
                 </div>
                 <div className = "table-div">
