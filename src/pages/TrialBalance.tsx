@@ -101,14 +101,14 @@ function TrialBalance() {
                         {accountDocs.map((doc, index) => (
                             <tr className = "dividers">
                             <td className ="name">{doc.data.name}</td>
-                            <td className = "debits" >{doc.data.debit}</td>
-                            <td>{doc.data.credit}</td>
+                            <td className = "debits" >{doc.data.debit.toLocaleString()}</td>
+                            <td>{doc.data.credit.toLocaleString()}</td>
                             </tr>
                         ))}
                         <tr>
-                            <td className = "name"> <b>Total</b></td>
-                            <td><b>{calculateDebits()}</b></td>
-                            <td><b>{calculateCredits()}</b></td>
+                            <td className="name"> <b>Total</b></td>
+                            <td><b>{calculateDebits().toLocaleString()}</b></td>
+                            <td><b>{calculateCredits().toLocaleString()}</b></td>
                         </tr>
                 </table>
             </div>

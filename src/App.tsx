@@ -17,6 +17,9 @@ import LedgerPage from './pages/LedgerPage'
 import HelpPage from './pages/HelpPage'
 import JournalPage from './pages/JournalPage'
 import TrialBalance from './pages/TrialBalance'
+import IncomeStatement from './components/IncomeStatement'
+import RetainedEarningsStatement from './components/RetainedEarningsStatement'
+import BalanceSheet from './components/BalanceSheet'
 
 const auth = getAuth();
 
@@ -47,6 +50,9 @@ const [token, setToken] = useState();
             <Route path='ledger' element={<LedgerPage />} />
             <Route path='journal' element={<JournalPage />} />
             <Route path='trial-balance' element={<TrialBalance />} />
+            <Route path='balance-sheet' element={<BalanceSheet />} />
+            <Route path='income-statement' element={<IncomeStatement />} />
+            <Route path='retained-statement' element={<RetainedEarningsStatement />} />
         </Route>
       </Routes>
       </main>

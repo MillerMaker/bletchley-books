@@ -1,0 +1,36 @@
+.main {
+    align-items:center;
+    justify-content: center;
+}
+
+.tools {
+    text-align: right;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    column-gap: 5px;
+}
+
+.tools :hover {
+    text-align: right;
+    color:#6b6b6b;
+}
+
+.trial-balance-document{
+    width:fit-content;
+    height:fit-content;
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    margin-left:auto;
+    margin-right:auto;
+    border: solid #dddddd;
+    border-width: 1px 1px 1px 1px;
+ }
+
+.page-data {
+    display:flex;
+    flex-direction: row;
+    column-gap: 20px;
+}
