@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import { UserDoc, db, toUserDocArray } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import SendEmail from '../Email';
+import SendEmail, {SendEmailWithLink} from '../Email';
 
-function EmailUserList() {
+interface Props {
+    hasAttatchment: boolean;
+    AdditionalText: string
+}
+
+
+function EmailUserList(props: Props) {
     const [userDocs, setUserDocs] = useState(Array<UserDoc>);
     const [requestedData, setRequestedData] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -33,6 +39,16 @@ function EmailUserList() {
 
         console.log("Request to send email to: " + userDocs[selectedIndex].userData.email);
         SendEmail( userDocs[selectedIndex].userData.email,emailSubjectValue,emailTextValue)
+    }
+
+    function HandleEmailRequestWithLink() {
+        if (emailSubjectValue == "" || emailTextValue == "") {
+            setInvalidEmailFormat(true);
+            return;
+        }
+
+        console.log("Request to send email to: " + userDocs[selectedIndex].userData.email);
+        SendEmailWithLink( userDocs[selectedIndex].userData.email,emailSubjectValue,emailTextValue, props.AdditionalText)
     }
 
     return (
@@ -66,7 +82,7 @@ function EmailUserList() {
                     )}
                 </tbody>
             </table>}
-            {selectedIndex != -1 && 
+            {selectedIndex != -1 && !props.hasAttatchment &&
             <>
                 <h3>Email {userDocs[selectedIndex].userData.email}</h3>
                 <form>
@@ -89,6 +105,32 @@ function EmailUserList() {
                 </form>
                 {invalidEmailFormat && <h5>Invalid Email Format</h5>}
                 <button className='btn btn-success' onClick={() => {HandleEmailRequest()}}>Send</button>
+                <button className='btn btn-primary' onClick={() => {setSelectedIndex(-1)}}>Back</button>
+            </>
+            }
+            {selectedIndex != -1 && props.hasAttatchment &&
+            <>
+                <h3>Email {userDocs[selectedIndex].userData.email}</h3>
+                <form>
+                    <div className="form-group">
+                        <input
+                            placeholder="Subject..."
+                            className="form-control"
+                            value={emailSubjectValue}
+                            onChange={(e) => setEmailSubjectValue(e.target.value)}
+                        >
+                        </input>
+                            <textarea
+                                value={emailTextValue}
+                                onChange={(event) => setEmailTextValue(event.target.value)}
+                                className="form-control no-resize" rows={3}
+                                placeholder= {"Message: (i.e: enclosed is the link to the report) "}
+                            >
+                            </textarea>
+                        </div>
+                </form>
+                {invalidEmailFormat && <h5>Invalid Email Format</h5>}
+                <button className='btn btn-success' onClick={() => {HandleEmailRequestWithLink()}}>Send</button>
                 <button className='btn btn-primary' onClick={() => {setSelectedIndex(-1)}}>Back</button>
             </>
             }

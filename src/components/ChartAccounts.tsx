@@ -246,7 +246,7 @@ function ChartAccounts() {
             {emailPopupShown && 
                 <CustomPopup child={
                     <>
-                        <EmailUserList />
+                        <EmailUserList hasAttatchment = {false} AdditionalText = "" />
                         <button className="btn btn-primary btn-danger" onClick={() => {setEmailPopupShown(false)}}>Cancel</button>
                     </>
             } />
