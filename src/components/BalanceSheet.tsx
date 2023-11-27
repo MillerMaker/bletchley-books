@@ -43,10 +43,10 @@ function BalanceSheet() {
                 assets = assets + ( doc.data().initialBalance - doc.data().credit + doc.data().debit);
             } else if (doc.data().category == 'liability') {
                 liabilityAcc.push({ id: doc.id, data: doc.data() });
-                liabilities = liabilities + ( doc.data().initialBalance + doc.data().credit + doc.data().debit);
+                liabilities = liabilities + ( doc.data().initialBalance + doc.data().credit - doc.data().debit);
             }else if (doc.data().category == 'equity') {
                 equityAcc.push({ id: doc.id, data: doc.data() });
-                equity = equity + (doc.data().initialBalance + doc.data().credit + doc.data().debit);
+                equity = equity + (doc.data().initialBalance + doc.data().credit - doc.data().debit);
             } else {
                 console.log("Something went wrong getting the financial statements");
             }
@@ -88,7 +88,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.initialBalance + account.data.credit + account.data.debit}
+                                    ${account.data.initialBalance - account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
@@ -115,7 +115,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.initialBalance + account.data.credit + account.data.debit}
+                                    ${account.data.initialBalance + account.data.credit - account.data.debit}
                                 </td>
                             </tr>
                         ))}
