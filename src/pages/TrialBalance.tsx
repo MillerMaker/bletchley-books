@@ -51,7 +51,7 @@ function TrialBalance() {
             const t2 = new Timestamp(state.data.endDate.seconds, state.data.endDate.nanoseconds).toDate().getTime(); 
             const journalTime = journalDoc.data().date.toDate().getTime();
             //check if journal entry is within specified date range. 
-            if (t1 <= journalTime && t2 >= journalTime) {
+            if (t1 <= journalTime && t2 >= journalTime && journalDoc.data().status == "approved") {
                 const transactions = journalDoc.data().transactions;
                 //for each transaction, get the associated account, and add the credits and debits
                 transactions.map(((trans: { id: string, credit: number, debit: number }) => { 

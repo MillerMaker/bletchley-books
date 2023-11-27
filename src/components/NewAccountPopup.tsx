@@ -21,13 +21,15 @@ function NewAccountPopup(props: Props) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        normalSide: 'debit',
+        normalSide: props.toEdit.data.normalSide,
         category: 'asset',
         subcategory:   '',
         initialBalance: 0,
         order: 0,
         statement: '',
         comment: '',
+        debit: 0,
+        credit: 0,
 
     });
 
@@ -102,8 +104,8 @@ function NewAccountPopup(props: Props) {
             comment: formData.comment,
 
             active: true,
-            debit:  0,
-            credit: 0,
+            debit:  formData.debit,
+            credit: formData.credit,
             userID: authUserDoc.id,
             date: Timestamp.now(),
         }
