@@ -32,7 +32,7 @@ function Header(props: Props) {
                     src={logoImage}
                     alt="Home"
                     className="logo"
-                    onClick={() => navigate(props.homePath)}
+                    onClick={() => navigate("/private-outlet/dashboard")}
                 />  
             </div>
             <div className = "col-sm">
