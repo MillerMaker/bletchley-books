@@ -21,7 +21,7 @@ function NewAccountPopup(props: Props) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        normalSide: props.toEdit.data.normalSide,
+        normalSide: 'debit',
         category: 'asset',
         subcategory:   '',
         initialBalance: 0,

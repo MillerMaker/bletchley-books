@@ -33,20 +33,28 @@ function BalanceSheet() {
         let liabilityAcc: Array<{ id: string, data: any }> = new Array();
         let assetAcc: Array<{ id: string, data: any }> = new Array();
 
+        let assets = 0;
+        let liabilities = 0;
+        let equity =  0;
+
         queryResult.forEach((doc) => {
             if (doc.data().category == 'asset') {
                 assetAcc.push({ id: doc.id, data: doc.data() });
-                setTotalAsset(totalAsset + (doc.data().credit + doc.data().debit));
+                assets = assets + ( doc.data().initialBalance - doc.data().credit + doc.data().debit);
             } else if (doc.data().category == 'liability') {
                 liabilityAcc.push({ id: doc.id, data: doc.data() });
-                setTotalLiability(totalLiability + (doc.data().credit + doc.data().debit));
+                liabilities = liabilities + ( doc.data().initialBalance + doc.data().credit + doc.data().debit);
             }else if (doc.data().category == 'equity') {
                 equityAcc.push({ id: doc.id, data: doc.data() });
-                setTotalEquity(totalEquity + (doc.data().credit + doc.data().debit));
+                equity = equity + (doc.data().initialBalance + doc.data().credit + doc.data().debit);
             } else {
                 console.log("Something went wrong getting the financial statements");
             }
         })
+
+        setTotalAsset(assets)
+        setTotalLiability(liabilities)
+        setTotalEquity(equity)
         setAssetAccounts(assetAcc);
         setEquityAccounts(equityAcc);
         setLiabilityAccounts(liabilityAcc);
@@ -58,7 +66,11 @@ function BalanceSheet() {
     <div>
           <Header title="TrialBalance" homePath="/private-outlet/admin" ></Header>
           <StatementHeader GetDocument={() => <></>}
-              body={<>
+            body={<>
+                <div className = "main">
+                <h4>{state.data.name}</h4>
+                <h6> Balance Sheet </h6>
+                </div>
             <div className = "page-data">
                 <div>
                     <h4>Assets</h4>
@@ -76,7 +88,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.credit + account.data.debit}
+                                    ${account.data.initialBalance + account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
@@ -103,7 +115,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.credit + account.data.debit}
+                                    ${account.data.initialBalance + account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
@@ -128,7 +140,7 @@ function BalanceSheet() {
                                     {account.data.name}
                                 </td>
                                 <td>
-                                    ${account.data.credit + account.data.debit}
+                                    ${account.data.initialBalance + account.data.credit + account.data.debit}
                                 </td>
                             </tr>
                         ))}
