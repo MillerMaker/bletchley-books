@@ -70,9 +70,40 @@ function ChartAccounts() {
         queryResult.forEach((doc) => {
             allAccountDocs.push({ id : doc.id,  data : doc.data() });
         })
-
-        setAccountDocs(allAccountDocs);
+        setAccountDocs(sortAccounts(allAccountDocs, 0, allAccountDocs.length-1));
     }
+
+    function sortAccounts(docs: Array<{ id: string, data: any }> , start : number, end : number) {
+        //if the index is less than or equal to the start index, that's our base case. 
+        if ( end <= start) return docs;
+        let pivot = partition(docs, start, end);
+        sortAccounts(docs, start, pivot - 1);
+        sortAccounts(docs, pivot + 1, end);
+        return docs
+    }
+
+    function partition(docs: Array<{ id: string, data: any }> , start : number, end : number) {
+        let pivot = docs[end];
+        let i = start -1 ;
+
+        //increment through the array, and find the location of the first pivot
+        for (let j = start; j <= end - 1; j++) {
+            //if the doc at j is less than pivot, swap the items
+            if(docs[j].data.number < pivot.data.number) {
+                i ++;
+                let temp = docs[i];
+                docs[i] = docs[j];
+                docs[j] = temp;
+            }
+        }
+        i++;
+        let temp = docs[i];
+        docs[i] = docs[end];
+        docs[end] = temp;
+        return i;
+    
+    }
+
     if (!requestedData)
         GetData();
 
