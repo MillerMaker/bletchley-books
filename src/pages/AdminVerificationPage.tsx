@@ -5,6 +5,7 @@ import RolePopup from '../components/RolePopup';
 import ConfirmPopup from '../components/ConfirmPopup';
 import { UserDoc, db, deleteDocAt, saveDocAt, toUserDocArray } from '../firebase';
 import SendEmail from '../Email';
+import { useLocation } from 'react-router-dom';
 
 
 function AdminVerificationPage() {
@@ -16,11 +17,23 @@ function AdminVerificationPage() {
     const [showRoleSelection, setShowRoleSelection] = useState(false);
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
 
-
+    //Get Selected Index from other Page
+    const { state } = useLocation();
 
     //Retrieve user data of unverified users
     async function UpdateUserDocs() {
         const queryResults = await getDocs(query(collection(db, "users"), where("verified", "==", false)));
+
+        //Set Selected index to passed in state
+        let foundIndex = -1;
+        let i = -1;
+        queryResults.forEach((doc) => {
+            i++;
+            if (doc.id == state)
+                foundIndex = i;
+        });
+        setSelectedIndex(foundIndex);
+
         setUserDocs(toUserDocArray(queryResults));
     }
     /* Request User Docs Once */
