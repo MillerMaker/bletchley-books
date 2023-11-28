@@ -39,6 +39,7 @@ function FinancialRatios() {
         let equityAcc: Array<{ id: string, data: any }> = new Array();
         let liabilityAcc: Array<{ id: string, data: any }> = new Array();
         let assetAcc: Array<{ id: string, data: any }> = new Array();
+        let accounts: Array<{id: string, data: any}> = new Array();
 
         /* GET JOURNAL ENTRIES */
         let journalDocs = query(collection(db, "journals"));
@@ -61,21 +62,38 @@ function FinancialRatios() {
             } else {
                 console.log("Something went wrong getting the financial statements");
             }
+            accounts.push({id: doc.id, data: doc.data()});
         })
 
+        setAccountDocs(accounts);
         setTotalAsset(assets)
         setTotalLiability(liabilities)
         setTotalEquity(equity)
 
-        calculateRatios(assets, liabilities, equity)
-        setAccountDocs(accountDocs);
+        calculateRatios(assets, liabilities, equity, accounts)
 
     }
 
-    function calculateRatios(assets: number, liabilities: number , equity : number) {
+    if (!requestedData) {
+        GetData();
+    }
+
+    async function getCashRatio(accounts: Array<{id: string, data: any}>, liabilities: number){
+        let cashTotal = 0;
+        accounts.forEach((doc) => {
+            if(doc.data.name == "Marketable Securities" || doc.data.name == "Cash")
+            {
+                cashTotal = cashTotal + doc.data.credit + doc.data.debit;
+            }
+        })
+        setCashRatio(cashTotal / liabilities);
+    }
+
+    function calculateRatios(assets: number, liabilities: number , equity : number, accounts: Array<{id: string, data: any}>) {
         /*Current Ratio = Current Assets/Current Liabilities */
         setCurrentRatio(assets/liabilities)
         /*Cash Ratio = (Cash + Marketable Securities)/(Current Liabilities) */
+        getCashRatio(accounts, liabilities);
         /*Receivables Turnover = (Annual Credit Sales)/(Accounts Recivable) */
         /*Inventory Turnover = (Cost of Goods Sold)/(Average Inventory) */
         /*Debt Ratio = (Total Debt)/(Total Assets) */
@@ -85,9 +103,7 @@ function FinancialRatios() {
     }
 
     
-    if (!requestedData) {
-        GetData();
-    }
+
     /*uncomment this line to see the pdf*/
     //ReactDOM.render(MyDocument(), document.getElementById('root'));
     return (
@@ -107,7 +123,7 @@ function FinancialRatios() {
                                 </tr>
                                 <tr>
                                     <td className ="name">Cash Ratio</td>
-                                    <td className = "debits" ></td>
+                                    <td className = {currentRatio > 2 ? 'warning' : currentRatio < 1? 'danger' : "normal" } >{cashRatio.toLocaleString()}</td>
                                 </tr>
                                 <br></br>
                                 <tr className = "dividers">
