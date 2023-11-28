@@ -111,7 +111,9 @@ function FinancialRatios() {
         /*Cash Ratio = (Cash + Marketable Securities)/(Current Liabilities) */
         getCashRatio(accounts, liabilities);
         /*Receivables Turnover = (Annual Credit Sales)/(Accounts Recivable) */
+        setRecievablesTurnover(sales / receivable);
         /*Inventory Turnover = (Cost of Goods Sold)/(Average Inventory) */
+        setInventoryTurnover(costOfGoods / inventory);
         /*Debt Ratio = (Total Debt)/(Total Assets) */
         setDebtRatio(liabilities / assets);
         /*Debt-To-Equity Ratio = (Total Debt)/(Total Assets) */
