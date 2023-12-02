@@ -70,8 +70,10 @@ function ShowNavBar () {
             Admin Home
       </div>
       }
- </>
+    </>
     )
+  } else {
+    return (<></>)
   }
 }
 function ShowUsername() {
